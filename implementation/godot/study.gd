@@ -4,6 +4,7 @@ const Presence = preload("res://presence.gd")
 const LightScene = preload("res://light_scene.gd")
 const ResizePolicy = preload("res://resize_policy.gd")
 const SettingsWindow = preload("res://settings_window.gd")
+const DisplaySizing = preload("res://display_sizing.gd")
 var _model := Presence.new(0x5eed1234)
 var _visual := LightScene.new()
 var _elapsed := 0.0
@@ -15,6 +16,8 @@ const REFERENCE_TIME := 17.3
 var _capturing := false
 var _sample_usec := 0
 var _queue_usec := 0
+var _samples := 0
+var _last_sample_usec := 0
 var _smoke_phase := "starting"
 var _smoke_started_usec := 0
 var _backing := StyleBoxFlat.new()
@@ -22,12 +25,17 @@ var _face_rect := Rect2(8,8,180,230)
 var _backing_rect := Rect2(8,8,180,230)
 var _settings: SettingsWindow
 var _reduced_motion := false
-var _stay_above := false
+var _stay_above := true
 var _press_pending := false
 var _press_position := Vector2.ZERO
+var _display_id := -1
+var _display_area := Rect2i()
+var _display_height_fraction := DisplaySizing.DEFAULT_HEIGHT_FRACTION
+var _applying_display_size := false
 
 func _ready() -> void:
-	Engine.max_fps = 12
+	# Window interaction must not inherit the intentionally quiet light-update rate.
+	Engine.max_fps = 60
 	get_viewport().transparent_bg = true
 	get_viewport().gui_embed_subwindows = false
 	_smoke = OS.get_cmdline_user_args().has("--briar-smoke")
@@ -37,6 +45,9 @@ func _ready() -> void:
 		_visual.free()
 		get_tree().quit(2)
 		return
+	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
+	get_window().content_scale_factor = 1.0
+	get_window().always_on_top = _stay_above
 	_instanced = OS.get_cmdline_user_args().has("--instanced-study")
 	if _instanced:
 		_visual.free()
@@ -51,10 +62,11 @@ func _ready() -> void:
 	_backing.shadow_size = 6
 	add_child(_visual)
 	get_viewport().size_changed.connect(_layout)
+	_sync_display()
 	_layout()
 	get_window().title = "Briar · corner-resize study"
 	await RenderingServer.frame_post_draw
-	print(JSON.stringify({"type":"godot-study-ready","pid":OS.get_process_id(),"displayServer":DisplayServer.get_name(),"syntheticOnly":true,"studyOnly":true,"resizable":not get_window().unresizable,"visibleResizeControls":false}))
+	print(JSON.stringify({"type":"godot-study-ready","pid":OS.get_process_id(),"displayServer":DisplayServer.get_name(),"syntheticOnly":true,"studyOnly":true,"resizable":not get_window().unresizable,"visibleResizeControls":false,"alwaysOnTop":get_window().always_on_top,"screen":_display_id,"usableDisplaySize":[_display_area.size.x,_display_area.size.y],"windowSize":[get_window().size.x,get_window().size.y],"faceSize":[_face_rect.size.x,_face_rect.size.y],"relativeHeight":_display_height_fraction}))
 
 func _smoke_watchdog() -> void:
 	if _smoke_phase == "capture-complete":
@@ -69,18 +81,42 @@ func _layout() -> void:
 	var size := get_viewport_rect().size
 	_backing_rect = ResizePolicy.backing_rect(size)
 	_face_rect = ResizePolicy.face_rect(size)
+	if not _applying_display_size and get_window().current_screen == _display_id and _display_area.size.y > 0:
+		# Remember actual face size, even if the user made the backing wider/taller.
+		_display_height_fraction = (_face_rect.size.y+DisplaySizing.GUTTER)/float(_display_area.size.y)
 	_visual.position = _face_rect.position
-	_backing.set_corner_radius_all(int(minf(48.0,minf(_backing_rect.size.x,_backing_rect.size.y)*.27)))
+	if not _visual._scene.is_empty():
+		_visual.set_scene(_visual._scene,_face_rect.size,1.6,1.2)
+	_backing.set_corner_radius_all(int(minf(_backing_rect.size.x,_backing_rect.size.y)*.27))
 	queue_redraw()
+
+func _sync_display() -> void:
+	var display := get_window().current_screen
+	var area := DisplayServer.screen_get_usable_rect(display)
+	if area.size.x <= 0 or area.size.y <= 0 or (display == _display_id and area == _display_area):
+		return
+	_applying_display_size = true
+	_display_id = display
+	_display_area = area
+	get_window().size = DisplaySizing.window_size(area.size,_display_height_fraction)
+	get_window().position = DisplaySizing.fit_position(get_window().position,get_window().size,area)
+	_layout()
+	_applying_display_size = false
 
 func _process(_delta: float) -> void:
 	if _capturing or get_window().mode == Window.MODE_MINIMIZED:
 		return
+	_frames += 1
+	var now := Time.get_ticks_usec()
+	if now-_last_sample_usec < 83333 and not _visual._scene.is_empty():
+		return
+	_last_sample_usec = now
+	_sync_display()
 	# Godot clamps frame deltas under load. Use real elapsed time so slow frames
 	# do not also slow the portable model's animation timeline.
 	_elapsed = float(Time.get_ticks_usec()-_smoke_started_usec)/1000000.0
-	_frames += 1
-	if _frames == 1:
+	_samples += 1
+	if _samples == 1:
 		_smoke_phase = "animating"
 		if _smoke:
 			print(JSON.stringify({"type":"godot-smoke-phase","phase":_smoke_phase,"windowMode":get_window().mode}))
@@ -101,11 +137,17 @@ func _process(_delta: float) -> void:
 		var artifact_name := "godot-instanced-study" if _instanced else "godot-study"
 		if _reference_frame:
 			artifact_name += "-reference"
-		var output := ProjectSettings.globalize_path("res://").path_join("../test-artifacts/"+artifact_name+".png").simplify_path()
+		var output_directory := OS.get_environment("BRIAR_PRESENCE_TEST_OUTPUT")
+		if output_directory.is_empty():
+			output_directory = ProjectSettings.globalize_path("res://").path_join("../test-artifacts").simplify_path()
+		var output := output_directory.path_join(artifact_name+".png")
 		var error := image.save_png(output)
-		var passed := _frames >= 12 and image.get_pixel(0,0).a == 0.0 and error == OK
+		var passed := _visual.draw_count >= 12 and image.get_pixel(0,0).a == 0.0 and error == OK
 		var result := {"type":"godot-render-smoke","passed":passed,"frames":_frames,"elapsed":_elapsed,"wallSeconds":float(Time.get_ticks_usec()-_smoke_started_usec)/1000000.0,"displayServer":DisplayServer.get_name(),"transparentCorner":image.get_pixel(0,0).a == 0.0,"image":output,"meanModelUsec":float(_sample_usec)/_frames,"meanQueueUsec":float(_queue_usec)/_frames,"meanDrawCommandUsec":float(_visual.draw_usec_total)/maxi(1,_visual.draw_count),"drawCommandFrames":_visual.draw_count,"studySha256":FileAccess.get_sha256("res://study.gd"),"rendererSha256":FileAccess.get_sha256("res://light_scene.gd"),"scope":"Finite own-viewport rendering and script timings only; not GPU time, native dragging, focus continuity, full resource accounting or host acceptance."}
 		result["renderer"] = "instanced" if _instanced else "circle"
+		result["modelSamples"] = _samples
+		result["meanModelUsec"] = float(_sample_usec)/maxi(1,_samples)
+		result["meanQueueUsec"] = float(_queue_usec)/maxi(1,_samples)
 		result["referenceFrame"] = _reference_frame
 		result["sampleTime"] = scene_time
 		if _instanced:

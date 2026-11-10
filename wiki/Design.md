@@ -17,10 +17,32 @@ Supportive and unobtrusive throughout. Keep design intentions separate from impl
   should distinguish the area against the desktop without becoming a harsh card.
 - Controls appear on request after clicking the image. They must not replace the
   face with a black panel. Moving the image should be easy from that interaction.
+  Settings text, switches and spacing must scale for the display too. Alex
+  explicitly requested no native title bar: use a rounded borderless panel,
+  retain Done/Escape/keyboard access, and allow movement by dragging its heading.
+  Keep focused labels readable against the pale backing.
 - Resize by dragging a corner directly. No resize button, visible grip, panel
   or persistent control. The ordinary diagonal cursor may appear on corner
   hover. Preserve the face's proportions as the display changes size. This is
   Alex's explicit clarification; it is not permission to switch the desktop host.
+- Initial size must suit the display, not stay at a fixed small pixel size.
+  The Godot candidate starts at 30% of the current usable display height and
+  preserves the face proportions and proportional rounded backing. A manual
+  corner resize is retained as a relative face size when changing display;
+  fit limits keep the window within the destination display. Do not multiply
+  display scaling/DPI again on top of usable desktop coordinates.
+- Alex requested stay-on-top as the default for the Godot candidate. Keep the
+  settings/keyboard toggle so the user can turn it off. This is an ordinary
+  application-window request, not permission to bypass compositor security or
+  appear over system dialogs/full-screen surfaces.
+- Enlarging must retain fidelity: redraw the vector lights into a framebuffer
+  matching the window and scale the glow's source resolution with its drawn
+  extent. Do not stretch a fixed small render target. Retain the existing
+  light layout and motion; subjective quality and compositor scaling still
+  need checking on the user's display.
+- Resizing must remain visually steady. Window redraws must not wait for the
+  slower, quiet animation-sampling cadence. Real compositor corner-drag comfort
+  needs checking as well as rendered-frame tests.
 - Stronger need for attention should be expressed through faster movement and
   stronger colour. Red transitions are a direction to investigate, not a final
   alarm system or permission to escalate automatically.

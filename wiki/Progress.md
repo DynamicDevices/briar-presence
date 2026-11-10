@@ -17,6 +17,7 @@
 | Corner resizing | Godot study now routes corner presses to native resize, with cursor-only hover and aspect-preserving content; four layout/edge policy tests pass | Actual pointer/compositor resizing needs checking. Electron documents transparent windows as non-resizable, so the existing overlay has not been changed or given a fake resize control |
 | Attention | Research and alternatives documented | No graded attention rates or cycling red alert have been adopted or implemented |
 | Packaging | Updated standalone Linux candidate `334edbb305440da7` is staged under the user-level releases directory; packaged and staged native smoke tests pass; installer conflict/recovery and verified rollback tests pass | Default launcher switch, review and human desktop acceptance remain open |
+| Godot standalone candidate | Local bundle `godot-0810e6a3f0bd915b` runs from `/tmp` without Node/npm or the checkout at runtime; byte manifest verifies unchanged after running | Not installed or publicly released. Full standard engine, about 140 MiB on disk; review and desktop/visual acceptance remain open. Existing installer is Electron-specific |
 | Resource use | One 3-second current-preview sample: 353.7 MiB proportional memory and 13% of one core across six app processes | Not an idle/battery result or accepted footprint; Electron remains provisional |
 | Development dependencies | Electron/Packager are pinned; patched glob/minimatch overrides; latest npm audit reports zero known vulnerabilities | An audit is not a complete security review or release gate |
 
@@ -25,7 +26,96 @@ cross-platform acceptance or proof that all desktop compositors honour the API.
 There is no live harness connection, telemetry, auto-start, screen-wide capture,
 microphone/camera access, monitoring service, hardware implementation or VR client.
 
+### Standalone Godot candidate (local, not installed)
+
+Run `node scripts/package-godot.mjs` from `implementation/` with the pinned
+engine and matching licence, copyright and author notices already present.
+The builder downloads nothing, exports an app-only PCK through Godot's standard
+exporter, and bundles the unmodified verified engine, shell launcher, source and
+GPL/upstream notices. It builds in a separate workspace and excludes test scripts
+from the runtime pack. Existing candidate paths are preserved, not overwritten.
+
+Current local bundle: `implementation/dist/godot-0810e6a3f0bd915b`.
+Run its `briar-presence` executable without Node, npm, a server or the checkout.
+It still requires Linux x86_64 system graphics/window libraries. This uses the
+full standard engine, not a minimal export-template build: 146,681,991
+manifest-listed bytes, approximately 140 MiB. The manifest checks inventory,
+bytes and executable bits; it is not an authority signature or sandbox.
+
+The bundle ran from `/tmp`, completed 34 light draws / 115 process frames in
+3.222 seconds, retained transparent corners, display-relative sizing and the
+stay-above request, and exited cleanly. Rendered host/renderer hashes match the
+included source. All 34 bundled files verified unchanged after running. Runtime
+and smoke output were redirected outside the bundle into project-owned paths.
+Native evidence: `implementation/test-artifacts/godot-packaged-0810e6a3f0bd915b/`.
+Build receipt: `implementation/test-artifacts/godot-package-build.log`.
+The bundle's `PACKAGE-MANIFEST.json` records its source digest.
+
+Normal runs use the user's Briar data directory or `BRIAR_PRESENCE_RUNTIME`;
+keep that outside the bundle. No launcher, desktop entry, startup setting or
+network service is installed. The current interactive study was not replaced.
+Default installation still needs Alex's acceptance and required review and
+integration gates. The Electron-specific installer cannot install this format.
+
 ### Godot quiet controls (candidate only)
+
+Latest interaction revision, following Alex's resize-flashing report and dialog
+screenshot: presentation is capped at 60 Hz independently of the model's
+approximately 12 Hz maximum sampling cadence. Resize events immediately redraw
+the existing normalized scene at its new dimensions. A 16-step programmatic
+native resize test passed with backing coverage and current light geometry at
+every captured frame; this cannot prove the compositor never flashes during a
+real pointer drag. Evidence: `implementation/test-artifacts/godot-resize-redraw.json`
+and `godot-resize-redraw.log` in the same directory. No backend/session changes
+or alternate light layout were introduced.
+
+Settings now scale their text, vector switch artwork, margins and buttons from
+the display's usable height, bounded to fit the screen. On this display the
+native panel is about 868 × 650 at scale 2.167, rather than 360 × 320. It is
+borderless, transparent at its rounded corners, and movable by dragging the
+heading. Placement prefers a non-overlapping side and is clamped to the display.
+Focused check-button text stays dark; the screenshot's disappearing label is
+corrected. The updated native controls test passes with a clean engine log and
+a fresh app-only panel capture. X11 rejected an independently stay-above child
+that was also transient; the child now follows its parent without that redundant
+flag. Actual window placement and human corner-drag smoothness still need checking.
+
+Alex subsequently requested stay-on-top and better fidelity when enlarged.
+The Godot candidate now defaults to stay-above, while retaining the toggle.
+The native controls test passes for the default and both toggle directions;
+actual compositor stacking remains a human check. The previous study had
+already closed when checked; the updated interactive candidate was then opened
+and reached its first draw with `alwaysOnTop: true`. The Electron launcher was
+not changed.
+
+The resize diagnostic showed that the framebuffer already followed window
+size, but the glow texture stayed fixed at 128 × 128. The renderer now grows
+that texture in powers of two to cover the largest glow extent and reuses it
+on shrink. Native-size rendering is explicit; the original vector circles,
+scene layout and animation are unchanged. Native tests pass at 400 × 520 and
+960 × 1240 with matching framebuffer sizes and sufficiently resolved glow
+textures (256 × 512 and 512 × 1024 in this run). This verifies resource sizing,
+not subjective image quality or physical-pixel scaling by XWayland/compositor.
+Evidence: `implementation/test-artifacts/godot-resize-fidelity.json`,
+`godot-fidelity-native.log` and `godot-fidelity-400.png` / `godot-fidelity-960.png`
+in the same directory. The enlarged result still needs Alex's visual check.
+
+Following Alex's feedback that the fixed study was too small, initial sizing now
+uses 30% of the current display's usable height. On the tested 3606 × 2340 usable
+display, the native study opened at 554 × 702, with a roughly 537 × 686 face,
+rather than the old 196 × 246 window. The face and rounded backing keep their
+proportions. Runtime display-area changes trigger resizing, preserving the
+user's manually chosen relative face height and keeping the window in bounds.
+There is no extra size control and no second DPI multiplier. These are
+session-only adjustments, not saved preferences.
+
+The pure sizing policy passes six display cases, including high-resolution,
+portrait, small screens and negative monitor coordinates. The native smoke
+passed 38 frames with a transparent corner on the actual reported display.
+Actual movement between monitors and perceived physical size remain human
+checks. Evidence: `implementation/godot/display_sizing_test.gd`,
+`implementation/test-artifacts/godot-display-sizing.log` and
+`implementation/test-artifacts/godot-display-native.log`.
 
 To launch the updated candidate without changing the installed default, run
 `npm run start:godot` from the repository's `implementation/` directory. The
@@ -148,7 +238,7 @@ Local evidence: `godot-study-reference.png`,
 the difference image amplifies RGB differences fourfold. Concurrent captures
 are for image comparison, not a matched performance measurement.
 
-Latest integrated check: all 20 JavaScript tests pass, including reference export,
+Latest integrated check: all 23 JavaScript tests pass, including Godot launcher/manifest checks, reference export,
 rollback, preservation and cache invalidation. The standalone app rendered 19 → 44 frames while
 unfocused in its finite Wayland test, retained sandboxing, and restored its
 quiet view after closing settings. Test evidence is in

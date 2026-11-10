@@ -26,6 +26,18 @@ func set_scene(value: Dictionary, view_size: Vector2, point_scale: float = 1.0, 
 	_view_size = view_size
 	_point_scale = point_scale
 	_light_gain = light_gain
+	# Keep the soft gradient at least as detailed as its largest drawn extent.
+	# Grow in powers of two, not on every pixel of a corner drag; reuse on shrink.
+	var extent := Vector2(128,128)
+	for glow: Dictionary in value.get("glows",[]):
+		extent.x = maxf(extent.x,2.0*float(glow["rx"])*view_size.x)
+		extent.y = maxf(extent.y,2.0*float(glow["ry"])*view_size.y)
+	var width := nearest_po2(ceili(extent.x))
+	var height := nearest_po2(ceili(extent.y))
+	if width > _glow_texture.width:
+		_glow_texture.width = width
+	if height > _glow_texture.height:
+		_glow_texture.height = height
 	queue_redraw()
 
 func tint(rgb: Array, opacity: float) -> Color:
