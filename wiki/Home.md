@@ -39,6 +39,15 @@ Keep changes easy to understand, inspect, adjust and dismiss.
 
 The detailed, provenance-linked record is [Design decisions](../design/DECISIONS.md).
 
+### Desktop legibility correction
+
+Alex's later screenshot showed underlying text more clearly than the light field.
+The current desktop trial uses a stronger dark-slate translucent backing, less
+edge blur and slightly larger/brighter light points. These are display treatments,
+not a change to the core scene or proof the portrait-derived shape is implemented.
+The clear reference renderer remains unchanged by default. Human legibility and
+comfort still need checking on the actual desktop.
+
 ## The portrait reference
 
 Alex said: “I would also like you to use the Briar face you chose as the basis
@@ -69,14 +78,23 @@ locked in; the new procedural face mapping is **not yet implemented or reviewed*
 | Gentle settings | Separate pale, non-modal settings window; the face keeps rendering | Compositor may ignore the requested side placement; reported bounds overlap, so non-obscuring placement is not proven |
 | Moving Briar | Clicking the image enables its native drag region while settings are open; closing settings restores click mode | Real pointer dragging and keyboard/window-manager comfort need Alex's check |
 | Attention | Research and alternatives documented | No graded attention rates or cycling red alert have been adopted or implemented |
-| Packaging | An initial standalone Linux candidate was built | It predates the latest settings changes; do not install it as current. Rebuild, test and review the corrected candidate |
-| Resource use | One short pre-refactor sample: about 354 MiB proportional memory and 10.5% of one core | Not an idle/battery result or accepted footprint; reassess only after relevant changes |
-| Development dependencies | Electron/Packager are pinned in the lockfile | The latest packaging-tool audit still reports four moderate findings; not a clean release gate |
+| Packaging | Updated standalone Linux candidate `334edbb305440da7` is staged under the user-level releases directory; packaged and staged native smoke tests pass; installer conflict/recovery and verified rollback tests pass | Default launcher switch, review and human desktop acceptance remain open |
+| Resource use | One 3-second current-preview sample: 353.7 MiB proportional memory and 13% of one core across six app processes | Not an idle/battery result or accepted footprint; Electron remains provisional |
+| Development dependencies | Electron/Packager are pinned; patched glob/minimatch overrides; latest npm audit reports zero known vulnerabilities | An audit is not a complete security review or release gate |
 
 These are partial checks, not production readiness, accessibility certification,
 cross-platform acceptance or proof that all desktop compositors honour the API.
 There is no live harness connection, telemetry, auto-start, screen-wide capture,
 microphone/camera access, monitoring service, hardware implementation or VR client.
+
+Latest packaging check: 18 local tests pass across the unchanged visual/core tests
+and the updated installer/package tests, including rollback, preservation and
+cache invalidation when
+the build policy changes. The standalone app rendered 19 → 44 frames while
+unfocused in its finite Wayland test, retained sandboxing, and restored its
+quiet view after closing settings. Test evidence is in
+`implementation/test-artifacts/packaged-334edbb305440da7/test-artifacts/desktop-smoke.json`.
+This does not verify real pointer dragging, stacking or comfortable placement.
 
 ## How to try the local preview
 

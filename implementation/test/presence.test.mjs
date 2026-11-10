@@ -50,6 +50,14 @@ test('desktop contrast adds a soft local dark backing without an enclosing frame
  assert.ok(soft>1000,'Shade edges fade rather than form an opaque card');
  assert.equal(rgba[3],0);assert.equal(rgba.at(-1),0,'Window corners remain transparent');
 });
+test('small desktop light treatment increases visible point coverage without changing the scene',{skip:!process.env.BRIAR_CANVAS_MODULE},()=>{
+ const {createCanvas}=createRequire(import.meta.url)(process.env.BRIAR_CANVAS_MODULE);
+ const scene=createPresence(seed).sample(input(3)),baseline=createCanvas(225,288),clear=createCanvas(225,288);
+ drawCanvas(baseline.getContext('2d'),scene);drawCanvas(clear.getContext('2d'),scene,{pointScale:1.6,lightGain:1.2});
+ const count=canvas=>{const data=canvas.getContext('2d').getImageData(0,0,225,288).data;let visible=0;for(let i=3;i<data.length;i+=4)if(data[i]>100)visible++;return visible;};
+ assert.ok(count(clear)>count(baseline)*1.5,'More light pixels remain visible at native small size');
+ assert.throws(()=>drawCanvas(clear.getContext('2d'),scene,{pointScale:NaN}),TypeError);
+});
 test('extracted renderer preserves the accepted prototype pixels',{skip:!process.env.BRIAR_CANVAS_MODULE},t=>{
  const {createCanvas}=createRequire(import.meta.url)(process.env.BRIAR_CANVAS_MODULE);
  const html=fs.readFileSync(new URL('../../prototypes/laptop-presence-01/index.html',import.meta.url),'utf8');

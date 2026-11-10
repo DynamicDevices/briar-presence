@@ -1,5 +1,6 @@
 // Canvas adapter only. Coordinates in the scene are normalised to its view box.
-export function drawCanvas(ctx,scene,{contrast=false}={}){
+export function drawCanvas(ctx,scene,{contrast=false,pointScale=1,lightGain=1}={}){
+ if(!Number.isFinite(pointScale)||pointScale<=0||!Number.isFinite(lightGain)||lightGain<0)throw new TypeError('Invalid display treatment');
  const width=360,height=460,TAU=Math.PI*2;
  ctx.setTransform(ctx.canvas.width/width,0,0,ctx.canvas.height/height,0,0);
  ctx.clearRect(0,0,width,height);ctx.save();ctx.translate(180,224);
@@ -20,9 +21,9 @@ export function drawCanvas(ctx,scene,{contrast=false}={}){
   ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,0,1,0,TAU);ctx.fill();ctx.restore();
  }
  for(const p of scene.lights){
-  const x=p.x*width-180,y=p.y*height-224,r=p.radius*width,rgb=p.color.join(',');
-  if(p.halo){ctx.beginPath();ctx.arc(x,y,r*4,0,TAU);ctx.fillStyle=`rgba(${rgb},${p.opacity*.06})`;ctx.fill();}
-  ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fillStyle=`rgba(${rgb},${p.opacity})`;ctx.fill();
+  const x=p.x*width-180,y=p.y*height-224,r=p.radius*width*pointScale,rgb=p.color.join(','),opacity=Math.min(1,p.opacity*lightGain);
+  if(p.halo){ctx.beginPath();ctx.arc(x,y,r*4,0,TAU);ctx.fillStyle=`rgba(${rgb},${opacity*.06})`;ctx.fill();}
+  ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fillStyle=`rgba(${rgb},${opacity})`;ctx.fill();
  }
  ctx.restore();
 }

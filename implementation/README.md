@@ -56,6 +56,36 @@ It moves only unchanged generated launchers into a task-owned recovery folder
 and prints that location. Edited or conflicting files are preserved. Source,
 dependencies and display preferences are not removed.
 
+### Standalone candidate staging and installation
+
+`node scripts/install-package.mjs --stage PACKAGE_DIRECTORY` copies a verified
+candidate into `~/.local/share/briar-presence/releases/SOURCE_DIGEST`, checks the
+copy against its manifest and leaves the launcher alone. An existing release is
+reused only if its full contents match. No Node/npm or checkout is needed to run
+the copied `briar-presence` executable.
+
+After native interaction and toolkit acceptance,
+`node scripts/install-package.mjs --install PACKAGE_DIRECTORY` switches only
+unchanged managed launchers. Exact previous launchers and their receipt are
+copied into the printed recovery directory. Unrelated/edited launchers and
+symlink paths are refused. No running app is stopped by the installer.
+
+`node scripts/install-package.mjs --remove` moves unchanged standalone launchers
+and their receipt to recovery. Releases and display preferences remain; removal
+does not silently reactivate an earlier preview. The installer currently requires
+Node and the checkout; the installed application itself does not. Recovery files
+are retained. `node scripts/install-package.mjs --rollback` restores the previous
+generated launchers and their receipt, or returns to no launcher after a first
+installation. It checks the recovery inventory before changing anything and
+refuses missing or edited backups. The outgoing launchers are also kept in
+recovery. It does not stop or relaunch applications.
+
+Candidate `334edbb305440da7` has been staged and smoke-tested from its user-level
+release directory. The default launcher has deliberately not been switched:
+real pointer dragging, visual placement and toolkit/resource acceptance remain
+unproven. Installation conflict/recovery behaviour is covered by local fixture
+tests, not a claim of completed end-user installation.
+
 ## Checks and current limits — 10 November 2026
 
 - Seeded core, state/colour/static-mode/input-boundary checks pass. All 28
@@ -108,14 +138,22 @@ choose the host before producing a standalone local package and reviewable PR.
 Do not mark the desktop goal achieved on these partial checks. No implementation
 commit or PR update has been published yet; baseline PR #1 is unchanged.
 
-The first standalone Linux candidate was built with Electron Packager 20.3.0,
-but predates the quiet-view/backdrop correction and has not been installed.
-Rebuild from the corrected source before package smoke testing or installation.
-The development dependency tree pins glob 14.0.4 to address the glob/minimatch
-advisories found in Packager's initial dependency selection. Verify the changed
-lock before accepting the package. A short snapshot after the Canvas correction
-measured about 354 MiB proportional memory and 10.5% of one core; this is not an
-idle/battery acceptance result. Host choice remains provisional.
+The updated standalone Linux candidate was built with Electron Packager 20.3.0:
+`dist/334edbb305440da7/BriarPresence-linux-x64`. It includes the contrast correction
+and separate settings. Its finite native smoke test passes with sandboxing,
+hidden resting controls and continued animation while unfocused; evidence is in
+`test-artifacts/packaged-334edbb305440da7/test-artifacts/desktop-smoke.json`.
+It has not been installed; the launcher still uses the development checkout.
+Build caching now includes the packaging scripts as well as app source and lock.
+The development dependency tree pins glob 14.0.4 and minimatch 11.0.5; the updated
+lock audits with zero known vulnerabilities. All 13 local tests pass, including
+28 unchanged reference frames. Review and human native-window acceptance remain
+open. A 3-second current-preview process-tree sample measured 353.7 MiB
+proportional memory and 13% of one core across six processes; this is not an
+idle/battery acceptance result. Evidence is in `test-artifacts/resource-sample.json`;
+the finite helper is `node scripts/measure-preview.mjs EXACT_PREVIEW_PID`.
+Host choice remains provisional: this is a substantial footprint for a quiet
+desktop presence, not evidence that Electron is lightweight enough.
 
 Alex's proposed faster/more-coloured attention levels and red transitions are
 investigated in [design/ATTENTION.md](../design/ATTENTION.md). They are not live

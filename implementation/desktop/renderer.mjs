@@ -10,7 +10,7 @@ function stop(){if(frameId)clearTimeout(frameId);frameId=0;}
 function fail(error){stop();$('error').hidden=false;$('error').textContent='Briar needs a restart: '+error.message;document.body.dataset.failure=error.message;}
 function paint(){
  if(!snapshot)return;
- drawCanvas(ctx,model.sample({time:elapsed,state:snapshot.state,reducedMotion:snapshot.display.reducedMotion??preference.matches}));
+ drawCanvas(ctx,model.sample({time:elapsed,state:snapshot.state,reducedMotion:snapshot.display.reducedMotion??preference.matches}),{pointScale:1.6,lightGain:1.2});
  document.body.dataset.frames=String(Number(document.body.dataset.frames||0)+1);
 }
 function schedule(){frameId=setTimeout(()=>frame(performance.now()),80);}
