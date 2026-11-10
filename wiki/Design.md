@@ -11,7 +11,10 @@ select attention-first presentation, distinct “Needs you”/“Concern”, ste
 acknowledged concerns, face gatherings as identity rather than status, requests
 then changes on inspection, focused work with a background summary, and brief
 stronger attention followed by a steady cue. These are accepted design choices,
-not a claim that the prototype implements them.
+not a claim that the prototype implements them. Two subsequent MCQs select
+retaining omitted open concerns with a source warning while accepting otherwise
+valid updates, and briefly reannouncing changed impact/response needs for an
+acknowledged concern. Neither repeated updates nor cosmetic edits reannounce.
 
 - Irregular cloudlets and fine light detail, not connecting lines or a fixed mask.
 - Continuous varied movement, not a sequence that visibly moves once and settles

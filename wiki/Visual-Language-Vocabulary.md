@@ -22,11 +22,13 @@ initial draft; they are not evidence of implemented behaviour or user testing.
 | Returning/inspection | Show unresolved requests/concerns first, then a short summary of meaningful changes since the last inspection. No automatic panel or alert replay. |
 | Parallel work | Emphasise selected work; summarise other work more quietly, keeping its concerns discoverable. |
 | Stronger attention | A brief bounded increase in motion/colour, then a persistent steady cue; respect reduced motion and brightness limits, with no flashing or unlimited escalation. |
+| Omitted open concern | Keep it visible with a source-omission warning; accept other changes only if the snapshot is otherwise valid. Concern freshness stays separate from work freshness. |
+| Changed acknowledged concern | Briefly draw attention again when impact or what the user needs to do changes; explain the change and retain acknowledgement history. Repeated/cosmetic updates do not reannounce. |
 
 The selected steady acknowledged-concern cue must remain distinct from the
 brief announcement of new stronger attention. Other work's important concerns
-must not be hidden by selected focus. Snooze duration, material-change handling,
-severity bands and cross-display synchronisation remain unresolved.
+must not be hidden by selected focus. Snooze duration, technical material-change
+comparison, severity bands and cross-display synchronisation remain unresolved.
 
 ## The questions a glance should answer
 
@@ -133,8 +135,9 @@ the accepted quiet clustered-light appearance.
 | S13 No producer | First launch has no source configured | No work source connected; demo is explicitly labelled if shown | Demo blue is represented as verified real-world health |
 | S14 Another user | A second isolated user inspects their own work | Their records, focus and acknowledgements only | Alex's work, another user's focus or acknowledgement leaks |
 | S15 Checks miss the worry | Checks pass, but do not address the user's concern about unsaved work | Explain the coverage gap and keep the concern open | Successful unrelated checks become reassurance or resolution |
-| S16 Changed acknowledged concern | A previously acknowledged concern gains materially different evidence | Preserve acknowledgement history and explain the change; exact renewed-signalling policy needs agreement | Treat prior acknowledgement as acceptance of new facts, or silently resolve the concern |
+| S16 Changed acknowledged concern | A previously acknowledged concern gains materially different evidence | Preserve history; briefly reannounce only if impact or response need changes, explaining what changed | Announce cosmetic/repeated updates, imply acceptance of new facts or resolve silently |
 | S17 Returning after absence | Several meaningful changes occurred while the user was away | On inspection, show unresolved requests/concerns first, then a short change summary; no automatic panel or alert replay | Replay every event or mistake last inspection for acknowledgement |
+| S18 Omitted concern | Otherwise valid snapshot drops an open concern while work changes | Accept valid changes; preserve concern, source-omission warning and original concern freshness; repeated omissions do not reannounce | Refresh/resolve the omitted concern, hide it or accept unrelated invalid records |
 
 S11's item count is a test-fixture parameter, not an adopted capacity limit.
 S09 supplies requirements for future reliability tests, not evidence they run now.
@@ -160,7 +163,8 @@ visuals from observed confusion. This check still needs a representative study.
 1. Which attention/severity bands are useful; impact, requested response and
    supported deadlines should stay explicit rather than an unexplained number.
 2. How focus, acknowledgement and snooze should work across multiple displays
-   and users, including when a changed concern deserves a fresh indication.
+   and users; specify comparison for the selected impact/response-change rule
+   without treating every revision as a fresh attention request.
 
 Existing agreed direction also includes supportive/unobtrusive presentation,
 parallel work, findable concerns, no false reassurance, acknowledgement not

@@ -43,7 +43,8 @@ optional, with units/basis rather than invented percentages. No private reasonin
 Concerns distinguish open/resolved facts from user acknowledgement. A resolution
 needs an authorised actor and reason/evidence; successful work alone cannot supply
 it. Reopening preserves history. Concern revisions let the consumer identify what
-was acknowledged; renewed signalling on material changes is still a design choice.
+was acknowledged. Alex selected a brief renewed cue for changed impact or response
+needs, not for repeated/cosmetic updates; acknowledgement history is preserved.
 Response requests must not be inferred solely from concern severity.
 
 ## Snapshot and ordering proposal
@@ -60,11 +61,18 @@ Response requests must not be inferred solely from concern severity.
 4. Work or concern IDs owned by another producer, invalid references/cycles,
    unsupported required features and invalid values reject the entire snapshot.
    The previous accepted facts remain, with an explicit input error/health cue.
-5. Omission cannot imply completion or resolution. Proposed conservative rule:
-   reject omission of previously open concerns or nonterminal work; require an
-   explicit state transition or an explicit withdrawn-from-tracking record.
-   Withdrawal means unknown/no longer tracked, not succeeded or resolved, and
-   cannot hide an open concern. Final tombstone/history rules need review.
+5. Omission cannot imply completion or resolution. Alex selected retaining any
+   omitted open concern with a consumer-generated source-omission warning while
+   accepting an otherwise valid snapshot. Preserve its last-known source revision,
+   content and observation time: omission does not refresh it, resolve it or claim
+   the source reported it again. Work freshness can advance independently.
+   Apply the snapshot and retained-concern warning atomically. This explicit
+   reconciliation rule does not permit partial acceptance of malformed fields,
+   ownership violations or other invalid input. Retain referenced work's last-known
+   identity if needed for inspection, distinct from currently reported activity.
+   Repeated omissions do not reannounce the same warning. Nonterminal work
+   withdrawal, tombstones and retention still need review; disappearance cannot
+   mean success or hide an unresolved concern.
 6. Terminal records may move out of the current view only under an explicit
    retention/deletion policy. Keep enough ID/revision history to prevent late
    messages resurrecting old records; privacy deletion needs a bounded policy,
@@ -103,7 +111,13 @@ a reviewed persistence/time model can justify retaining freshness.
   cross-device history honestly; do not promise a summary of lost events.
 - New stronger attention may have a brief bounded motion/colour announcement,
   then a steady cue. No flashing or unattended-time escalation; user accessibility
-  preferences win. Exact timing/colours and changed-concern policy remain open.
+  preferences win. For an acknowledged concern, Alex selected a brief new cue
+  when impact or what the user needs to do changes: increased impact, a changed
+  decision/request or another materially changed response need. Explain what
+  changed and preserve acknowledgement history. Other evidence changes remain
+  inspectable without automatic announcement. Repeated identical updates and
+  cosmetic edits never reannounce. Exact timing/colours and technical
+  material-change comparison still need specification.
 - Face gathering expresses recognisable presence, not health/listening/resolution.
 - Local settings and status input cannot grant producer-system execution rights.
   Any future answer/action API needs its own authority boundary.
@@ -148,12 +162,16 @@ claimed to pass a validator.
 | Revision 6 after accepted 7 | Reject as stale; do not roll back facts or freshness |
 | Different payload retry at revision 7 | Conflict; no partial update |
 | Old session after takeover | Reject fenced writer |
-| Snapshot silently drops open compatibility concern | Reject; preserve concern and explain input error |
+| Otherwise valid snapshot omits open compatibility concern | Accept other valid changes atomically with retained concern/source-omission warning; concern freshness does not advance |
+| Snapshot omits concern and also contains invalid/unauthorised work | Reject entire snapshot; omission reconciliation is not general partial acceptance |
+| Repeated omission retry | Same retained concern/warning; no repeated attention or invented observation |
 | Concern points at another user's work | Reject; do not disclose that work's existence |
 | Unknown optional namespaced extension | Apply documented safe fallback; never reinterpret core meaning |
 | Unsupported required extension/version | Explicit incompatibility; do not claim healthy idle |
 | Invalid/oversized/rate-excess input | Explicit bounded rejection; existing view remains subject to normal freshness |
 | Concern acknowledged, unchanged | Steady visible cue, no repeated announcement; remains open |
+| Acknowledged concern changes impact or requested response | Brief bounded cue, explain change, preserve history and steady cue |
+| Evidence changes without changing impact/response need | Inspectable evidence; no automatic renewed cue |
 | Consumer lacks change history | Explain the gap and show current view, not a fabricated since-last-visit summary |
 
 ## Transport, errors and compatibility
@@ -178,11 +196,12 @@ retention policy; that UI requirement does not mandate a broker or network strea
 
 ## Remaining work for issue #5
 
-- Review omission/withdrawal/tombstones, ownership and concern-resolution semantics.
+- Specify selected omission reconciliation precisely; review work withdrawal,
+  tombstones, ownership and concern-resolution semantics.
 - Specify admission/fencing, durable ordering, freshness bounds and retry behaviour.
 - Design user-view operations and last-inspected history without assuming sync.
-- Define attention/severity terms and material-change handling without changing
-  the selected steady acknowledged cue.
+- Define attention/severity terms and technical material-change comparison
+  consistent with the selected renewed cue and steady acknowledged cue.
 - Produce actual schemas and valid/invalid fixtures after these decisions.
 - Select a supported standards/tooling profile with safeguards (#7) and extensions
   (#8); no library, listener or service is adopted by this document.
