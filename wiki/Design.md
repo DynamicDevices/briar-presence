@@ -6,6 +6,13 @@ Supportive and unobtrusive throughout. Keep design intentions separate from impl
 
 ## Agreed direction
 
+Alex's [visual-language MCQ decisions](Visual-Language-Vocabulary.md#selected-design-decisions--10-november-2026)
+select attention-first presentation, distinct “Needs you”/“Concern”, steady visible
+acknowledged concerns, face gatherings as identity rather than status, requests
+then changes on inspection, focused work with a background summary, and brief
+stronger attention followed by a steady cue. These are accepted design choices,
+not a claim that the prototype implements them.
+
 - Irregular cloudlets and fine light detail, not connecting lines or a fixed mask.
 - Continuous varied movement, not a sequence that visibly moves once and settles
   into an apparently static image. Lights should wander independently rather than

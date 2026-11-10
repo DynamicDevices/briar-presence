@@ -1,4 +1,4 @@
-# Visual-language vocabulary and scenarios — first draft
+# Visual-language vocabulary and scenarios
 
 [API work plan](Visual-Language-API.md) · [Issue #4](https://github.com/DynamicDevices/briar-presence/issues/4)
 
@@ -6,6 +6,27 @@ Prepared from Alex's instruction to work on the next steps, following the approv
 API review. This is a proposed vocabulary for review, not adopted API enums,
 implemented behaviour or proof that new users understand the lights. Examples
 below are synthetic. No live work is connected.
+
+## Selected design decisions — 10 November 2026
+
+Alex selected the following desktop MCQ options and then instructed “lock this
+in and lets carry on”. These choices supersede competing proposals in the
+initial draft; they are not evidence of implemented behaviour or user testing.
+
+| Decision | Selected behaviour |
+| --- | --- |
+| First glance | Whether anything needs Alex is clearest; ordinary work stays quiet and details remain inspectable. Missing information stays distinguishable. |
+| Wording | Distinguish “Needs you” from “Concern”; both can apply. |
+| Acknowledgement | Stop repeated pulses, but keep a steady visible concern cue at the same prominence until resolution. Acknowledgement does not resolve or authorise action. |
+| Abstract face | Recognisable presence, not a status; gatherings do not imply health, listening or resolution. |
+| Returning/inspection | Show unresolved requests/concerns first, then a short summary of meaningful changes since the last inspection. No automatic panel or alert replay. |
+| Parallel work | Emphasise selected work; summarise other work more quietly, keeping its concerns discoverable. |
+| Stronger attention | A brief bounded increase in motion/colour, then a persistent steady cue; respect reduced motion and brightness limits, with no flashing or unlimited escalation. |
+
+The selected steady acknowledged-concern cue must remain distinct from the
+brief announcement of new stronger attention. Other work's important concerns
+must not be hidden by selected focus. Snooze duration, material-change handling,
+severity bands and cross-display synchronisation remain unresolved.
 
 ## The questions a glance should answer
 
@@ -111,6 +132,9 @@ the accepted quiet clustered-light appearance.
 | S12 Reduced motion/privacy | Reduced motion and hidden sensitive labels are selected during S04 | Equivalent explanation/non-colour cue; private labels hidden | Producer urgency overrides preferences or text leaks in inspection/logging |
 | S13 No producer | First launch has no source configured | No work source connected; demo is explicitly labelled if shown | Demo blue is represented as verified real-world health |
 | S14 Another user | A second isolated user inspects their own work | Their records, focus and acknowledgements only | Alex's work, another user's focus or acknowledgement leaks |
+| S15 Checks miss the worry | Checks pass, but do not address the user's concern about unsaved work | Explain the coverage gap and keep the concern open | Successful unrelated checks become reassurance or resolution |
+| S16 Changed acknowledged concern | A previously acknowledged concern gains materially different evidence | Preserve acknowledgement history and explain the change; exact renewed-signalling policy needs agreement | Treat prior acknowledgement as acceptance of new facts, or silently resolve the concern |
+| S17 Returning after absence | Several meaningful changes occurred while the user was away | On inspection, show unresolved requests/concerns first, then a short change summary; no automatic panel or alert replay | Replay every event or mistake last inspection for acknowledgement |
 
 S11's item count is a test-fixture parameter, not an adopted capacity limit.
 S09 supplies requirements for future reliability tests, not evidence they run now.
@@ -133,19 +157,19 @@ visuals from observed confusion. This check still needs a representative study.
 
 ## Decisions still needed before freezing a contract
 
-1. Whether “Needs you” and “Concern” are the clearest distinct user-facing terms.
-2. Which attention/severity bands are useful; impact, requested response and
+1. Which attention/severity bands are useful; impact, requested response and
    supported deadlines should stay explicit rather than an unexplained number.
-3. How focus, acknowledgement and snooze should work across multiple displays
+2. How focus, acknowledgement and snooze should work across multiple displays
    and users, including when a changed concern deserves a fresh indication.
 
-Existing agreed direction is separate: supportive/unobtrusive presentation,
+Existing agreed direction also includes supportive/unobtrusive presentation,
 parallel work, findable concerns, no false reassurance, acknowledgement not
-resolution, local animation and producer independence. The phrases, dimensions,
-scenario mappings and study procedure above are first-draft proposals.
+resolution, local animation and producer independence. Apart from the explicitly
+selected decisions, dimensions, mappings and study procedures remain proposals.
 
-Issue #4 remains open pending review and readability evidence. Contract (#5),
-aggregation (#6) and safeguards (#7) can use this draft for discussion, not assume
-its terms are frozen. No listener, schema implementation or live data was added.
+Issue #4 remains open for remaining semantics and readability evidence. The
+selected design decisions above are settled; other proposed dimensions and API
+names are not frozen. Contract (#5), aggregation (#6) and safeguards (#7) may
+proceed with those distinctions explicit. No listener or live data was added.
 
 Assisted-by: Briar

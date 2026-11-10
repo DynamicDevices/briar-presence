@@ -172,9 +172,10 @@ abuse-case tests do not authorise remote testing, a listener, telemetry or actio
 
 ## Staged work and acceptance
 
-First work product: [vocabulary and 14 synthetic scenarios](Visual-Language-Vocabulary.md)
-for issue #4. This is a draft for review, not frozen field names or demonstrated
-new-user readability. The issue remains open.
+First work product: [vocabulary, selected decisions and 17 scenarios](Visual-Language-Vocabulary.md)
+for issue #4. Alex's seven MCQ selections are recorded separately from proposed
+semantics; human readability is not yet demonstrated. The issue remains open.
+Next: [input contract draft](API-Contract-Draft.md) for #5; no live API is introduced.
 
 Tracking: [parent issue #3](https://github.com/DynamicDevices/briar-presence/issues/3).
 

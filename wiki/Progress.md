@@ -11,10 +11,13 @@ safeguards, extensions, offline validation and the separately scoped first
 integration. This records direction and future work, not an implemented API or
 deployment approval. No runtime or installed launcher changed.
 
-Next-step work: [issue #4's vocabulary/scenario draft](Visual-Language-Vocabulary.md)
-separates work, attention, concerns, interaction and freshness and supplies 14
-synthetic acceptance scenarios. Human readability checks and terminology decisions
-remain open; no API implementation or live work input has been introduced.
+Next-step work: [issue #4's vocabulary/scenarios](Visual-Language-Vocabulary.md)
+now records Alex's seven selected design decisions and 17 synthetic acceptance
+scenarios. Human readability checks and unselected semantics remain open.
+[Issue #5's input-contract draft](API-Contract-Draft.md) proposes records,
+snapshot ordering, session fencing, freshness and interaction boundaries; fields,
+omission rules and technical choices still need review. No schemas, API code,
+listener or live input have been implemented by this planning work.
 
 | Area | Current evidence | Still open |
 | --- | --- | --- |
