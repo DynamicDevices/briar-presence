@@ -4,6 +4,13 @@
 
 ## Where the work stands
 
+API planning update, 10 November 2026: Alex approved the comprehensive
+[visual-language API review](Visual-Language-API.md). [Parent issue #3](https://github.com/DynamicDevices/briar-presence/issues/3)
+and seven sub-issues (#4–#10) track vocabulary, contract/reliability, aggregation,
+safeguards, extensions, offline validation and the separately scoped first
+integration. This records direction and future work, not an implemented API or
+deployment approval. No runtime or installed launcher changed.
+
 | Area | Current evidence | Still open |
 | --- | --- | --- |
 | Portable light behaviour | Separate seeded scene generator, Canvas renderer, synthetic-state input and desktop host | Future adapters and wider platform tests |
