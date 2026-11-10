@@ -3,7 +3,7 @@
 A visual presence for Briar: quiet enough to live alongside other work, expressive
 enough to show our interaction, and clear enough to direct attention to concerns.
 
-**Stage: accepted starting design baseline, 10 November 2026.**
+**Stage: experimental desktop preview and Godot study, 10 November 2026.**
 No live harness connection or production client. Alex's “good start — lock this
 in” preserves the current hybrid light material and motion studies; it does not
 freeze the final design or establish production readiness.
@@ -12,6 +12,10 @@ The first intended surface is a non-intrusive display on Alex's laptop. Future
 surfaces may include a desk device and VR, and the design must be usable by other
 people working with the Briar headless harness. Those are design considerations,
 not commitments to build hardware, VR or harness integrations now.
+
+The intended integration direction is an API that can be driven by the Briar
+harness **or other producers**. A harness-independent client is a design goal,
+not a live API or hosted service available today. See the [API direction](wiki/API.md).
 
 ## Start here
 
@@ -48,6 +52,11 @@ unknown. No inferred emotions, covert sensing or misleading progress animation.
 
 The Lost in Space robot is a reference for clustered light and apparent depth,
 not a source of copied graphics, footage or assets. These studies are original.
-No open-source licence or public release has been selected yet.
+Original project source is licensed under **GNU GPL version 3 or, at your option,
+any later version** (`GPL-3.0-or-later`); see [LICENSE](LICENSE). Third-party
+dependencies retain their own licences and notices. There is no warranty.
+The repository is public. New source/wiki work is reviewed on development
+branches and Alex merges it manually; `main` may lag those studies. No public
+binary release or production readiness is claimed.
 
 Assisted-by: Briar

@@ -7,3 +7,5 @@ __pycache__/
 *.pem
 *.sig
 config/*-proposals/
+/implementation/.tools/
+/implementation/godot/.godot/

@@ -6,16 +6,17 @@ import os from 'node:os';
 import {allowedAppPath,packageSourceDigest,writeManifest,verifyPackage} from '../scripts/package-files.mjs';
 test('package cache identity includes application, lockfile and build policy',async()=>{
  const fixture=fs.mkdtempSync(path.join(os.tmpdir(),'briar-source-test-'));
+ const app=path.join(fixture,'app');fs.mkdirSync(app);
  try{
-  for(const dir of ['core','renderers','inputs','desktop','scripts'])fs.mkdirSync(path.join(fixture,dir));
-  const sources=['package.json','package-lock.json','scripts/package-linux.mjs','scripts/package-files.mjs','core/scene.mjs','desktop/main.cjs'];
-  for(const rel of sources)fs.writeFileSync(path.join(fixture,rel),'fixture');
-  const original=await packageSourceDigest(fixture);
-  assert.equal(await packageSourceDigest(fixture),original);
+  for(const dir of ['core','renderers','inputs','desktop','scripts'])fs.mkdirSync(path.join(app,dir));
+  const sources=['../LICENSE','package.json','package-lock.json','scripts/package-linux.mjs','scripts/package-files.mjs','core/scene.mjs','desktop/main.cjs'];
+  for(const rel of sources)fs.writeFileSync(path.join(app,rel),'fixture');
+  const original=await packageSourceDigest(app);
+  assert.equal(await packageSourceDigest(app),original);
   for(const rel of sources){
-   fs.writeFileSync(path.join(fixture,rel),'changed');
-   assert.notEqual(await packageSourceDigest(fixture),original,rel);
-   fs.writeFileSync(path.join(fixture,rel),'fixture');
+   fs.writeFileSync(path.join(app,rel),'changed');
+   assert.notEqual(await packageSourceDigest(app),original,rel);
+   fs.writeFileSync(path.join(app,rel),'fixture');
   }
  }finally{fs.rmSync(fixture,{recursive:true});}
 });

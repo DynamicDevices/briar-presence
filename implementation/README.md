@@ -89,13 +89,29 @@ tests, not a claim of completed end-user installation.
 ### Godot and other renderers
 
 Godot is now an explicit support target, with the proposed route in
-[design/GODOT.md](../design/GODOT.md). No engine or Godot client is installed.
+[design/GODOT.md](../design/GODOT.md). A pinned project-local Godot 4.7.2 engine
+now starts headlessly and runs a separate synthetic renderer study.
 Generate offline shared reference scenes with
 `node scripts/export-reference-scenes.mjs`; the command prints the output path,
 SHA-256 and sample count without dumping light data. The current export contains
 21 synthetic samples, source identity and ordered seed/input cases. It leaves
 the application, default launcher and accepted animation unchanged. The two
-reference-export tests pass; native Godot compatibility remains untested.
+reference-export tests pass. The headless Godot `godot/reference_test.gd` also
+imports all 21 scenes (24,570 lights) and validates source identity, seed bounds,
+colour and coordinate conversion. Report: `test-artifacts/godot-reference-import.json`.
+Separate tests now compare `godot/presence.gd` with all 21 reference samples:
+173,565 numeric values pass with maximum difference about `2.93e-12`, and exact
+colours. See `test-artifacts/godot-conformance.json`.
+
+The separate `godot/study.tscn` renderer study passed its finite native rendering
+test (34 frames, transparent corner); app-only output is in
+`test-artifacts/godot-study.png` and `godot-study.json`. It selected X11 on this
+GNOME/Wayland session. Native Wayland, actual dragging, focus continuity,
+resources and full controls remain unverified. The study has exited, not replaced
+the existing preview. These checks do not establish host or visual acceptance.
+`node scripts/setup-godot.mjs` verifies/reuses the pinned engine without launching
+it. Keep engine runtime XDG config/cache/data under `.tools/runtime/` when testing,
+not in global Godot settings. No default launcher switch has occurred.
 
 ## Checks and current limits — 10 November 2026
 
@@ -171,8 +187,6 @@ investigated in [design/ATTENTION.md](../design/ATTENTION.md). They are not live
 alerts or an accepted final mapping. Do not silently turn that research into
 automatic escalation.
 
-Desktop work is covered only when independently verified against the signed
-subject-specific proposal at
-`/home/ajlennon/.cursor/config/action-proposals/briar-presence-desktop-20261110.json`
-(expiry 11 November 2026, 17:11:36 GMT). This pointer is not authority or proof of
-current validity. Existing visual-study approval and signatures remain intact.
+Local study approvals are private operational records, not project features or
+permissions granted to other users. No public source licence grants access to
+the original development laptop, harness, credentials or live work information.

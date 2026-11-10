@@ -1,8 +1,9 @@
 # Godot support
 
 Alex requested Godot support in this chat on 10 November 2026. This is an explicit
-design target, not a claim that a Godot client exists or permission to install an
-engine. Preserve the current laptop preview and accepted light behaviour.
+design target, not acceptance of a Godot desktop host. Preserve the
+current laptop preview and accepted light behaviour. Project-local engine/test
+work now has separate signed coverage; see the current evidence below.
 
 ## Shared design, separate renderers
 
@@ -70,8 +71,9 @@ Preserve offscreen and zero-alpha points in behaviour comparisons. The desktop
 point-size/gain and soft backing are host display treatments, not fixture data.
 
 The exporter has local tests for deterministic serialization, scene identity,
-state coverage and static/seek cases. These tests do not prove a Godot renderer
-or port works; neither exists yet. The file is an offline study artifact, not a
+state coverage and static/seek cases. These exporter tests alone do not prove
+a Godot renderer or port works; the actual Godot checks are recorded below.
+The file is an offline study artifact, not a
 live transport contract or claim of exhaustive animation coverage. Keep the
 engine-neutral scene contract custom and versioned rather than inventing a new
 network protocol.
@@ -86,10 +88,53 @@ Godot window layer. Other users must not inherit Alex's private work context.
 
 ## Evidence and limits
 
-Godot is not currently on the checked command path (`godot` or `godot4`). No engine
-was installed or launched. No Godot performance result or exact engine version
-has been accepted. Pin and review the actual engine/export-template release,
-licences, bundled notices, advisories and update path before implementation.
+Godot **4.7.2-stable**, standard Linux x86_64, is installed only under
+`implementation/.tools/godot-4.7.2/`. The official release archive SHA-256 is
+`cadd3204e728a35d3f13adb7fd0d7902636b79f6b95c40c265eb73b6c35329e4`.
+`scripts/setup-godot.mjs` pins the asset/digest, restricts archive members and
+records the extracted binary hash. It does not install globally or launch it.
+Engine MIT licensing was inspected; the repository's public advisory endpoint
+returned no listed advisories. This is limited upstream evidence, not a full
+engine/transitive security audit. Bundled redistribution notices and any export
+templates still need review before packaging.
+
+The engine started headlessly and `godot/reference_test.gd` consumed all 21
+reference scenes, checking 24,570 lights, unsigned seed boundaries, the source
+hash and conversion to Godot colour/coordinate types. Report:
+`implementation/test-artifacts/godot-reference-import.json`. This is an import
+test; separate behaviour and renderer checks now exist below.
+Runtime config/cache/data are redirected into project-local `.tools/runtime/`.
+The current preview and launcher were not changed. No default-host decision or
+Godot performance acceptance has been made.
+
+### First behaviour port and rendered study
+
+`godot/presence.gd` now ports the pure behaviour without nodes, wall clock or
+I/O. `godot/conformance_test.gd` compares all 21 ordered reference samples:
+173,565 numeric comparisons pass, including exact colour channels. Maximum
+numeric difference was approximately `2.93e-12`, below the `1e-7` scene-unit
+tolerance (under 0.00005 pixel at the reference size). Evidence:
+`implementation/test-artifacts/godot-conformance.json`. This is sampled
+conformance, not exhaustive proof across all seeds/times or invalid inputs.
+
+`godot/light_scene.gd` consumes normalized scene data independently of the
+behaviour. It draws textured soft glows and antialiased point circles, including
+halos. `godot/study.gd` is a separate synthetic window, capped at 12 FPS, with a
+rounded backing, direct native-drag request from the image and Escape to quit.
+It is a renderer study, not the installed host or full settings implementation.
+
+The finite rendered test passed: 34 frames over about 3.13 seconds, transparent
+corner, and an app-viewport-only image saved as
+`implementation/test-artifacts/godot-study.png` with `godot-study.json` beside it.
+The image was inspected for visible clustered lights and backing. This does not
+prove matching Canvas pixels, comfortable native dragging, unfocused animation,
+screen-reader support or reduced-motion UI. Its soft backing differs from the
+CSS feathering; visual acceptance remains Alex's decision.
+
+**Display caveat:** the engine selected `X11` under the existing GNOME/Wayland
+session. This is XWayland evidence, not a native Wayland test. No display-driver
+override, compositor or session change was made. Both finite tests exited; no
+additional Godot preview remains running. Resources have not yet been measured.
 
 Official documentation checked on 10 November 2026:
 
@@ -102,8 +147,10 @@ Official documentation checked on 10 November 2026:
 - [MultiMeshInstance2D](https://docs.godotengine.org/en/stable/classes/class_multimeshinstance2d.html):
   instanced 2D meshes; potential rendering optimisation, not measured savings.
 
-These links describe upstream capabilities, not proof on Alex's laptop. The
-current signed desktop-development grant names Electron and packaging tooling;
-a Godot implementation/install needs its own applicable coverage before work.
+These links describe upstream capabilities, not proof on the test laptop.
+The local study was run under separately verified development approval; private
+authority records are kept outside this public-facing documentation. That
+approval is not permission to switch the default launcher or treat Godot's
+execution boundary as equivalent to Chromium's sandbox.
 
 (Briar helped draft this.)

@@ -44,7 +44,7 @@ Future integrations need their own explicit scope, access and validation.
   inference of the user's emotional state is implied.
 - Use Alex's supplied Briar portrait as the shape/proportion and gentle-expression
   reference when the abstract face gathers. The light mapping remains to be
-  developed; see the [wiki reference record](../wiki/Home.md#the-portrait-reference).
+  developed; see the [wiki reference record](../wiki/Design.md#the-portrait-reference).
 - Keep controls hidden until the image is activated. Controls must not obscure
   the face with a harsh black window. Moving Briar from that interaction should
   be easy; the current separate-settings/native-drag approach still needs review.

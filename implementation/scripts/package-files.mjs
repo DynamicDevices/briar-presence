@@ -14,7 +14,7 @@ export function filesUnder(root,relative=''){
 }
 export async function digestFile(file){const hash=crypto.createHash('sha256');for await(const chunk of fs.createReadStream(file))hash.update(chunk);return hash.digest('hex');}
 export async function packageSourceDigest(root){
- const sourceFiles=['package.json','package-lock.json','scripts/package-linux.mjs','scripts/package-files.mjs',...['core','renderers','inputs','desktop'].flatMap(dir=>filesUnder(path.join(root,dir)).map(rel=>dir+'/'+rel))].sort();
+ const sourceFiles=['../LICENSE','package.json','package-lock.json','scripts/package-linux.mjs','scripts/package-files.mjs',...['core','renderers','inputs','desktop'].flatMap(dir=>filesUnder(path.join(root,dir)).map(rel=>dir+'/'+rel))].sort();
  const hash=crypto.createHash('sha256');
  for(const rel of sourceFiles){hash.update(rel+'\0');hash.update(await digestFile(path.join(root,rel)));}
  return hash.digest('hex');

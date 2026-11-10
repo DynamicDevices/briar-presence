@@ -2,6 +2,7 @@
   "name": "briar-presence",
   "version": "0.1.0",
   "private": true,
+  "license": "GPL-3.0-or-later",
   "description": "Portable clustered-light visual behaviour and local desktop-overlay feasibility app",
   "main": "desktop/main.cjs",
   "scripts": {

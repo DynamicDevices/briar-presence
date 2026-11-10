@@ -99,7 +99,10 @@ Alex explicitly added Godot as a support target. See the separate
 [Godot design and implementation route](../design/GODOT.md). The portable scene
 is shared design; Canvas and Godot are separate renderers. Native Godot cannot
 simply use the web-only JavaScriptBridge to execute the current core. A tested
-behaviour port is proposed, not implemented. No new engine is installed.
+behaviour port now passes the 21 shared reference samples. A separately approved
+project-local Godot 4.7.2 engine also passes a finite rendering study. That study
+selected X11 under the existing Wayland session; native Wayland interaction and
+full desktop-host acceptance are not proven. See the linked design for evidence.
 
 Alex also selected a lighter-host comparison after the current Electron preview
 sampled at 353.7 MiB proportional memory and 13% of one core for three seconds.
@@ -110,13 +113,13 @@ That short sample is not an idle/battery benchmark. Current assessment:
 | Electron candidate | Existing JavaScript/Canvas and tested sandboxed host | Measured footprint is substantial; native drag/placement and human acceptance remain open |
 | Tauri | Existing JavaScript/Canvas via Linux WebKitGTK; cross-platform host | Rust is present but checked GTK/WebKit pkg-config build prerequisites are absent; new dependency/setup coverage needed; no measured app footprint |
 | GTK + WebKitGTK host | Existing JavaScript/Canvas using available laptop runtimes | New narrow host and security checks needed; Linux-specific host; no measured footprint or native-window proof |
-| Godot | Explicit requested target; native 2D light scene and possible later 3D reuse | Engine absent; new renderer and tested behaviour port needed; no measured footprint; documented always-on-top support excludes Wayland |
+| Godot | Explicit requested target; sampled behaviour conformance and a finite clustered-light render pass | Native Wayland, full controls, human interaction and footprint remain unproved; documented always-on-top support excludes Wayland |
 
 Read-only runtime checks found GTK 3.24.52, GTK 4.22.4 and WebKitGTK 2.52.6 via
 PyGObject introspection, but no development versions through the checked
 pkg-config names. Runtime availability is not build readiness or security proof.
-No installed packages, desktop security settings or launcher were changed by
-this comparison. Do not claim that sharing system webviews guarantees lower
+No system packages, desktop security settings or launcher were changed by
+this comparison or the project-local Godot setup. Do not claim that sharing system webviews guarantees lower
 total RAM or CPU; include their child processes in any later measurement.
 
 Given the new requirement, propose a Godot renderer/desktop feasibility study
