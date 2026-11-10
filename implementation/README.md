@@ -86,6 +86,17 @@ real pointer dragging, visual placement and toolkit/resource acceptance remain
 unproven. Installation conflict/recovery behaviour is covered by local fixture
 tests, not a claim of completed end-user installation.
 
+### Godot and other renderers
+
+Godot is now an explicit support target, with the proposed route in
+[design/GODOT.md](../design/GODOT.md). No engine or Godot client is installed.
+Generate offline shared reference scenes with
+`node scripts/export-reference-scenes.mjs`; the command prints the output path,
+SHA-256 and sample count without dumping light data. The current export contains
+21 synthetic samples, source identity and ordered seed/input cases. It leaves
+the application, default launcher and accepted animation unchanged. The two
+reference-export tests pass; native Godot compatibility remains untested.
+
 ## Checks and current limits — 10 November 2026
 
 - Seeded core, state/colour/static-mode/input-boundary checks pass. All 28

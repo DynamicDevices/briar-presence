@@ -93,6 +93,44 @@ If a compositor-specific adapter is needed, present it as a separate choice.
 VR, desk hardware and additional users reuse the meaning/scene boundary, but
 their integrations are future work, not part of the first desktop build.
 
+## Godot and lighter hosts — 10 November 2026
+
+Alex explicitly added Godot as a support target. See the separate
+[Godot design and implementation route](../design/GODOT.md). The portable scene
+is shared design; Canvas and Godot are separate renderers. Native Godot cannot
+simply use the web-only JavaScriptBridge to execute the current core. A tested
+behaviour port is proposed, not implemented. No new engine is installed.
+
+Alex also selected a lighter-host comparison after the current Electron preview
+sampled at 353.7 MiB proportional memory and 13% of one core for three seconds.
+That short sample is not an idle/battery benchmark. Current assessment:
+
+| Candidate | Reuse and fit | Unproved cost or constraint |
+| --- | --- | --- |
+| Electron candidate | Existing JavaScript/Canvas and tested sandboxed host | Measured footprint is substantial; native drag/placement and human acceptance remain open |
+| Tauri | Existing JavaScript/Canvas via Linux WebKitGTK; cross-platform host | Rust is present but checked GTK/WebKit pkg-config build prerequisites are absent; new dependency/setup coverage needed; no measured app footprint |
+| GTK + WebKitGTK host | Existing JavaScript/Canvas using available laptop runtimes | New narrow host and security checks needed; Linux-specific host; no measured footprint or native-window proof |
+| Godot | Explicit requested target; native 2D light scene and possible later 3D reuse | Engine absent; new renderer and tested behaviour port needed; no measured footprint; documented always-on-top support excludes Wayland |
+
+Read-only runtime checks found GTK 3.24.52, GTK 4.22.4 and WebKitGTK 2.52.6 via
+PyGObject introspection, but no development versions through the checked
+pkg-config names. Runtime availability is not build readiness or security proof.
+No installed packages, desktop security settings or launcher were changed by
+this comparison. Do not claim that sharing system webviews guarantees lower
+total RAM or CPU; include their child processes in any later measurement.
+
+Given the new requirement, propose a Godot renderer/desktop feasibility study
+before committing to a second webview host. This is a recommendation requiring
+Alex's agreement and applicable development coverage, not a silent toolkit switch.
+Keep the existing Electron preview as the reference and fallback meanwhile.
+
+Sources: [Tauri process model](https://v2.tauri.app/concept/process-model/),
+[Linux prerequisites](https://v2.tauri.app/start/prerequisites/),
+[GTK native dragging](https://docs.gtk.org/gtk3/method.Window.begin_move_drag.html),
+[GTK keep-above caveat](https://docs.gtk.org/gtk3/method.Window.set_keep_above.html),
+and the official Godot links in the design note. Documentation claims remain
+distinct from actual-laptop tests.
+
 ## Official references checked
 
 - [Electron BrowserWindow](https://www.electronjs.org/docs/latest/api/browser-window)

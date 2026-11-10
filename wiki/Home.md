@@ -73,6 +73,7 @@ locked in; the new procedural face mapping is **not yet implemented or reviewed*
 | --- | --- | --- |
 | Portable light behaviour | Separate seeded scene generator, Canvas renderer, synthetic-state input and desktop host | Future adapters and wider platform tests |
 | Existing light appearance | 28 sampled offline frames match the earlier accepted v6 preview exactly | New portrait-derived face formation needs its own study |
+| Godot target | Design route documented; 21 synthetic reference scenes export from the existing core with source identity; two exporter tests pass | Godot renderer, behaviour port, engine approval and actual native tests are not implemented |
 | Native desktop preview | Local Electron candidate runs on GNOME/Wayland with sandboxing and context isolation reported by its renderer | Electron is not the accepted final toolkit |
 | Quiet view and soft backing | Only the image is visible at rest; backing is more rounded and softly feathered | Human review of comfort and legibility |
 | Gentle settings | Separate pale, non-modal settings window; the face keeps rendering | Compositor may ignore the requested side placement; reported bounds overlap, so non-obscuring placement is not proven |
@@ -114,6 +115,7 @@ placement has been solved. No tray icon or global input hook is required.
 - [Design decisions](../design/DECISIONS.md): user instructions versus proposals.
 - [Attention options](../design/ATTENTION.md): speeds, colour transitions and accessibility considerations.
 - [Architecture](../implementation/ARCHITECTURE.md): input, behaviour, rendering and platform-host separation.
+- [Godot support](../design/GODOT.md): Alex's added target, shared light scene, proposed native renderer/behaviour port and desktop limits. Not implemented yet.
 - [Implementation notes](../implementation/README.md): current local checks, limits and continuation point.
 - [Visual studies](../design/PLAN.md): the design iteration route and earlier experiments.
 - [Original v6 laptop experiment](../prototypes/laptop-presence-01/README.md): preserved browser reference, not a live-status client.
