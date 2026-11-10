@@ -73,10 +73,12 @@ func _layout() -> void:
 	_backing.set_corner_radius_all(int(minf(48.0,minf(_backing_rect.size.x,_backing_rect.size.y)*.27)))
 	queue_redraw()
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if _capturing or get_window().mode == Window.MODE_MINIMIZED:
 		return
-	_elapsed += delta
+	# Godot clamps frame deltas under load. Use real elapsed time so slow frames
+	# do not also slow the portable model's animation timeline.
+	_elapsed = float(Time.get_ticks_usec()-_smoke_started_usec)/1000000.0
 	_frames += 1
 	if _frames == 1:
 		_smoke_phase = "animating"

@@ -27,6 +27,27 @@ microphone/camera access, monitoring service, hardware implementation or VR clie
 
 ### Godot quiet controls (candidate only)
 
+To launch the updated candidate without changing the installed default, run
+`npm run start:godot` from the repository's `implementation/` directory. The
+project-local pinned engine must already be present; this command does not
+download dependencies or install anything. The launcher verifies the exact
+executable SHA-256 and confines Godot's XDG runtime directories to `.tools/`.
+This is file placement, not an application sandbox.
+`node scripts/launch-godot.mjs --check` verifies without launching;
+`npm run test:godot-desktop` runs the finite
+native smoke with a 15-second cutoff. Unsupported arguments and a changed or
+linked engine executable are rejected. Normal interactive launches run until
+the user quits; they do not create a monitoring service.
+
+The candidate launcher passes two focused tests (argument/environment mapping
+and rejection of a changed/linked engine). Its native smoke completed 39 frames
+in 3.083 wall-clock seconds with transparent corners and a clean engine log.
+The study now supplies monotonic elapsed time to the model instead of summing
+Godot's clamped frame deltas; animation time at capture was 3.048 seconds.
+This corrects timeline slowdown under delayed frames, not frame scheduling or
+overall CPU use. Evidence: `implementation/test-artifacts/godot-launch-native.log`
+and `godot-study.json` in the same directory.
+
 Alex chose **Take Godot forward** in this chat's desktop decision dialog. The
 choice directs candidate development, not a default-launcher switch. The
 original circle renderer remains in use; the altered batched rendering is not
