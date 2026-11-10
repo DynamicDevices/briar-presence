@@ -25,6 +25,28 @@ Source: Alex's direct instructions in the Briar face-design chat,
 
 ## Briar's proposals: not settled design
 
+The following later instructions are also locked into the project record:
+
+| ID | Decision or requirement | Alex's instruction / acceptance |
+| --- | --- | --- |
+| D16 | Continuous randomised movement, including independent light wandering | “it should loop with some randomisation”; “I would like a bit more randomised movement” |
+| D17 | Remove the oval enclosure; use a friendlier, more-rounded backing when needed | “I don't like the oval - it's too basic”; “the shape of the briar rectangle to be more friendly - maybe more rounded” |
+| D18 | Hide controls at rest; reveal them by clicking the image | “I don't want to see the buttons unless I click on the Briar image” |
+| D19 | The whole experience must be supportive and unobtrusive; no harsh black controls panel over the face | “Everything we do here must be supportive and unobtrusive”; “I don't want the black window to appear on top of the briar face - it's too harsh” |
+| D20 | Use the supplied Briar portrait as the abstract face's shape/expression reference | “use the Briar face you chose as the basis for the shape of the face when you show it”; “lock this into the wiki too” |
+| D21 | Make moving the native window easy from the image interaction | “I want to be able to click on the Briar face and move the window easily” |
+| D22 | Keep a wiki of the direction and work, distinguishing decisions from unfinished experiments | “lock all this in so far and update a wiki with our work so we can keep track” |
+| D23 | Investigate graded attention using faster motion, stronger colour and possible red transitions | “The more it needs to attract my attention the faster and the more coloured - probably changing back and forth to a red colour but you investigate options”; no specific mapping is accepted yet |
+| D24 | Develop an easy desktop overlay while preserving portability | “build this into something we can overlay on the desktop easily but also architect so we can move this to other platforms”; “set this as the goal” |
+
+See [the wiki](../wiki/Home.md) for the portrait reference and current evidence.
+These requirements do not accept an untested toolkit, an exact attention palette,
+compositor behaviour, resource cost or a production release. The portrait-derived
+light map is not yet implemented. The separate settings window is a current
+implementation proposal; actual non-obscuring placement remains unproved.
+
+## Remaining proposals
+
 Blue as ordinary identity, amber as local concern and red as urgent; a companion
 named-work list; peripheral work groupings; branching motion as a visual signature;
 the specific expression vocabulary; and the three appearance directions.

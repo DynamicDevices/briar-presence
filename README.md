@@ -15,6 +15,7 @@ not commitments to build hardware, VR or harness integrations now.
 
 ## Start here
 
+- [Project wiki](wiki/Home.md) — agreed direction, portrait reference, current progress and unfinished work.
 - [Design brief](design/BRIEF.md) — requirements, boundaries and open questions.
 - [Iteration plan](design/PLAN.md) — reviewable stages and acceptance questions.
 - [Decisions](design/DECISIONS.md) — agreed requirements versus proposals.
@@ -33,7 +34,7 @@ not commitments to build hardware, VR or harness integrations now.
 | --- | --- | --- |
 | `design/` | Briefs, still studies, motion intentions and review decisions | Implemented behaviour |
 | `prototypes/` | Disposable, explicitly simulated interaction experiments | Live harness status |
-| `implementation/` | Future production software, after design validation | A promised framework or device |
+| `implementation/` | Portable scene code and a local native desktop feasibility app | A final toolkit, production client or promised device |
 
 The old line-based demo is preserved in `prototypes/legacy-line-study/`. It is a
 superseded experiment, not the chosen visual direction. Open its HTML directly;

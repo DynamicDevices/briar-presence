@@ -5,6 +5,10 @@ Status: requirements captured from Alex's instructions in this chat on
 
 ## Purpose
 
+**Supportive and unobtrusive throughout.** Alex explicitly requires this of all
+work in this project. Use gentle presentation and easy, reversible interactions;
+avoid harsh panels over the face, modal interruptions and persistent controls.
+
 Let a person glance at Briar and understand the broad state of their work
 together. Make it easy to find which work needs attention and why, without
 demanding constant attention to the display.
@@ -30,13 +34,20 @@ Future integrations need their own explicit scope, access and validation.
 
 ## Visual material
 
-- Original, irregular groupings of small lights suspended at different apparent
-  depths behind dark glass; inspired by the modern Lost in Space face.
+- Original, irregular groupings of small lights at different apparent depths,
+  inspired by the modern Lost in Space face. A softly feathered, friendly rounded
+  backing may distinguish the desktop area; do not restore the rejected oval mask.
 - Groupings gather, disperse and reorganise. Drawn connecting lines are not the
   main visual material. Avoid permanent eyes, perfect rings and sharp polygons.
 - Occasionally let the groupings come together as an abstract face, then dissolve
   again, as Alex requested after the hybrid review. No permanent human mask or
   inference of the user's emotional state is implied.
+- Use Alex's supplied Briar portrait as the shape/proportion and gentle-expression
+  reference when the abstract face gathers. The light mapping remains to be
+  developed; see the [wiki reference record](../wiki/Home.md#the-portrait-reference).
+- Keep controls hidden until the image is activated. Controls must not obscure
+  the face with a harsh black window. Moving Briar from that interaction should
+  be easy; the current separate-settings/native-drag approach still needs review.
 - The identity remains recognisably Briar across expressions and surfaces.
 - Brightness, density, stillness, spacing and movement support meaning.
 - Original procedural artwork only; no copied television graphics or media.

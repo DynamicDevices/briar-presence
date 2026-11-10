@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Briar — multiple-work navigation study</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;color:#e4eefb;background:#070e18}*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 15% 24%,#15293c,#070e18 66%);min-height:100vh}button,input{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible{outline:2px solid #c1eaff;outline-offset:4px}button:disabled{opacity:.5;cursor:default}
+header{padding:22px 32px;border-bottom:1px solid #2b3c50;display:flex;gap:20px;align-items:center;justify-content:space-between}.eyebrow{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#8db8d4}.sim{font-size:10px;border:1px solid #5e664d;padding:8px 12px;border-radius:30px;color:#c8c8a4}
+.intro{max-width:1430px;margin:auto;padding:27px 32px 16px}h1{font-size:28px;font-weight:500;letter-spacing:-.7px;margin:0 0 9px}.intro p{max-width:800px;margin:0;color:#9db2c8;font-size:13px;line-height:1.7}
+.summary{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.summary span{padding:7px 11px;border-radius:20px;border:1px solid #36465b;font-size:11px;color:#b9cbdd}.summary .urgent{color:#ff9aaa;border-color:#6b3846}.summary .concern{color:#edc18a;border-color:#66513c}
+main{max-width:1430px;display:grid;grid-template-columns:310px minmax(280px,1fr) minmax(280px,1fr);gap:20px;margin:auto;padding:10px 32px 30px;align-items:start}.panel{background:linear-gradient(145deg,#142233aa,#0c1522cc);border:1px solid #2b3e54;border-radius:15px;padding:20px}h2{font-size:18px;font-weight:500;margin:7px 0 15px}h3{font-size:23px;font-weight:500;margin:8px 0 13px}p{font-size:13px;line-height:1.7;color:#a5bacf}
+.presence{text-align:center}.presence img{width:100%;display:block;aspect-ratio:1;object-fit:contain}.presence h2{font-size:22px;margin-top:-12px;margin-bottom:7px}.presence p{font-size:12px;margin:6px 0 15px}.focus-label{color:#9db5cb;font-size:11px;line-height:1.6}.minor{font-size:11px;color:#829bb4;line-height:1.7}.lights{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px}.beacon{position:relative;min-height:78px;border:1px solid #30445c;background:#0b1523;border-radius:10px;padding:9px;color:#c0d2e4;text-align:left}.beacon[aria-pressed=true]{border-color:#b8d9f1}.beacon strong{display:block;font-size:11px;font-weight:500}.beacon small{display:block;font-size:9px;color:#95abc1;margin-top:4px;line-height:1.4}.cluster{position:relative;display:block;height:20px;width:55px;margin-bottom:5px;color:#62b9ff}.cluster i{position:absolute;border-radius:50%;width:3px;height:3px;background:currentColor;box-shadow:0 0 6px currentColor}.beacon[data-level=concern] .cluster{color:#efb363}.beacon[data-level=urgent] .cluster{color:#f36a83}.beacon[data-level=stale] .cluster,.beacon[data-level=waiting] .cluster{color:#8796a5}
+.listhead{display:flex;align-items:center;justify-content:space-between;gap:10px}.smallbutton,.actions button{background:#16364b;border:1px solid #496880;border-radius:8px;color:#dcefff;padding:9px 12px;font-size:11px}.smallbutton{padding:7px 10px;background:transparent}.worklist{max-height:680px;overflow:auto;padding:4px;scrollbar-gutter:stable}.work{display:block;width:100%;border:1px solid #2d4056;background:#0c1725;border-radius:11px;color:#d5e5f7;text-align:left;padding:14px;margin:0 0 10px}.work[aria-pressed=true]{border-color:#8cbedc;background:#163045}.worktitle{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px}.worktitle strong{font-size:14px;font-weight:500}.tag{font-size:9px;color:#a8c3d7;border:1px solid #496179;border-radius:10px;padding:3px 6px}.status{font-size:11px;line-height:1.6}.status[data-level=concern]{color:#edbe81}.status[data-level=urgent]{color:#ff9daf}.status[data-level=stale]{color:#b3b8c2}.actor{display:block;font-size:10px;color:#9db0c4;line-height:1.6;margin-top:5px}.ack{display:block;font-size:10px;color:#bcb7a3;margin-top:6px}
+.detail{position:sticky;top:18px}.detail .status{padding:9px 0;border-bottom:1px solid #304257;margin-bottom:15px}dl{margin:0}dt{font-size:10px;color:#829eb8;text-transform:uppercase;letter-spacing:1px;margin:17px 0 6px}dd{margin:0;font-size:13px;line-height:1.7;color:#c3d5e7}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px}.actions .secondary{background:transparent}.callout{border-left:2px solid #e0ae68;padding-left:12px;margin-top:18px;font-size:12px;line-height:1.7;color:#d3c1a7}.boundary{margin-top:23px;border-top:1px solid #2e4055;padding-top:14px}.notice{font-size:11px;line-height:1.7;color:#c3bd9c;min-height:38px}.empty{display:none}.footer{max-width:1430px;margin:auto;padding:20px 32px;border-top:1px solid #283a4f;color:#829cb5;font-size:11px;line-height:1.8}a{color:#99cfff}#more{grid-column:1/-1}
+@media(max-width:1100px){main{grid-template-columns:260px 1fr}.detail{position:static;grid-column:1/-1}.worklist{max-height:660px}}@media(max-width:650px){header{padding:18px;gap:12px}.eyebrow{font-size:9px;letter-spacing:1px}.sim{font-size:9px;padding:7px}.intro{padding:23px 18px 15px}h1{font-size:23px}main{grid-template-columns:1fr;padding:8px 18px 25px}.presence img{max-width:280px;margin:auto}.lights{grid-template-columns:repeat(3,1fr)}.worklist{max-height:520px}.footer{padding:18px}.panel{padding:17px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header><span class="eyebrow">BRIAR / MULTIPLE-WORK STUDY 01</span><span class="sim">FICTIONAL TASKS · NO LIVE DATA</span></header>
+<div class="intro"><h1>Where does attention belong?</h1><p>Keep the current conversation separate from the work being inspected. Inspecting a concern does not switch focus, acknowledge it or resolve it. Names, issues and update ages below are fictional.</p><div class="summary" id="summary" aria-live="polite" aria-atomic="true"></div></div>
+<main>
+ <section class="panel presence" aria-label="Focused work and peripheral light groupings">
+  <div class="eyebrow">Current focus · simulated</div>
+  <img id="face" src="assets/face.png" alt="Static design frame of blue light clusters with a faint abstract face">
+  <h2 id="focusName">Orchard</h2><p id="focusState">In progress · Briar can continue</p>
+  <div class="focus-label" id="elsewhere"></div>
+  <div class="boundary"><div class="eyebrow">Other work remains reachable</div><div class="lights" id="lights" role="group" aria-label="Stable work light groupings"></div></div>
+  <p class="minor">Static accepted design frames, not a new motion study. Lights are always paired with names and words.</p>
+ </section>
+ <section class="panel" aria-labelledby="workHeading">
+  <div class="listhead"><h2 id="workHeading">Named work</h2><button class="smallbutton" id="stress">Try 30 demo items</button></div>
+  <p class="minor">Fixed order, not urgency sorting. Select to inspect; current focus stays put.</p><div id="list" class="worklist" aria-label="Fictional work list"></div>
+ </section>
+ <section class="panel detail" aria-labelledby="detailName">
+  <div class="eyebrow">Inspecting · simulated</div><h3 id="detailName" tabindex="-1">Beacon</h3><div class="status" id="detailState"></div>
+  <dl><dt>What needs attention</dt><dd id="reason"></dd><dt>What happens next</dt><dd id="next"></dd><dt>Who acts next</dt><dd id="actor"></dd><dt>Information freshness</dt><dd id="freshness"></dd></dl>
+  <div class="callout" id="why"></div>
+  <div class="actions"><button id="focus">Focus this work</button><button id="ack" class="secondary">Acknowledge · demo</button></div>
+  <p class="notice" id="notice" role="status" aria-live="polite"></p>
+  <div class="boundary"><button class="smallbutton" id="reset">Reset fictional scenario</button><p class="minor">Acknowledgement is not resolution. This demo never clears a concern, starts work or sends a message. No data is stored or transmitted.</p></div>
+ </section>
+</main>
+<div class="footer">Inspect and focus are separate actions. Concern, urgency, next actor and freshness are separate fields.<br>Keyboard: Tab to a named light or work item, then Enter/Space. An item's URL hash preserves the fictional inspect/focus selection on reload.<br>Design study only. No harness connection, polling, notification service, camera or microphone. <a href="../../design/PLAN.md">Iteration plan</a> · Briar, 10 November 2026.</div>
+<script>
+'use strict';
+const base=[
+ {id:'orchard',name:'Orchard',severity:'none',activity:'In progress',freshness:'current',age:'Fictional update: 2 minutes ago',actor:'Briar can continue',reason:'A fictional document is being assembled. No issue is currently reported by the demo fixture.',next:'Continue the simulated draft; no user decision is needed.',why:'Blue means ordinary activity in this fixture, not proof of verified health.'},
+ {id:'beacon',name:'Beacon',severity:'concern',activity:'Waiting',freshness:'current',age:'Fictional update: 4 minutes ago',actor:'Your decision',reason:'Two fictional results disagree. The preferred interpretation has not been chosen.',next:'Inspect the comparison, then decide which interpretation to explore. The demo does not make that choice.',why:'A concern elsewhere should be reachable without making the current conversation look urgent.'},
+ {id:'cedar',name:'Cedar',severity:'urgent',activity:'Stopped',freshness:'current',age:'Fictional update: 1 minute ago',actor:'Briar can continue',reason:'A simulated test job has stopped with a failure. No real system is affected.',next:'Inspect the failure and decide the repair within the real task scope; no repair is performed here.',why:'Urgency and who acts next are different. A red item need not mean the user must do the work.'},
+ {id:'harbor',name:'Harbor',severity:'none',activity:'Waiting',freshness:'current',age:'Fictional update: 8 minutes ago',actor:'Someone else',reason:'An external fictional contributor has not supplied a review.',next:'Wait for that contribution. This demo does not send reminders or monitor anyone.',why:'Waiting on another person is not the same as working, failure or a request for your decision.'},
+ {id:'mesa',name:'Mesa',severity:'none',activity:'Unknown',freshness:'stale',age:'Fictional last update: 45 minutes ago; no fresh evidence',actor:'Unknown until refreshed',reason:'The last information is too old to describe the current state.',next:'Obtain a fresh update through a separately authorised source. This demo cannot refresh real information.',why:'Stale information must never look like healthy blue activity.'},
+ {id:'willow',name:'Willow',severity:'concern',activity:'Waiting',freshness:'current',age:'Fictional update: 6 minutes ago',actor:'Your decision',reason:'The fictional brief leaves an important accessibility choice unresolved.',next:'Compare the alternatives with the user before moving on. Do not silently choose on their behalf.',why:'Several concerns can coexist. Inspecting one does not dismiss the others.'}
+];
+let work=base.map(t=>({...t,acknowledged:false}));
+let focused='orchard',inspected='beacon',expanded=false;
+const $=id=>document.getElementById(id);
+function level(t){return t.freshness!=='current'?'stale':t.severity!=='none'?t.severity:t.activity==='Waiting'?'waiting':'active';}
+function state(t){return t.freshness!=='current'?'Current state unknown · stale information':t.severity==='urgent'?'Urgent · stopped':t.severity==='concern'?'Concern · unresolved':t.activity==='Waiting'?'Waiting · no issue reported':'In progress · no issue reported';}
+function task(id){return work.find(t=>t.id===id);}
+function counts(){return {urgent:work.filter(t=>t.severity==='urgent').length,concern:work.filter(t=>t.severity==='concern').length,stale:work.filter(t=>t.freshness!=='current').length};}
+function el(tag,text,className){const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;}
+function inspect(id,moveFocus=false){if(!task(id))return;inspected=id;render();writeHash();if(moveFocus)$('detailName').focus();}
+function focusWork(){focused=inspected;render();writeHash();$('notice').textContent='Focus changed in the demo only. Other concerns remain unresolved.';}
+function writeHash(){const params=new URLSearchParams({inspect:inspected,focus:focused});if(expanded)params.set('items','30');const next='#'+params.toString();if(location.hash!==next)location.hash=next;}
+function parseHash(){try{const params=new URLSearchParams(location.hash.slice(1));if(params.get('items')==='30'&&!expanded)setExpanded(true);if(task(params.get('focus')))focused=params.get('focus');if(task(params.get('inspect')))inspected=params.get('inspect');}catch{/* Invalid synthetic navigation leaves the safe default. */}}
+function setExpanded(value){expanded=value;work=work.filter(t=>!t.id.startsWith('sample-'));if(value)for(let n=1;n<=24;n++)work.push({id:'sample-'+n,name:'Sample '+String(n).padStart(2,'0'),severity:n===24?'urgent':n%8===0?'concern':'none',activity:'Waiting',freshness:n%11===0?'stale':'current',age:'Synthetic fixture; no real timestamp',actor:n%2?'Someone else':'Your decision',reason:n===24?'An additional fictional urgent item tests whether overflow can hide a problem.':'Additional fictional work for a clutter test.',next:'Inspect this fictional item. No operation is performed.',why:'Stable order must not make issues outside the first six invisible.',acknowledged:false});if(!task(focused))focused='orchard';if(!task(inspected))inspected='beacon';}
+function render(){
+  const c=counts();$('summary').replaceChildren(el('span',`${work.length} fictional work items`),el('span',`${c.urgent} urgent`,'urgent'),el('span',`${c.concern} unresolved concerns`,'concern'),el('span',`${c.stale} stale / current state unknown`));
+  const f=task(focused),selected=task(inspected);
+  $('focusName').textContent=f.name;$('focusState').textContent=state(f)+' · '+f.actor;
+  const otherUrgent=work.filter(t=>t.id!==focused&&t.severity==='urgent').length;
+  const otherConcern=work.filter(t=>t.id!==focused&&t.severity==='concern').length;
+  $('elsewhere').textContent=`Elsewhere: ${otherUrgent} urgent · ${otherConcern} unresolved concerns. Inspect a named grouping below.`;
+  const frame=level(f)==='stale'?'disconnected':level(f)==='urgent'?'urgent':level(f)==='concern'?'concern':'face';
+  $('face').src='assets/'+frame+'.png';$('face').alt=`Static simulated ${f.name}: ${state(f)}. This is a design frame, not live status.`;
+  const lights=$('lights');lights.replaceChildren();
+  base.forEach(original=>{const t=task(original.id);const b=el('button',undefined,'beacon');b.dataset.level=level(t);b.dataset.task=t.id;b.setAttribute('aria-pressed',String(inspected===t.id));b.setAttribute('aria-label',`Inspect ${t.name}: ${state(t)}. ${t.actor}`);const cluster=el('span',undefined,'cluster');cluster.setAttribute('aria-hidden','true');for(let i=0;i<7;i++){const dot=el('i');dot.style.left=(3+(i*17)%47)+'px';dot.style.top=(2+(i*11)%16)+'px';cluster.append(dot);}b.append(cluster,el('strong',t.name),el('small',state(t)));b.addEventListener('click',()=>inspect(t.id,true));lights.append(b);});
+  if(expanded){const extra=work.filter(t=>t.id.startsWith('sample-'));const more=el('button',`More work · 24 items · ${extra.filter(t=>t.severity==='urgent').length} urgent`,'beacon');more.id='more';more.dataset.level='urgent';more.addEventListener('click',()=>inspect('sample-24',true));lights.append(more);}
+  const list=$('list'),scroll=list.scrollTop;list.replaceChildren();
+  work.forEach(t=>{const b=el('button',undefined,'work');b.dataset.task=t.id;b.setAttribute('aria-pressed',String(t.id===inspected));const title=el('span',undefined,'worktitle');title.append(el('strong',t.name));if(t.id===focused)title.append(el('span','Current focus','tag'));const status=el('span',state(t),'status');status.dataset.level=level(t);b.append(title,status,el('span',t.actor,'actor'));if(t.acknowledged)b.append(el('span','Acknowledged · still unresolved','ack'));b.addEventListener('click',()=>inspect(t.id,true));list.append(b);});list.scrollTop=scroll;
+  $('detailName').textContent=selected.name;$('detailState').textContent=state(selected);$('detailState').dataset.level=level(selected);$('reason').textContent=selected.reason;$('next').textContent=selected.next;$('actor').textContent=selected.actor;$('freshness').textContent=selected.age;$('why').textContent=selected.why;
+  $('focus').disabled=focused===inspected;$('ack').disabled=selected.severity==='none'||selected.acknowledged;
+  $('notice').textContent=selected.acknowledged?'Acknowledged in the demo. The concern remains unresolved and visible.':'';
+  $('stress').textContent=expanded?'Return to 6 items':'Try 30 demo items';
+}
+$('focus').addEventListener('click',focusWork);
+$('ack').addEventListener('click',()=>{const t=task(inspected);if(t.severity==='none'||t.acknowledged)return;t.acknowledged=true;render();});
+$('stress').addEventListener('click',()=>{setExpanded(!expanded);render();writeHash();});
+$('reset').addEventListener('click',()=>{work=base.map(t=>({...t,acknowledged:false}));expanded=false;focused='orchard';inspected='beacon';render();writeHash();});
+window.addEventListener('hashchange',()=>{parseHash();render();});
+parseHash();render();
+</script>
+</body>
+</html>

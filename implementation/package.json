@@ -1,0 +1,17 @@
+{
+  "name": "briar-presence",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Portable clustered-light visual behaviour and local desktop-overlay feasibility app",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "start": "electron .",
+    "test:desktop": "electron . --self-test",
+    "install:preview": "node scripts/install-preview.mjs --install",
+    "remove:preview": "node scripts/install-preview.mjs --remove",
+    "package:linux": "node scripts/package-linux.mjs"
+  },
+  "devDependencies": {"electron": "45.2.3", "@electron/packager": "20.3.0"},
+  "overrides": {"glob": "14.0.4"}
+}

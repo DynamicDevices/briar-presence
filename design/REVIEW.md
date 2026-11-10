@@ -67,3 +67,46 @@ Production implementation, hardware, VR and live harness work remain deferred.
 checkpoint open”. His later “good start — lock this in” accepts this as a
 starting baseline; it does not establish that every playback test was performed.
 Do not repeat the superseded not-watched prompt on automatic continuations.
+
+## Multiple-work navigation — local study 01
+
+**Candidate:** `../prototypes/multi-work-01/index.html`, using only fictional tasks
+and static frames of the accepted clustered-light material. This is not the
+laptop product or live harness integration; PR #1 remains unchanged.
+
+**Question:** can Alex keep his current focus while finding a concern elsewhere,
+understanding why it matters and seeing who should act next?
+
+**Cases:** independent inspect/focus selections; two concerns and one urgent item;
+waiting on the user versus someone else; stale information shown as unknown;
+acknowledgement that does not clear a concern; fixed named light positions; a
+30-item fixture with an urgent overflow item; synthetic deep links and reset.
+
+**Acceptance:** not yet reviewed. The navigation structure and overflow treatment
+are proposals, not settled decisions. Human review of actual browser layout,
+keyboard accessibility and comprehension remains necessary before advancing to
+the small laptop-presence stage. No assumption is made that all work needs an
+individual peripheral grouping in production.
+
+**Checks:** offline DOM-model tests pass for the listed cases and for no network,
+storage or polling APIs. This is not real-browser, keyboard or human acceptance.
+
+**Next:** Alex's navigation review in a trusted browser. Do not start live
+updates, background observation, hardware, VR or external participant contact.
+
+**Checkpoint response:** Alex selected “Not tried yet — keep this checkpoint
+open” in the desktop navigation review. Await his feedback before advancing to
+the smaller laptop-presence study. Do not repeat the unchanged review prompt
+on automatic continuations.
+
+## Superseding direction — laptop presence and native overlay
+
+Alex subsequently directed Briar back to the small presence, refined continuous
+randomised light motion, rejected the oval enclosure, and accepted the resulting
+visual direction as a good start. The navigation experiment is preserved, not
+the current review gate. After movable browser v6, Alex requested a desktop
+overlay architected for other platforms and set that as the goal. The current
+native-window checks and the remaining human review are recorded in
+[implementation/README.md](../implementation/README.md). Do not infer that the
+native appearance, compositor behaviour, resource cost or toolkit is accepted
+from the earlier browser feedback.
