@@ -34,6 +34,9 @@ Future integrations need their own explicit scope, access and validation.
   depths behind dark glass; inspired by the modern Lost in Space face.
 - Groupings gather, disperse and reorganise. Drawn connecting lines are not the
   main visual material. Avoid permanent eyes, perfect rings and sharp polygons.
+- Occasionally let the groupings come together as an abstract face, then dissolve
+  again, as Alex requested after the hybrid review. No permanent human mask or
+  inference of the user's emotional state is implied.
 - The identity remains recognisably Briar across expressions and surfaces.
 - Brightness, density, stillness, spacing and movement support meaning.
 - Original procedural artwork only; no copied television graphics or media.
