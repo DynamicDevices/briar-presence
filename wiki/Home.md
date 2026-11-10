@@ -21,7 +21,8 @@ separate GitHub Wiki service has been populated.
 | [Input contract — draft](API-Contract-Draft.md) | Proposed records, snapshot/session rules, user interactions, examples and open decisions; no implemented API |
 | [Static schema and fixtures — draft](../design/api/0.1-draft/README.md) | JSON Schema proposal, positive/negative examples and validation scope |
 | [Offline state handler](../implementation/core/STATE.md) | Executable synthetic scenarios, host boundary, local test evidence and remaining limits |
-| [Review and CI plan](Review-and-CI-Plan.md) | Agreed Preloop + test CI route, separate approval, bootstrap requirements and retained limits |
+| [Review and CI plan](Review-and-CI-Plan.md) | Current local-review direction, deferred Preloop setup and remaining review/CI limits |
+| [Local state review](Local-State-Review.md) | Self-review findings, regression fixes, scenario coverage and evidence boundaries |
 | [Godot study](../design/GODOT.md) | Renderer, behaviour-port checks, engine provenance and desktop limitations |
 | [Project development skill](../.agents/skills/briar-presence/SKILL.md) | Quiet interaction constraints, retained-vector resizing and affected verification |
 

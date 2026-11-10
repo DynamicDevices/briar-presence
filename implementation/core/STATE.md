@@ -36,12 +36,17 @@ window expires. It does not implement animation, motion preferences or delivery.
 
 - Omitted open concerns persist with an omission warning and their original
   observation time. Success in work does not resolve a concern.
+- Omitted resolved concerns can leave the visible view, but their revision and
+  origin validation history persists. Omission never permits an old concern
+  revision or a new claimed origin to bypass its existing fence.
 - Acknowledgements name an exact known revision, preserve history and never
   resolve a concern. Old acknowledgements cannot silence newer pending cues.
 - New significant/critical concerns and time-sensitive requests receive grouped
   brief-then-steady announcements. Confirmed provisional-critical impact and
   changed impact/response needs can renew attention. Withdrawn requests,
   downgraded new concerns and retracted confirmations lose obsolete pending cues.
+  Changed response targets count as response changes. Responses to retained
+  omitted concerns are checked without refreshing the concern's observation.
 - Text comparisons normalise whitespace, not meaning. This is a deterministic
   approximation requiring further product review, not semantic understanding.
 - Missing nonterminal work is retained as last-known metadata with unknown
@@ -64,11 +69,13 @@ Node tests and existing system Python `jsonschema` through
 the draft's explicit date-time profile and never fetches a remote schema.
 
 The full existing suite, with the existing bundled Canvas dependency selected
-through `BRIAR_CANVAS_MODULE`, passed 45/45 tests on 10 November 2026. This
+through `BRIAR_CANVAS_MODULE`, passed 48/48 tests on 10 November 2026. This
 includes eleven executable semantic scenarios, all 21 schema fixture outcomes,
 additional state regressions and existing rendering checks. See
-`test-artifacts/offline-state-full-tests.log` locally. The test-name coverage
+`test-artifacts/local-review-full-tests.log` locally. The test-name coverage
 check alone is not requirement proof; the scenario bodies contain assertions.
 
 These are local checks, not independent review, CI, visual acceptance or release
-approval. Required review/CI and issue updates remain delivery gates.
+approval. [Local self-review findings](../../wiki/Local-State-Review.md) record
+three demonstrated defects, repairs and source-bound evidence. Applicable review
+acceptance and CI remain delivery gates.

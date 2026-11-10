@@ -29,6 +29,7 @@ function unique(items) { return new Set(items.map(x => x.id)).size === items.len
 function requestSignature(items, concernId) {
   return canonical(items.filter(x => x.state === 'open' && x.concernId === concernId).map(x => ({
     id: x.id, category: x.category, request: normal(x.request ?? ''),
+    workId: x.workId ?? null, concernId: x.concernId ?? null,
     timing: x.timing ? {basis: normal(x.timing.basis), consequenceOfDelay: normal(x.timing.consequenceOfDelay), deadline: x.timing.deadline ?? null} : null
   })).sort((a,b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
@@ -86,7 +87,7 @@ export function createStateHandler({userId, workspaceId, validate, policy}) {
       }
     }
     for (const c of message.concerns) {
-      const old = p.concerns.find(x => x.record.id === c.id);
+      const old = p.concernHistory.find(x => x.record.id === c.id);
       if (c.workId && !message.work.some(w => w.id === c.workId)) return 'REFERENCE';
       if (old && c.origin !== old.record.origin) return 'ORIGIN_CONFLICT';
       if (old && (c.revision < old.record.revision || (c.revision === old.record.revision && canonical(c) !== canonical(old.record)))) return 'CONCERN_REVISION';
@@ -115,7 +116,8 @@ export function createStateHandler({userId, workspaceId, validate, policy}) {
     const nextConcerns = [];
     for (const c of message.concerns) {
       const old = p.concerns.find(x => x.record.id === c.id);
-      const entry = {record: copy(c), lastReportedAt: s.now, sourceOmitted: false, knownRevisions: old ? [...old.knownRevisions] : []};
+      const previous = p.concernHistory.find(x => x.record.id === c.id);
+      const entry = {record: copy(c), lastReportedAt: s.now, sourceOmitted: false, knownRevisions: previous ? [...previous.knownRevisions] : []};
       if (!entry.knownRevisions.includes(c.revision)) entry.knownRevisions.push(c.revision);
       nextConcerns.push(entry);
       const closure = closed(s, p.id, c.id);
@@ -132,6 +134,11 @@ export function createStateHandler({userId, workspaceId, validate, policy}) {
     for (const old of p.concerns) {
       if (nextConcerns.some(c => c.record.id === old.record.id) || old.record.lifecycle !== 'open') continue;
       nextConcerns.push({...copy(old), sourceOmitted: true});
+      if (!closed(s, p.id, old.record.id) &&
+          (rank(old.record.severity?.level) >= 2 || acknowledged(s, p.id, old.record.id, old.record.revision)) &&
+          requestSignature(oldAttention, old.record.id) !== requestSignature(message.attentionItems, old.record.id)) {
+        announce(s, {kind: 'concern', producerId: p.id, id: old.record.id, revision: old.record.revision, reason: 'impact-or-response-changed'});
+      }
     }
     for (const a of message.attentionItems) {
       const old = oldAttention.find(x => x.id === a.id);
@@ -150,6 +157,13 @@ export function createStateHandler({userId, workspaceId, validate, policy}) {
       if (w) retainedWork.push(copy(w));
     }
     p.work = copy(message.work); p.retainedWork = retainedWork; p.concerns = nextConcerns;
+    // Visibility and validation history have different lifetimes. Omitting a
+    // resolved record must not reset its revision/origin fence.
+    for (const entry of nextConcerns) {
+      const history = {record: copy(entry.record), knownRevisions: [...entry.knownRevisions]};
+      const index = p.concernHistory.findIndex(x => x.record.id === entry.record.id);
+      if (index < 0) p.concernHistory.push(history); else p.concernHistory[index] = history;
+    }
     p.attentionItems = copy(message.attentionItems); p.revision = message.revision; p.canonical = bytes;
     p.receivedAt = s.now; p.leaseUntil = s.now + p.leaseMs;
     if (s.pending) {
@@ -203,7 +217,7 @@ export function createStateHandler({userId, workspaceId, validate, policy}) {
       return transaction(now, s => {
         let p = producer(s, producerId);
         if (p && (generation <= p.generation || p.sessions.includes(session))) return error('ADMISSION_CONFLICT');
-        if (!p) { p = {id: producerId, work: [], retainedWork: [], concerns: [], attentionItems: [], sessions: []}; s.producers.push(p); }
+        if (!p) { p = {id: producerId, work: [], retainedWork: [], concerns: [], concernHistory: [], attentionItems: [], sessions: []}; s.producers.push(p); }
         Object.assign(p, {session, generation, leaseMs, revision: 0, canonical: null, receivedAt: null, leaseUntil: null});
         p.sessions.push(session);
         return {ok: true};

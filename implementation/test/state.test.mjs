@@ -50,6 +50,53 @@ const view = (h, now = 0, context = user) => h.read(context, now);
 const currentConcern = (h, now = 0) => view(h, now).producers[0].concerns[0];
 const accept = (h, message, now = 0, context = writer) => assert.equal(h.receive(message, context, now).ok, true);
 
+test('resolved concern history still fences stale revisions and origin changes after omission', () => {
+  const h = harness(), c = concern('risk', 0, {severity: severity()});
+  accept(h, snapshot(1, 0, {concerns: [c]}));
+  const resolved = {...c, revision: 2, lifecycle: 'resolved', resolution: {reason: 'Synthetic check passed'}};
+  accept(h, snapshot(2, 1, {concerns: [resolved]}), 1);
+  accept(h, snapshot(3, 2), 2);
+  assert.equal(view(h, 2).producers[0].concerns.length, 0, 'omitted resolved records need not stay in the visible view');
+  assert.equal(h.receive(snapshot(4, 3, {concerns: [c]}), writer, 3).code, 'CONCERN_REVISION');
+  const changedOrigin = {...c, revision: 3, origin: 'user'};
+  assert.equal(h.receive(snapshot(4, 4, {concerns: [changedOrigin]}), {...writer, userRaisedConcernIds: ['risk']}, 4).code, 'ORIGIN_CONFLICT');
+  accept(h, snapshot(4, 5, {concerns: [resolved]}), 5);
+  assert.equal(h.receive(ack('risk', 1), user, 6).ok, true, 'previously known revision remains known');
+  assert.deepEqual(h.flush(user, 15).announcements, []);
+});
+
+test('retargeted time-sensitive response renews attention without inventing greater severity', () => {
+  const h = harness();
+  const request = {id: 'q', workId: 'cedar', state: 'open', category: 'time-sensitive', summary: 'Synthetic slot', request: 'Use it?',
+    timing: {basis: 'Slot available now', consequenceOfDelay: 'Slot may be reassigned'}};
+  const tasks = [work('cedar'), work('birch')];
+  accept(h, snapshot(1, 0, {work: tasks, attentionItems: [request]}));
+  h.flush(user, 10);
+  accept(h, snapshot(2, 11, {work: tasks, attentionItems: [{...request, workId: 'birch'}]}), 11);
+  const announcements = h.flush(user, 21).announcements;
+  assert.equal(announcements.length, 1, 'a request for a different work item is a changed response need');
+  assert.equal(announcements[0].items[0].reason, 'timing-or-request-changed');
+  assert.equal(view(h, 21).producers[0].attentionItems[0].workId, 'birch');
+});
+
+test('changed response for an omitted acknowledged concern renews attention without refreshing its observation', () => {
+  const h = harness(), c = concern('risk', 0, {severity: severity()});
+  accept(h, snapshot(1, 0, {concerns: [c]}));
+  h.flush(user, 10);
+  accept(h, ack('risk'), 11, user);
+  const request = {id: 'choice', concernId: 'risk', state: 'open', category: 'needs-you', summary: 'Recovery choice', request: 'Choose a recovery target'};
+  accept(h, snapshot(2, 12, {attentionItems: [request]}), 12);
+  const announcements = h.flush(user, 22).announcements;
+  assert.equal(announcements.length, 1);
+  assert.equal(announcements[0].items[0].reason, 'impact-or-response-changed');
+  const retained = currentConcern(h, 22);
+  assert.equal(retained.sourceOmitted, true);
+  assert.equal(retained.observedAt, stamp(0));
+  assert.equal(retained.lastReportedAt, 0);
+  accept(h, snapshot(3, 23, {attentionItems: [request]}), 23);
+  assert.deepEqual(h.flush(user, 33).announcements, []);
+});
+
 test('unsupported required features reject atomically; optional extensions remain inert', () => {
   const h = harness();
   accept(h, snapshot(1, 0, {concerns: [concern()]}));
@@ -218,21 +265,26 @@ const scenarios = {
   },
   'user-raised-concern-resolution'() {
     const h = harness();
-    const c = concern('my-worry', 0, {origin: 'user'});
+    const c = concern('my-worry', 0, {origin: 'user', severity: severity()});
     assert.equal(h.receive(snapshot(1, 0, {concerns: [c]}), writer, 0).code, 'USER_PROVENANCE');
     const trustedOrigin = {...writer, userRaisedConcernIds: ['my-worry']};
     accept(h, snapshot(1, 0, {concerns: [c]}), 0, trustedOrigin);
-    const resolved = {...c, revision: 2, observedAt: stamp(1), lifecycle: 'resolved', resolution: {reason: 'Check passed'}};
-    assert.equal(h.receive(snapshot(2, 1, {concerns: [resolved]}), writer, 1).code, 'USER_RESOLUTION_REQUIRED');
-    assert.equal(currentConcern(h, 1).lifecycle, 'open');
-    const closure = {producerId: 'demo', id: 'my-worry', revision: 1, reason: 'I reviewed the relevant evidence', expectedViewRevision: 0};
-    assert.equal(h.resolveConcern(closure, writer, 2).ok, false);
-    assert.equal(h.resolveConcern(closure, user, 2).ok, true);
-    assert.equal(currentConcern(h, 2).lifecycle, 'resolved');
-    assert.equal(currentConcern(h, 2).userResolution.reason, closure.reason);
-    accept(h, snapshot(2, 3, {concerns: [c]}), 3, trustedOrigin);
-    assert.equal(currentConcern(h, 3).lifecycle, 'resolved', 'old source fact cannot undo user closure');
-    assert.equal(h.receive(snapshot(3, 4, {concerns: [{...c, revision: 2, observedAt: stamp(4)}]}), writer, 4).code, 'USER_CLOSED_REVISION_CONFLICT');
+    const checked = {...c, revision: 2, observedAt: stamp(1), severity: {...c.severity, evidence: 'Relevant synthetic check passed'}};
+    const suggestion = {id: 'review-check', concernId: 'my-worry', state: 'open', category: 'for-awareness', summary: 'Check passed; consider resolving after reviewing the evidence'};
+    accept(h, snapshot(2, 1, {concerns: [checked], attentionItems: [suggestion]}), 1, trustedOrigin);
+    assert.equal(currentConcern(h, 1).severity.evidence, checked.severity.evidence);
+    assert.equal(view(h, 1).producers[0].attentionItems[0].summary, suggestion.summary);
+    assert.equal(currentConcern(h, 1).lifecycle, 'open', 'evidence and a suggestion do not close the concern');
+    const resolved = {...checked, revision: 3, observedAt: stamp(2), lifecycle: 'resolved', resolution: {reason: 'Check passed'}};
+    assert.equal(h.receive(snapshot(3, 2, {concerns: [resolved]}), writer, 2).code, 'USER_RESOLUTION_REQUIRED');
+    const closure = {producerId: 'demo', id: 'my-worry', revision: 2, reason: 'I reviewed the relevant evidence', expectedViewRevision: 0};
+    assert.equal(h.resolveConcern(closure, writer, 3).ok, false);
+    assert.equal(h.resolveConcern(closure, user, 3).ok, true);
+    assert.equal(currentConcern(h, 3).lifecycle, 'resolved');
+    assert.equal(currentConcern(h, 3).userResolution.reason, closure.reason);
+    accept(h, snapshot(3, 4, {concerns: [checked]}), 4, trustedOrigin);
+    assert.equal(currentConcern(h, 4).lifecycle, 'resolved', 'old source fact cannot undo user closure');
+    assert.equal(h.receive(snapshot(4, 5, {concerns: [{...checked, revision: 3, observedAt: stamp(5)}]}), writer, 5).code, 'USER_CLOSED_REVISION_CONFLICT');
   },
   'shared-user-focus-and-acknowledgement'() {
     const h = harness();
