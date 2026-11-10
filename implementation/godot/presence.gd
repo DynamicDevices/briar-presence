@@ -11,10 +11,16 @@ var _reduced_motion := false
 var _points: Array = []
 var _motion: Array = []
 var _gatherings: Array = []
+## Hosts must inspect validation_error and must not interpret an empty scene as quiet.
+var validation_error := ""
+var _initialization_error := ""
 
-func _init(initial_seed: int) -> void:
-	assert(initial_seed >= 0 and initial_seed <= 4294967295, "A uint32 seed is required")
-	_seed = initial_seed
+func _init(initial_seed: Variant) -> void:
+	if not (initial_seed is int or initial_seed is float) or not is_finite(float(initial_seed)) or initial_seed < 0 or initial_seed > 4294967295 or floor(float(initial_seed)) != float(initial_seed):
+		_initialization_error = "A uint32 seed is required"
+		validation_error = _initialization_error
+		return
+	_seed = int(initial_seed)
 	for group in range(9):
 		for n in range(130):
 			_points.append({"group":group,"x":_normal(),"y":_normal(),"r":.35+_random()*.85,"a":.25+_random()*.65,"phase":_random()*TAU,"white":_random()>.88,"key":_random()*10000.0,"speed":.35+_random()*.55,"travel":.65+_random()*.75})
@@ -105,12 +111,18 @@ func _tint(group: int, white: bool = false) -> Array:
 		rgb = [105,113,123]
 	return rgb
 
-func sample(input: Dictionary) -> Dictionary:
+func sample(input: Variant) -> Dictionary:
+	validation_error = _initialization_error
+	if not validation_error.is_empty():
+		return {}
+	if not input is Dictionary:
+		validation_error = "Presence sample must be a dictionary"
+		return {}
 	if not input.has_all(["time","state","reducedMotion"]):
-		push_error("Missing presence sample fields")
+		validation_error = "Missing presence sample fields"
 		return {}
 	if not (input["time"] is float or input["time"] is int) or not is_finite(float(input["time"])) or input["time"] < 0 or not STATES.has(input["state"]) or not input["reducedMotion"] is bool:
-		push_error("Invalid presence sample")
+		validation_error = "Invalid presence sample"
 		return {}
 	_state = input["state"]
 	_reduced_motion = input["reducedMotion"]

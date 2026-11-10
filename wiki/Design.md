@@ -17,6 +17,10 @@ Supportive and unobtrusive throughout. Keep design intentions separate from impl
   should distinguish the area against the desktop without becoming a harsh card.
 - Controls appear on request after clicking the image. They must not replace the
   face with a black panel. Moving the image should be easy from that interaction.
+- Resize by dragging a corner directly. No resize button, visible grip, panel
+  or persistent control. The ordinary diagonal cursor may appear on corner
+  hover. Preserve the face's proportions as the display changes size. This is
+  Alex's explicit clarification; it is not permission to switch the desktop host.
 - Stronger need for attention should be expressed through faster movement and
   stronger colour. Red transitions are a direction to investigate, not a final
   alarm system or permission to escalate automatically.

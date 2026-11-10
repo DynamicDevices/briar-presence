@@ -5,6 +5,8 @@ var _view_size := Vector2(360,460)
 var _point_scale := 1.0
 var _light_gain := 1.0
 var _glow_texture: GradientTexture2D
+var draw_usec_total := 0
+var draw_count := 0
 
 func _init() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
@@ -32,6 +34,7 @@ func tint(rgb: Array, opacity: float) -> Color:
 func _draw() -> void:
 	if _scene.is_empty():
 		return
+	var started := Time.get_ticks_usec()
 	for glow: Dictionary in _scene["glows"]:
 		var center := Vector2(glow["x"]*_view_size.x,glow["y"]*_view_size.y)
 		var radii := Vector2(glow["rx"]*_view_size.x,glow["ry"]*_view_size.y)
@@ -43,3 +46,5 @@ func _draw() -> void:
 		if light["halo"]:
 			draw_circle(center,radius*4.0,tint(light["color"],opacity*.06),true,-1.0,true)
 		draw_circle(center,radius,tint(light["color"],opacity),true,-1.0,true)
+	draw_usec_total += Time.get_ticks_usec()-started
+	draw_count += 1
