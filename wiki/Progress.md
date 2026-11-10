@@ -26,14 +26,19 @@ ordinary requests and minor concerns get a quieter indication. These are design
 choices, not implemented grading or animations. A first [static schema/fixture
 draft](../design/api/0.1-draft/README.md) now covers producer snapshots and separate
 focus/acknowledgement. It includes shape checks and separately described semantic
-scenarios, not an implemented validator, reducer, listener or live integration.
+scenarios. An isolated offline reducer now exercises them; there is still no
+listener or live integration.
 
 Latest example review selects a fresh cue for confirmed previously provisional
 critical impact, explicit user closure of user-raised concerns, and shared
 real-time focus/acknowledgement. Rejoining displays take current accepted state,
 not replay superseded choices. Eleven semantic scenarios now specify these
-requirements; they have not run against a state handler. The structural schema
-and its 21 positive/negative fixture cases are unchanged by this review.
+requirements and now execute against the [offline state handler](../implementation/core/STATE.md).
+The full local suite passes 45/45 tests, including those eleven scenarios and
+all 21 positive/negative schema fixtures. Trusted identities are synthetic;
+there is no live authentication, display sync or renderer integration. Independent
+review, CI and affected issue updates remain open. The renderer and launcher
+are unchanged by this work.
 
 | Area | Current evidence | Still open |
 | --- | --- | --- |

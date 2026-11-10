@@ -19,7 +19,8 @@ separate GitHub Wiki service has been populated.
 | [Visual-language API review and plan](Visual-Language-API.md) | Approved review, concurrent work/concerns, contract, extensibility, safeguards and staged acceptance |
 | [Vocabulary and scenarios](Visual-Language-Vocabulary.md) | Selected design decisions, proposed semantics, 21 synthetic scenarios and outstanding readability checks |
 | [Input contract — draft](API-Contract-Draft.md) | Proposed records, snapshot/session rules, user interactions, examples and open decisions; no implemented API |
-| [Static schema and fixtures — draft](../design/api/0.1-draft/README.md) | JSON Schema proposal, positive/negative examples, validation scope and unexecuted semantic scenarios |
+| [Static schema and fixtures — draft](../design/api/0.1-draft/README.md) | JSON Schema proposal, positive/negative examples and validation scope |
+| [Offline state handler](../implementation/core/STATE.md) | Executable synthetic scenarios, host boundary, local test evidence and remaining limits |
 | [Godot study](../design/GODOT.md) | Renderer, behaviour-port checks, engine provenance and desktop limitations |
 | [Project development skill](../.agents/skills/briar-presence/SKILL.md) | Quiet interaction constraints, retained-vector resizing and affected verification |
 

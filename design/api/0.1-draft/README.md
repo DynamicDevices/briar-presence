@@ -84,15 +84,18 @@ Do not
 fetch schemas/extensions from arbitrary URLs supplied by clients. Plain text
 and extension data must never be executed or automatically navigated.
 
-Semantic scenarios describe expected outcomes; they are not a running test of a
-consumer. In particular, two individually schema-valid snapshots can still be
+Semantic scenarios describe expected outcomes; they are now also exercised by
+the isolated [offline state handler](../../../implementation/core/STATE.md).
+They do not prove a deployed consumer. Two individually schema-valid snapshots can still be
 out of order, cross-scope, contradictory or unsupported by capabilities.
 
 Finite validation used system Python with jsonschema 4.19.2, Draft202012Validator,
 schema meta-validation and the explicit date-time profile assertion above. All
 21 fixture outcomes matched (10 valid, 11 invalid), and the contract page's JSON
 example validates. Local documentation links checked were intact. Eleven semantic
-scenarios are specified but have not been executed against a state handler.
+scenarios now execute against the isolated state handler with synthetic trusted
+contexts. The full local suite passes 45/45 tests; this does not prove live
+authentication, display synchronisation, independent review or CI acceptance.
 
 The example corpus is deliberately small and synthetic. It does not complete
 all scenarios or issue #5. Standards/tool versions, source admission, persistence,
