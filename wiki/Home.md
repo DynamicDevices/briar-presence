@@ -23,6 +23,8 @@ separate GitHub Wiki service has been populated.
 | [Offline state handler](../implementation/core/STATE.md) | Executable synthetic scenarios, host boundary, local test evidence and remaining limits |
 | [Review and CI plan](Review-and-CI-Plan.md) | Current local-review direction, deferred Preloop setup and remaining review/CI limits |
 | [Local state review](Local-State-Review.md) | Self-review findings, regression fixes, scenario coverage and evidence boundaries |
+| [Alex's local review package](Alex-Local-Review.md) | Source scope, review checklist, local test instructions and result fields |
+| [Offline test CI draft — inactive](../design/api/0.1-draft/CI-Readiness.md) | Proposed isolated test job, reproducibility and activation requirements; not configured CI |
 | [Godot study](../design/GODOT.md) | Renderer, behaviour-port checks, engine provenance and desktop limitations |
 | [Project development skill](../.agents/skills/briar-presence/SKILL.md) | Quiet interaction constraints, retained-vector resizing and affected verification |
 

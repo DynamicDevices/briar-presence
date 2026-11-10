@@ -41,6 +41,8 @@ window expires. It does not implement animation, motion preferences or delivery.
   revision or a new claimed origin to bypass its existing fence.
 - Acknowledgements name an exact known revision, preserve history and never
   resolve a concern. Old acknowledgements cannot silence newer pending cues.
+  Cue eligibility remembers prior acknowledgement across cosmetic revisions;
+  the view never silently marks an unseen revision acknowledged.
 - New significant/critical concerns and time-sensitive requests receive grouped
   brief-then-steady announcements. Confirmed provisional-critical impact and
   changed impact/response needs can renew attention. Withdrawn requests,
@@ -69,13 +71,13 @@ Node tests and existing system Python `jsonschema` through
 the draft's explicit date-time profile and never fetches a remote schema.
 
 The full existing suite, with the existing bundled Canvas dependency selected
-through `BRIAR_CANVAS_MODULE`, passed 48/48 tests on 10 November 2026. This
+through `BRIAR_CANVAS_MODULE`, passed 49/49 tests on 10 November 2026. This
 includes eleven executable semantic scenarios, all 21 schema fixture outcomes,
 additional state regressions and existing rendering checks. See
-`test-artifacts/local-review-full-tests.log` locally. The test-name coverage
+`test-artifacts/local-review-ack-history-full-tests.log` locally. The test-name coverage
 check alone is not requirement proof; the scenario bodies contain assertions.
 
 These are local checks, not independent review, CI, visual acceptance or release
 approval. [Local self-review findings](../../wiki/Local-State-Review.md) record
-three demonstrated defects, repairs and source-bound evidence. Applicable review
+four demonstrated defects, repairs and source-bound evidence. Applicable review
 acceptance and CI remain delivery gates.

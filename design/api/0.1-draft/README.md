@@ -94,7 +94,7 @@ schema meta-validation and the explicit date-time profile assertion above. All
 21 fixture outcomes matched (10 valid, 11 invalid), and the contract page's JSON
 example validates. Local documentation links checked were intact. Eleven semantic
 scenarios now execute against the isolated state handler with synthetic trusted
-contexts. The full local suite passes 48/48 tests after the documented local
+contexts. The full local suite passes 49/49 tests after the documented local
 self-review repairs; this does not prove live
 authentication, display synchronisation, independent review or CI acceptance.
 

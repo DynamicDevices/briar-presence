@@ -97,6 +97,32 @@ test('changed response for an omitted acknowledged concern renews attention with
   assert.deepEqual(h.flush(user, 33).announcements, []);
 });
 
+test('cosmetic revisions do not erase acknowledgement history for later meaningful minor-concern changes', () => {
+  const original = concern('minor-risk', 0, {severity: severity('minor', 'established', 'Small recoverable delay')});
+  for (const omit of [false, true]) {
+    const h = harness();
+    accept(h, snapshot(1, 0, {concerns: [original]}));
+    accept(h, ack('minor-risk'), 1, user);
+    const cosmetic = {...original, revision: 2, observedAt: stamp(2), summary: 'Clearer wording, unchanged consequences'};
+    accept(h, snapshot(2, 2, {concerns: [cosmetic]}), 2);
+    assert.deepEqual(h.flush(user, 12).announcements, []);
+    assert.equal(currentConcern(h, 12).acknowledged, false, 'a new revision is not silently acknowledged');
+    const request = {id: 'choice', concernId: original.id, state: 'open', category: 'needs-you', summary: 'New response needed', request: 'Choose a recovery target'};
+    accept(h, snapshot(3, 13, {concerns: omit ? [] : [cosmetic], attentionItems: [request]}), 13);
+    const announcements = h.flush(user, 23).announcements;
+    assert.equal(announcements.length, 1, `earlier acknowledgement survives cosmetic revision; omitted=${omit}`);
+    assert.equal(announcements[0].items[0].reason, 'impact-or-response-changed');
+    assert.equal(currentConcern(h, 23).severity.level, 'minor');
+    assert.equal(currentConcern(h, 23).acknowledged, false);
+    assert.equal(view(h, 23).acknowledgements[0].revision, 1);
+  }
+  const quiet = harness();
+  accept(quiet, snapshot(1, 0, {concerns: [original]}));
+  const changed = {...original, revision: 2, severity: {...original.severity, impact: 'Another small recoverable delay'}};
+  accept(quiet, snapshot(2, 1, {concerns: [changed]}), 1);
+  assert.deepEqual(quiet.flush(user, 11).announcements, [], 'unacknowledged minor concerns do not acquire a stronger default cue');
+});
+
 test('unsupported required features reject atomically; optional extensions remain inert', () => {
   const h = harness();
   accept(h, snapshot(1, 0, {concerns: [concern()]}));

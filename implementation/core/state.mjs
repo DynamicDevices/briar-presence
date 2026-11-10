@@ -44,6 +44,9 @@ export function createStateHandler({userId, workspaceId, validate, policy}) {
   let state = {now: 0, producers: [], focus: null, viewRevision: 0, acknowledgements: [], closures: [], receipts: [], pending: null, announcements: []};
   const producer = (s, id) => s.producers.find(p => p.id === id);
   const acknowledged = (s, producerId, id, revision) => s.acknowledgements.some(a => a.producerId === producerId && a.id === id && a.revision === revision);
+  // Cue eligibility remembers that the user has seen this concern. The view
+  // still reports acknowledgement only for the exact revision actually seen.
+  const previouslyAcknowledged = (s, producerId, id) => s.acknowledgements.some(a => a.producerId === producerId && a.id === id);
   const closed = (s, producerId, id) => s.closures.find(c => c.producerId === producerId && c.id === id);
   const userContext = context => context?.kind === 'user' && context.userId === userId && context.workspaceId === workspaceId;
   const error = code => ({ok: false, code});
@@ -125,7 +128,7 @@ export function createStateHandler({userId, workspaceId, validate, policy}) {
       const changedImpact = old && (c.severity?.level !== old.record.severity?.level || normal(c.severity?.impact ?? '') !== normal(old.record.severity?.impact ?? ''));
       const changedRequest = old && requestSignature(oldAttention, c.id) !== requestSignature(message.attentionItems, c.id);
       const confirmedCritical = old && old.record.severity?.level === 'critical' && old.record.severity?.assessment === 'provisional' && c.severity?.level === 'critical' && c.severity?.assessment === 'established';
-      const wasAcknowledged = old && acknowledged(s, p.id, c.id, old.record.revision);
+      const wasAcknowledged = old && previouslyAcknowledged(s, p.id, c.id);
       const significant = rank(c.severity?.level) >= 2;
       if ((!old && significant) || (old && (significant || wasAcknowledged) && (changedImpact || changedRequest || confirmedCritical))) {
         announce(s, {kind: 'concern', producerId: p.id, id: c.id, revision: c.revision, reason: confirmedCritical ? 'critical-confirmed' : old ? 'impact-or-response-changed' : 'new-concern'});
@@ -135,7 +138,7 @@ export function createStateHandler({userId, workspaceId, validate, policy}) {
       if (nextConcerns.some(c => c.record.id === old.record.id) || old.record.lifecycle !== 'open') continue;
       nextConcerns.push({...copy(old), sourceOmitted: true});
       if (!closed(s, p.id, old.record.id) &&
-          (rank(old.record.severity?.level) >= 2 || acknowledged(s, p.id, old.record.id, old.record.revision)) &&
+          (rank(old.record.severity?.level) >= 2 || previouslyAcknowledged(s, p.id, old.record.id)) &&
           requestSignature(oldAttention, old.record.id) !== requestSignature(message.attentionItems, old.record.id)) {
         announce(s, {kind: 'concern', producerId: p.id, id: old.record.id, revision: old.record.revision, reason: 'impact-or-response-changed'});
       }

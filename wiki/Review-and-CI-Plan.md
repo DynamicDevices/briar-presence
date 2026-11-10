@@ -14,6 +14,11 @@ failing regressions for demonstrated defects, fixes and full-suite retesting.
 It is not an independent reviewer or a successful Preloop result. See the
 [local findings and evidence](Local-State-Review.md).
 
+Alex selected personally performing the independent local review; the
+[review package](Alex-Local-Review.md) is prepared, but no verdict is recorded
+on Alex's behalf. The [test CI draft](../design/api/0.1-draft/CI-Readiness.md)
+is inactive preparation, not workflow activation or new permission.
+
 No service, new review worker, credential, workflow or installed launcher is
 changed. The current signed offline grant covers local inspection, repairs,
 tests and documentation, but does not admit another reviewer or CI setup.

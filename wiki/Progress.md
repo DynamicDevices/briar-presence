@@ -34,7 +34,7 @@ critical impact, explicit user closure of user-raised concerns, and shared
 real-time focus/acknowledgement. Rejoining displays take current accepted state,
 not replay superseded choices. Eleven semantic scenarios now specify these
 requirements and now execute against the [offline state handler](../implementation/core/STATE.md).
-The full local suite now passes 48/48 tests, including those eleven scenarios and
+The full local suite now passes 49/49 tests, including those eleven scenarios and
 all 21 positive/negative schema fixtures. Trusted identities are synthetic;
 there is no live authentication, display sync or renderer integration. Independent
 review and CI remain open; issues #3, #5 and #9 now link the offline evidence. The renderer and launcher
@@ -43,9 +43,15 @@ are unchanged by this work.
 Alex initially selected Preloop + test CI, then directed **local review because
 of Preloop problems**. The [review plan](Review-and-CI-Plan.md) records that change;
 Preloop setup is deferred. [Local self-review](Local-State-Review.md) found and
-fixed three transition defects with failing regressions before repair. No new
+fixed four transition defects with failing regressions before repair. No new
 reviewer, workflow or publication permission has been enabled. Self-review is
 not independent approval, and local tests do not satisfy the separate CI gate.
+
+Alex selected performing the independent review locally. The
+[review package](Alex-Local-Review.md) supplies scope, reading order, checks and
+result fields without filling in Alex's verdict. The
+[inactive test CI draft](../design/api/0.1-draft/CI-Readiness.md) records the
+no-secret job design and missing activation evidence; no workflow is enabled.
 
 | Area | Current evidence | Still open |
 | --- | --- | --- |
