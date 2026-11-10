@@ -6,7 +6,11 @@
 Prepared after Alex selected the visual-language MCQ choices and instructed
 “lock this in and lets carry on”. The selected presentation rules are requirements;
 the records, names and operation semantics here are proposals. This is a design
-document, not executable schemas, endpoints, authentication or a running service.
+document, not an implemented endpoint, authentication system or running service.
+
+There is now a [static JSON Schema and synthetic fixture draft](../design/api/0.1-draft/README.md)
+for producer status, user focus and acknowledgement, as selected by Alex. It is
+a machine-checkable specification proposal, not an implemented input service.
 
 ## Boundary
 
@@ -103,13 +107,19 @@ a reviewed persistence/time model can justify retaining freshness.
   Important background concerns remain discoverable. A producer cannot steal focus.
 - Keep response-needed distinct from concern severity. Facts describe impact,
   requested respondent and any evidenced deadline; presentation applies user limits.
+- Alex selected consequences/recoverability as the severity basis: minor means
+  limited readily recoverable disruption; significant means substantial rework,
+  disruption or impact; critical means severe consequences such as serious harm
+  or major irreversible loss. Credible but unconfirmed severe consequences use
+  provisional severity with explicit evidence/gaps, not a claim of established harm.
 - Alex selected severity labels **minor, significant, critical**, with impact and
   evidence explained. These describe reported consequences, not execution authority
-  or whether the user must respond now. Classification boundaries remain to be
-  specified; do not silently assign minor severity when evidence is missing.
+  or whether the user must respond now. Domain-specific examples still need
+  review; do not silently assign minor severity when evidence is missing.
 - Alex selected attention categories **For awareness, Needs you, Time-sensitive**.
   A time-sensitive request needs an explanation of timing, with a deadline shown
-  when known. A critical concern can be handled without a response from the user;
+  when known. Alex selected a stated consequence of delay and a timing basis/window
+  as the qualifying rule; merely blocking work is insufficient. A critical concern can be handled without a response from the user;
   a minor issue or harmless choice may nevertheless need a timely response.
   No requested attention is distinct from an awareness item; wire encoding is open.
 - Acknowledgement stores who saw which concern revision. It stops repeated pulses,
@@ -123,7 +133,9 @@ a reviewed persistence/time model can justify retaining freshness.
   preferences win. Alex selected the default threshold for **new items**: briefly
   announce time-sensitive requests and significant/critical concerns; give ordinary
   requests and minor concerns a quieter visible indication. Grouping/rate limits
-  still need design so simultaneous items do not produce an alert storm.
+  still need design. Alex selected one brief combined announcement for nearby
+  qualifying arrivals, then a steady summary, retaining individual inspection and
+  without stealing focus. The grouping window and rate limits are not selected.
   For an acknowledged concern, Alex selected a brief new cue
   when impact or what the user needs to do changes: increased impact, a changed
   decision/request or another materially changed response need. Explain what
@@ -143,20 +155,25 @@ one complete small view; they are not a real request or deployed protocol.
 
 ```json
 {
-  "contractVersion": "0.1-draft",
+  "kind": "producer.snapshot",
+  "version": "0.1-draft",
   "session": "consumer-issued-session",
   "revision": 7,
+  "observedAt": "2026-11-10T12:00:00Z",
   "work": [
     {"id": "cedar", "label": "Cedar checks", "lifecycle": "finished",
+     "observedAt": "2026-11-10T12:00:00Z",
      "result": {"outcome": "succeeded", "summary": "Checks passed"}}
   ],
   "concerns": [
     {"id": "compatibility", "revision": 2, "workId": "cedar",
+     "observedAt": "2026-11-10T12:00:00Z",
      "origin": "producer", "lifecycle": "open",
      "summary": "Checks do not cover the compatibility question"}
   ],
-  "responseRequests": [
+  "attentionItems": [
     {"id": "choose-next", "workId": "cedar", "state": "open",
+     "category": "needs-you", "request": "Choose a compatibility target",
      "summary": "Which compatibility target should be checked next?"}
   ]
 }
@@ -165,8 +182,10 @@ one complete small view; they are not a real request or deployed protocol.
 Expected meaning: successful finished work, an open concern, and a question for
 the user. It is not “everything resolved”. A user's acknowledgement would be a
 separate interaction record, not an edit that the producer inserts into this
-snapshot. This fragment omits fields whose formats are not decided; it is not
-claimed to pass a validator.
+snapshot. This example now follows the static schema draft, including the proposed
+`attentionItems` spelling replacing the earlier `responseRequests` sketch. Neither
+name is a frozen public API, and structural validity does not establish truthful
+facts, authorised scope or correct state transitions.
 
 ## Proposed failure examples
 
@@ -216,13 +235,14 @@ retention policy; that UI requirement does not mandate a broker or network strea
   tombstones, ownership and concern-resolution semantics.
 - Specify admission/fencing, durable ordering, freshness bounds and retry behaviour.
 - Design user-view operations and last-inspected history without assuming sync.
-- Define classification boundaries for the selected severity/attention terms,
-  evidence for timing and technical material-change comparison, consistent with
+- Review domain-specific examples for the selected severity/recoverability and
+  consequence-of-delay rules; specify technical material-change comparison consistent with
   the selected new-item threshold, renewed cue and steady acknowledged cue.
-- Produce actual schemas and valid/invalid fixtures after these decisions.
+- Review the first static schemas and valid/invalid fixtures, and implement/test
+  semantic validation only under separately verified development scope.
 - Select a supported standards/tooling profile with safeguards (#7) and extensions
   (#8); no library, listener or service is adopted by this document.
-- Link review, conformance and later human evidence. Issue #5 remains open; this
-  draft does not satisfy its schema/test or integration acceptance conditions.
+- Link review, conformance and later human evidence. Issue #5 remains open;
+  structural schema checks do not complete stateful or integration acceptance.
 
 Assisted-by: Briar

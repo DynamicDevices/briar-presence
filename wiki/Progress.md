@@ -12,7 +12,7 @@ integration. This records direction and future work, not an implemented API or
 deployment approval. No runtime or installed launcher changed.
 
 Next-step work: [issue #4's vocabulary/scenarios](Visual-Language-Vocabulary.md)
-now records Alex's twelve selected design decisions and 18 synthetic acceptance
+now records Alex's seventeen selected design decisions and 18 synthetic acceptance
 scenarios. Human readability checks and unselected semantics remain open.
 [Issue #5's input-contract draft](API-Contract-Draft.md) proposes records,
 snapshot ordering, session fencing, freshness and interaction boundaries. Alex
@@ -23,8 +23,10 @@ review. Severity is selected as minor/significant/critical; attention is For
 awareness/Needs you/Time-sensitive. New time-sensitive requests and significant/
 critical concerns get the brief stronger cue by default, within user preferences;
 ordinary requests and minor concerns get a quieter indication. These are design
-choices, not implemented grading or animations. No schemas, API code,
-listener or live input have been implemented by this planning work.
+choices, not implemented grading or animations. A first [static schema/fixture
+draft](../design/api/0.1-draft/README.md) now covers producer snapshots and separate
+focus/acknowledgement. It includes shape checks and separately described semantic
+scenarios, not an implemented validator, reducer, listener or live integration.
 
 | Area | Current evidence | Still open |
 | --- | --- | --- |

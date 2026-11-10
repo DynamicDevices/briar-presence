@@ -24,6 +24,12 @@ Explain impact/evidence and timing, showing a deadline when known. Severity is
 not a demand for a response or permission to act. User motion/brightness limits
 still apply. Classification boundaries and exact visual treatments need design.
 
+The next guided decisions select consequences/recoverability as severity's basis,
+provisional severity for credible unconfirmed impact, and consequence-of-delay
+plus a timing basis for time-sensitive requests. Nearby qualifying arrivals share
+one brief combined cue then a steady summary; inspection retains each item's
+facts, and focus is not stolen. Exact visual timing remains to be tested.
+
 - Irregular cloudlets and fine light detail, not connecting lines or a fixed mask.
 - Continuous varied movement, not a sequence that visibly moves once and settles
   into an apparently static image. Lights should wander independently rather than

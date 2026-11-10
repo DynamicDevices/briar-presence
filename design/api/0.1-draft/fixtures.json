@@ -1,0 +1,147 @@
+{
+  "description": "Synthetic static schema cases. Expected semantic outcomes are design assertions, not executed stateful tests.",
+  "cases": [
+    {
+      "id": "empty-current-snapshot", "schemaValid": true,
+      "message": {"kind": "producer.snapshot", "version": "0.1-draft", "session": "synthetic-session", "revision": 1, "observedAt": "2026-11-10T12:00:00Z", "work": [], "concerns": [], "attentionItems": []}
+    },
+    {
+      "id": "harmless-blocked-choice", "schemaValid": true,
+      "message": {
+        "kind": "producer.snapshot", "version": "0.1-draft", "session": "synthetic-session", "revision": 2, "observedAt": "2026-11-10T12:01:00Z",
+        "work": [{"id": "birch", "label": "Birch draft", "observedAt": "2026-11-10T12:01:00Z", "lifecycle": "waiting", "wait": {"party": "user", "reason": "Choose which draft to continue"}}],
+        "concerns": [],
+        "attentionItems": [{"id": "choose", "workId": "birch", "state": "open", "category": "needs-you", "summary": "A draft choice is needed", "request": "Choose draft A or draft B"}]
+      }
+    },
+    {
+      "id": "possible-critical-awareness", "schemaValid": true,
+      "message": {
+        "kind": "producer.snapshot", "version": "0.1-draft", "session": "synthetic-session", "revision": 3, "observedAt": "2026-11-10T12:02:00Z", "work": [],
+        "concerns": [{"id": "recovery", "revision": 1, "observedAt": "2026-11-10T12:02:00Z", "origin": "producer", "lifecycle": "open", "summary": "Recovery coverage is being investigated", "severity": {"level": "critical", "assessment": "provisional", "impact": "Possible major irreversible loss if recovery coverage is absent", "evidence": "Synthetic recovery check is incomplete; coverage has not been confirmed"}}],
+        "attentionItems": [{"id": "recovery-info", "concernId": "recovery", "state": "open", "category": "for-awareness", "summary": "An assigned operator is investigating; no response requested from this user"}]
+      }
+    },
+    {
+      "id": "minor-time-sensitive-no-exact-deadline", "schemaValid": true,
+      "message": {
+        "kind": "producer.snapshot", "version": "0.1-draft", "session": "synthetic-session", "revision": 4, "observedAt": "2026-11-10T12:03:00Z", "work": [],
+        "concerns": [{"id": "temporary-slot", "revision": 1, "observedAt": "2026-11-10T12:03:00Z", "origin": "producer", "lifecycle": "open", "summary": "A temporary test slot may be released", "severity": {"level": "minor", "assessment": "established", "impact": "A readily recoverable delay before retrying a nonessential test", "evidence": "Synthetic scheduler reports the slot is held only while the operator is available"}}],
+        "attentionItems": [{"id": "slot-choice", "concernId": "temporary-slot", "state": "open", "category": "time-sensitive", "summary": "Decide while the temporary slot remains available", "request": "Choose whether to use the slot", "timing": {"basis": "Operator is available now; exact release time is not known", "consequenceOfDelay": "The slot may be reassigned and the test would need to wait"}}]
+      }
+    },
+    {
+      "id": "finished-with-open-concern", "schemaValid": true,
+      "message": {
+        "kind": "producer.snapshot", "version": "0.1-draft", "session": "synthetic-session", "revision": 5, "observedAt": "2026-11-10T12:04:00Z",
+        "work": [{"id": "cedar", "label": "Cedar checks", "observedAt": "2026-11-10T12:04:00Z", "lifecycle": "finished", "result": {"outcome": "succeeded", "summary": "Synthetic checks passed"}}],
+        "concerns": [{"id": "compatibility", "revision": 2, "observedAt": "2026-11-10T12:04:00Z", "workId": "cedar", "origin": "investigation", "lifecycle": "open", "summary": "Passing checks do not answer the compatibility question"}],
+        "attentionItems": []
+      }
+    },
+    {
+      "id": "focus-work", "schemaValid": true,
+      "message": {"kind": "user.focus", "version": "0.1-draft", "requestId": "synthetic-focus-1", "expectedViewRevision": 0, "target": {"producerId": "demo", "kind": "work", "id": "cedar"}}
+    },
+    {
+      "id": "focus-overview", "schemaValid": true,
+      "message": {"kind": "user.focus", "version": "0.1-draft", "requestId": "synthetic-focus-2", "expectedViewRevision": 1, "target": null}
+    },
+    {
+      "id": "acknowledge-seen-concern", "schemaValid": true,
+      "message": {"kind": "user.acknowledge", "version": "0.1-draft", "requestId": "synthetic-ack-1", "expectedViewRevision": 2, "concern": {"producerId": "demo", "kind": "concern", "id": "compatibility"}, "concernRevision": 2}
+    },
+    {
+      "id": "significant-recoverable-rework", "schemaValid": true,
+      "message": {"kind": "producer.snapshot", "version": "0.1-draft", "session": "synthetic-session", "revision": 6, "observedAt": "2026-11-10T12:05:00Z", "work": [], "concerns": [{"id": "rework", "revision": 1, "observedAt": "2026-11-10T12:05:00Z", "origin": "producer", "lifecycle": "open", "summary": "A recoverable output must be substantially rebuilt", "severity": {"level": "significant", "assessment": "established", "impact": "Substantial rework and disruption, but the source is intact and recovery is available", "evidence": "Synthetic verification identifies a reusable source and a faulty derived output"}}], "attentionItems": []}
+    },
+    {
+      "id": "offset-timestamp", "schemaValid": true,
+      "message": {"kind": "producer.snapshot", "version": "0.1-draft", "session": "synthetic-session", "revision": 6, "observedAt": "2026-11-10T13:05:00+01:00", "work": [], "concerns": [], "attentionItems": []}
+    },
+    {
+      "id": "invalid-calendar-date", "schemaValid": false,
+      "message": {"kind": "producer.snapshot", "version": "0.1-draft", "session": "synthetic-session", "revision": 6, "observedAt": "2026-02-30T12:05:00Z", "work": [], "concerns": [], "attentionItems": []}
+    },
+    {
+      "id": "invalid-missing-timezone", "schemaValid": false,
+      "message": {"kind": "producer.snapshot", "version": "0.1-draft", "session": "synthetic-session", "revision": 6, "observedAt": "2026-11-10T12:05:00", "work": [], "concerns": [], "attentionItems": []}
+    },
+    {
+      "id": "unsupported-leap-second-profile", "schemaValid": false,
+      "message": {"kind": "producer.snapshot", "version": "0.1-draft", "session": "synthetic-session", "revision": 6, "observedAt": "2016-12-31T23:59:60Z", "work": [], "concerns": [], "attentionItems": []}
+    },
+    {
+      "id": "invalid-severity-alias", "schemaValid": false,
+      "message": {"kind": "producer.snapshot", "version": "0.1-draft", "session": "synthetic-session", "revision": 6, "observedAt": "2026-11-10T12:05:00Z", "work": [], "concerns": [{"id": "alias", "revision": 1, "observedAt": "2026-11-10T12:05:00Z", "origin": "producer", "lifecycle": "open", "summary": "Wrong core severity", "severity": {"level": "urgent", "assessment": "established", "impact": "Example impact", "evidence": "Synthetic observation"}}], "attentionItems": []}
+    },
+    {
+      "id": "invalid-time-sensitive-no-timing", "schemaValid": false,
+      "message": {"kind": "producer.snapshot", "version": "0.1-draft", "session": "synthetic-session", "revision": 7, "observedAt": "2026-11-10T12:06:00Z", "work": [], "concerns": [], "attentionItems": [{"id": "question", "state": "open", "category": "time-sensitive", "summary": "A choice", "request": "Choose a draft"}]}
+    },
+    {
+      "id": "invalid-timing-no-delay-consequence", "schemaValid": false,
+      "message": {"kind": "producer.snapshot", "version": "0.1-draft", "session": "synthetic-session", "revision": 8, "observedAt": "2026-11-10T12:07:00Z", "work": [], "concerns": [], "attentionItems": [{"id": "question", "state": "open", "category": "time-sensitive", "summary": "A choice", "request": "Choose a draft", "timing": {"basis": "Work is blocked"}}]}
+    },
+    {
+      "id": "invalid-ack-resolution-command", "schemaValid": false,
+      "message": {"kind": "user.acknowledge", "version": "0.1-draft", "requestId": "synthetic-ack-2", "expectedViewRevision": 2, "concern": {"producerId": "demo", "kind": "concern", "id": "compatibility"}, "concernRevision": 2, "resolve": true}
+    },
+    {
+      "id": "invalid-producer-focus-injection", "schemaValid": false,
+      "message": {"kind": "producer.snapshot", "version": "0.1-draft", "session": "synthetic-session", "revision": 9, "observedAt": "2026-11-10T12:08:00Z", "work": [], "concerns": [], "attentionItems": [], "focus": "cedar"}
+    },
+    {
+      "id": "invalid-timestamp", "schemaValid": false,
+      "message": {"kind": "producer.snapshot", "version": "0.1-draft", "session": "synthetic-session", "revision": 10, "observedAt": "not-a-timestamp", "work": [], "concerns": [], "attentionItems": []}
+    },
+    {
+      "id": "invalid-finished-no-result", "schemaValid": false,
+      "message": {"kind": "producer.snapshot", "version": "0.1-draft", "session": "synthetic-session", "revision": 11, "observedAt": "2026-11-10T12:10:00Z", "work": [{"id": "cedar", "label": "Cedar", "observedAt": "2026-11-10T12:10:00Z", "lifecycle": "finished"}], "concerns": [], "attentionItems": []}
+    },
+    {
+      "id": "invalid-unknown-message-kind", "schemaValid": false,
+      "message": {"kind": "producer.execute", "version": "0.1-draft", "command": "synthetic-no-op"}
+    }
+  ],
+  "semanticScenarios": [
+    {
+      "id": "critical-managed-versus-harmless-blocked",
+      "inputCases": ["possible-critical-awareness", "harmless-blocked-choice"],
+      "context": "Independent synthetic views, not a sequence to merge as one producer.",
+      "expected": ["Critical impact is explicitly provisional; no response is invented for the user", "A harmless blocked choice is Needs you, not time-sensitive without delay consequences", "New critical concern has a brief stronger cue; the ordinary question gets a quieter visible indication"]
+    },
+    {
+      "id": "minor-but-time-sensitive",
+      "inputCases": ["minor-time-sensitive-no-exact-deadline"],
+      "expected": ["Minor severity stays minor", "Explain timing and consequence of delay without inventing an exact deadline", "Brief stronger cue follows the time-sensitive request, not inflated severity"]
+    },
+    {
+      "id": "success-does-not-resolve",
+      "inputCases": ["finished-with-open-concern", "acknowledge-seen-concern"],
+      "context": "Concern exists in an authorised demo scope and user-view revision matches.",
+      "expected": ["Work remains succeeded and concern remains open", "Missing severity is unassessed, not minor", "Acknowledgement preserves a steady visible cue and authorises no action"]
+    },
+    {
+      "id": "omitted-concern",
+      "context": "An otherwise valid newer snapshot omits an existing open concern while reporting changed work.",
+      "expected": ["Accept valid changes atomically with a retained concern and source-omission warning", "Keep the concern source revision and observation time unchanged", "Repeated omissions do not reannounce"]
+    },
+    {
+      "id": "stale-important-task",
+      "context": "One producer lease expires while other work remains current; its last concern was significant.",
+      "expected": ["Preserve significant last-known concern with explicit stale observation", "Do not infer healthy idle, failure, resolution or a new request", "Other producers retain independent freshness"]
+    },
+    {
+      "id": "combined-arrivals",
+      "context": "Several new qualifying attention items arrive close together while another work item is focused.",
+      "expected": ["One brief bounded combined cue, then a steady summary", "Every item remains inspectable with its own severity, timing and freshness", "No focus theft; grouping interval and rate limits remain to be specified"]
+    },
+    {
+      "id": "structurally-valid-but-not-authorised",
+      "inputCases": ["focus-work", "acknowledge-seen-concern"],
+      "context": "Referenced records belong to another user or expected user-view revision is stale.",
+      "expected": ["Reject at the semantic/authority boundary without exposing another user's records", "A schema pass is not authority, an existing record or concurrency proof"]
+    }
+  ]
+}

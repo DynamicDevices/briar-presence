@@ -27,12 +27,17 @@ initial draft; they are not evidence of implemented behaviour or user testing.
 | Severity | Minor, significant, critical; explain reported impact and evidence separately from response timing. |
 | Attention category | For awareness, Needs you, Time-sensitive. Explain timing for time-sensitive requests and show a deadline when known. |
 | New-item announcement threshold | Brief stronger cue for new time-sensitive requests and significant/critical concerns; ordinary requests and minor concerns receive a quieter visible indication. |
+| Severity basis | Consequences and recoverability: minor is limited/readily recoverable disruption; significant is substantial rework, disruption or impact; critical is severe consequences such as serious harm or major irreversible loss. |
+| Uncertain severity | When credible evidence indicates a possible severe consequence, use provisional severity with explicit uncertainty, evidence and gaps; do not claim it is established. |
+| Timing basis | Time-sensitive requires a stated consequence of delay and timing basis/window; show a deadline when known. Merely being blocked on the user is insufficient. |
+| Nearby arrivals | One brief combined cue, then a steady summary. Keep every item inspectable with its own severity, response need and freshness; do not steal focus. |
+| First schema scope | Producer status snapshots plus separate user focus/acknowledgement records. Display preferences constrain presentation locally; preference sync is deferred. |
 
 The selected steady acknowledged-concern cue must remain distinct from the
 brief announcement of new stronger attention. Other work's important concerns
 must not be hidden by selected focus. Snooze duration, technical material-change
-comparison, severity classification boundaries and cross-display synchronisation
-remain unresolved. The severity/attention labels and announcement threshold are
+comparison, domain-specific classification examples and cross-display synchronisation
+remain unresolved. The severity/attention labels, severity basis and announcement threshold are
 selected; exact API enum spellings, timing, colours and numeric cutoffs are not.
 
 ## The questions a glance should answer
@@ -165,8 +170,8 @@ visuals from observed confusion. This check still needs a representative study.
 
 ## Decisions still needed before freezing a contract
 
-1. Classification boundaries for minor/significant/critical and evidence for
-   time-sensitive requests; retain impact, response and known deadlines explicitly.
+1. Domain-specific examples and verification of producers' impact/timing evidence;
+   use the selected consequences/recoverability and consequence-of-delay rules.
 2. How focus, acknowledgement and snooze should work across multiple displays
    and users; specify comparison for the selected impact/response-change rule
    without treating every revision as a fresh attention request.
@@ -179,6 +184,7 @@ selected decisions, dimensions, mappings and study procedures remain proposals.
 Issue #4 remains open for remaining semantics and readability evidence. The
 selected design decisions above are settled; other proposed dimensions and API
 names are not frozen. Contract (#5), aggregation (#6) and safeguards (#7) may
-proceed with those distinctions explicit. No listener or live data was added.
+proceed with those distinctions explicit. The [static schema and fixtures](../design/api/0.1-draft/README.md)
+are draft design artifacts, not an implemented listener, state reducer or live integration.
 
 Assisted-by: Briar
