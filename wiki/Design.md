@@ -41,8 +41,11 @@ Supportive and unobtrusive throughout. Keep design intentions separate from impl
   light layout and motion; subjective quality and compositor scaling still
   need checking on the user's display.
 - Resizing must remain visually steady. Window redraws must not wait for the
-  slower, quiet animation-sampling cadence. Real compositor corner-drag comfort
-  needs checking as well as rendered-frame tests.
+  slower, quiet animation-sampling cadence. Alex accepted the Godot retained-vector
+  resize direction on 10 November 2026: scale existing vector commands during
+  a drag, then rebuild at native dimensions on the next scene update. Do not
+  substitute a low-resolution screenshot. Real compositor corner-drag comfort
+  needs checking as well as rendered-frame tests on future platforms.
 - Stronger need for attention should be expressed through faster movement and
   stronger colour. Red transitions are a direction to investigate, not a final
   alarm system or permission to escalate automatically.

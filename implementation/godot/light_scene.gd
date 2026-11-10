@@ -7,6 +7,16 @@ var _light_gain := 1.0
 var _glow_texture: GradientTexture2D
 var draw_usec_total := 0
 var draw_count := 0
+var _retained_item: RID
+var _commands_dirty := true
+
+func _ready() -> void:
+	_retained_item = RenderingServer.canvas_item_create()
+	RenderingServer.canvas_item_set_parent(_retained_item,get_canvas_item())
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE and _retained_item.is_valid():
+		RenderingServer.free_rid(_retained_item)
 
 func _init() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
@@ -26,6 +36,23 @@ func set_scene(value: Dictionary, view_size: Vector2, point_scale: float = 1.0, 
 	_view_size = view_size
 	_point_scale = point_scale
 	_light_gain = light_gain
+	scale = Vector2.ONE
+	_commands_dirty = true
+	_ensure_glow_resolution(value,view_size)
+	queue_redraw()
+
+func resize_scene(view_size: Vector2) -> void:
+	if _scene.is_empty():
+		return
+	# Retain vector draw commands between model updates. Canvas transforms are
+	# immediate: no raster screenshot and no per-resize circle reconstruction.
+	_ensure_glow_resolution(_scene,view_size)
+	scale = view_size/_view_size
+
+func displayed_size() -> Vector2:
+	return _view_size*scale
+
+func _ensure_glow_resolution(value: Dictionary, view_size: Vector2) -> void:
 	# Keep the soft gradient at least as detailed as its largest drawn extent.
 	# Grow in powers of two, not on every pixel of a corner drag; reuse on shrink.
 	var extent := Vector2(128,128)
@@ -38,25 +65,28 @@ func set_scene(value: Dictionary, view_size: Vector2, point_scale: float = 1.0, 
 		_glow_texture.width = width
 	if height > _glow_texture.height:
 		_glow_texture.height = height
-	queue_redraw()
 
 func tint(rgb: Array, opacity: float) -> Color:
 	return Color(rgb[0]/255.0,rgb[1]/255.0,rgb[2]/255.0,opacity)
 
 func _draw() -> void:
+	if not _commands_dirty:
+		return
+	_commands_dirty = false
+	RenderingServer.canvas_item_clear(_retained_item)
 	if _scene.is_empty():
 		return
 	var started := Time.get_ticks_usec()
 	for glow: Dictionary in _scene["glows"]:
 		var center := Vector2(glow["x"]*_view_size.x,glow["y"]*_view_size.y)
 		var radii := Vector2(glow["rx"]*_view_size.x,glow["ry"]*_view_size.y)
-		draw_texture_rect(_glow_texture,Rect2(center-radii,radii*2.0),false,tint(glow["color"],glow["opacity"]))
+		RenderingServer.canvas_item_add_texture_rect(_retained_item,Rect2(center-radii,radii*2.0),_glow_texture.get_rid(),false,tint(glow["color"],glow["opacity"]))
 	for light: Dictionary in _scene["lights"]:
 		var center := Vector2(light["x"]*_view_size.x,light["y"]*_view_size.y)
 		var radius: float = light["radius"]*_view_size.x*_point_scale
 		var opacity := minf(1.0,light["opacity"]*_light_gain)
 		if light["halo"]:
-			draw_circle(center,radius*4.0,tint(light["color"],opacity*.06),true,-1.0,true)
-		draw_circle(center,radius,tint(light["color"],opacity),true,-1.0,true)
+			RenderingServer.canvas_item_add_circle(_retained_item,center,radius*4.0,tint(light["color"],opacity*.06),true)
+		RenderingServer.canvas_item_add_circle(_retained_item,center,radius,tint(light["color"],opacity),true)
 	draw_usec_total += Time.get_ticks_usec()-started
 	draw_count += 1

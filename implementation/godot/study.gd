@@ -86,7 +86,7 @@ func _layout() -> void:
 		_display_height_fraction = (_face_rect.size.y+DisplaySizing.GUTTER)/float(_display_area.size.y)
 	_visual.position = _face_rect.position
 	if not _visual._scene.is_empty():
-		_visual.set_scene(_visual._scene,_face_rect.size,1.6,1.2)
+		_visual.resize_scene(_face_rect.size)
 	_backing.set_corner_radius_all(int(minf(_backing_rect.size.x,_backing_rect.size.y)*.27))
 	queue_redraw()
 

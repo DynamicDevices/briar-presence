@@ -59,6 +59,26 @@ integration gates. The Electron-specific installer cannot install this format.
 
 ### Godot quiet controls (candidate only)
 
+Local follow-up after Alex found resizing better but still wanted it smoother:
+resize now transforms retained vector circle/texture commands between model
+updates instead of reconstructing every light for every window-size event.
+Godot forces Node2D draw callbacks during resizing, so the retained commands use
+a separately owned child canvas item, freed when the renderer is destroyed.
+Normal model updates rebuild at the actual new dimensions; this is not a scaled
+screenshot. The isolated 16-step native test recorded zero vector-command
+rebuilds, kept current geometry/backing coverage and verified native-size reset
+on the next scene update. The two settled reference captures at 400 × 520 and
+960 × 1240 match the original direct drawing API with zero changed channels.
+This does not prove every state/time or compositor drag frame identical.
+Evidence: `godot-resize-redraw.json`, `godot-retained-appearance.json` and
+`godot-retained-appearance.log` under `implementation/test-artifacts/`.
+The previously built standalone bundle predates this follow-up; the checkout
+preview contains it. Alex responded “good - lock this in - update the skills /
+repo / wiki”, accepting this resize direction on 10 November 2026. This does
+not establish flash-free behaviour on every compositor or final host/install
+acceptance. Empty-scene clearing also passes. The reusable implementation and
+verification guidance is in the [project skill](../.agents/skills/briar-presence/SKILL.md).
+
 Latest interaction revision, following Alex's resize-flashing report and dialog
 screenshot: presentation is capped at 60 Hz independently of the model's
 approximately 12 Hz maximum sampling cadence. Resize events immediately redraw
