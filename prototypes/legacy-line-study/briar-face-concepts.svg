@@ -1,0 +1,187 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1240" viewBox="0 0 1600 1240">
+  <defs>
+    <radialGradient id="background"><stop stop-color="#102137"/><stop offset="1" stop-color="#050a12"/></radialGradient>
+    <linearGradient id="card" x2="0.8" y2="1"><stop stop-color="#142033"/><stop offset="1" stop-color="#0a101c"/></linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#536779"/><stop offset=".25" stop-color="#152336"/><stop offset=".7" stop-color="#0b1423"/><stop offset="1" stop-color="#354b60"/></linearGradient>
+    <radialGradient id="glass" cx=".43" cy=".34" r=".8"><stop stop-color="#0c1d31"/><stop offset=".65" stop-color="#040b16"/><stop offset="1" stop-color="#01040a"/></radialGradient>
+    <radialGradient id="light"><stop stop-color="currentColor" stop-opacity=".28"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient>
+    <linearGradient id="reflection" x2=".6" y2="1"><stop stop-color="#d7eeff" stop-opacity=".15"/><stop offset=".55" stop-color="#b8ddff" stop-opacity=".015"/><stop offset="1" stop-color="#b8ddff" stop-opacity="0"/></linearGradient>
+    <filter id="bloom" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="5"/></filter>
+    <filter id="soft"><feGaussianBlur stdDeviation="1.5"/></filter>
+    <clipPath id="faceClip"><ellipse rx="112" ry="139"/></clipPath>
+    <g id="shell">
+      <ellipse cy="8" rx="126" ry="148" fill="#000" opacity=".35" filter="url(#bloom)"/>
+      <ellipse rx="119" ry="146" fill="url(#rim)" stroke="#405266" stroke-opacity=".4"/>
+      <ellipse rx="112" ry="139" fill="url(#glass)" stroke="#030711" stroke-width="3"/>
+    </g>
+    <g id="shine">
+      <path d="M-94,-72 C-80,-118 -31,-139 13,-130 C-32,-114 -66,-69 -79,-5 C-91,-23 -99,-52 -94,-72Z" fill="url(#reflection)"/>
+      <path d="M-77,-106 Q-27,-145 31,-127" fill="none" stroke="#c0e0f8" stroke-opacity=".22" stroke-width="1.1"/>
+      <path d="M67,116 Q95,95 105,57" fill="none" stroke="#7badcf" stroke-opacity=".12"/>
+    </g>
+    <g id="dust" fill="currentColor">
+      <circle cx="-76" cy="-65" r="1.2"/><circle cx="-58" cy="-91" r=".8"/><circle cx="-27" cy="-109" r="1"/>
+      <circle cx="8" cy="-96" r="1.2"/><circle cx="35" cy="-111" r=".7"/><circle cx="65" cy="-69" r="1"/>
+      <circle cx="83" cy="-31" r="1.4"/><circle cx="68" cy="18" r=".8"/><circle cx="88" cy="48" r="1"/>
+      <circle cx="61" cy="85" r="1.2"/><circle cx="24" cy="108" r=".9"/><circle cx="-16" cy="116" r="1.1"/>
+      <circle cx="-53" cy="82" r=".8"/><circle cx="-83" cy="51" r="1.4"/><circle cx="-94" cy="12" r=".7"/>
+      <circle cx="-58" cy="-12" r="1"/><circle cx="-26" cy="-54" r=".8"/><circle cx="22" cy="-51" r="1.1"/>
+      <circle cx="51" cy="-18" r=".8"/><circle cx="23" cy="29" r="1.3"/><circle cx="-18" cy="64" r="1"/>
+      <circle cx="-39" cy="32" r=".8"/><circle cx="-8" cy="-12" r="1.2"/><circle cx="42" cy="62" r=".8"/>
+    </g>
+    <g id="flow" fill="none" stroke="currentColor" stroke-linecap="round">
+      <path d="M-71,68 C-108,18 -32,18 -44,-27 S21,-101 58,-73 C96,-43 15,-34 31,11 S-16,86 -55,82" stroke-width="1.5"/>
+      <path d="M-82,32 C-37,81 57,62 66,12 S4,-19 1,-69 C-2,-101 39,-111 66,-91" stroke-width=".8" opacity=".6"/>
+      <path d="M-49,105 C-4,75 -28,34 5,9 S73,-2 79,-42" stroke-width="1" opacity=".7"/>
+      <path d="M-76,-88 C-46,-58 -65,-17 -25,5 S39,11 47,50 C55,77 20,100 5,109" stroke-width=".65" opacity=".6"/>
+      <path d="M-96,-6 C-70,-43 -5,-25 17,-63 S71,-77 90,-51" stroke-width=".7" opacity=".4"/>
+    </g>
+    <g id="knots" fill="#e0faff">
+      <circle cx="-44" cy="-27" r="2.3"/><circle cx="31" cy="11" r="2.2"/><circle cx="-55" cy="82" r="1.8"/>
+      <circle cx="58" cy="-73" r="1.7"/><circle cx="5" cy="9" r="1.7"/><circle cx="47" cy="50" r="1.5"/>
+    </g>
+    <g id="inward" fill="none" stroke="currentColor" stroke-linecap="round">
+      <path d="M-83,-65 C-57,-55 -42,-9 -12,-8 S32,-37 70,-78"/>
+      <path d="M-91,18 C-57,43 -30,1 -3,6 S44,33 85,7"/>
+      <path d="M-51,101 C-60,58 -12,47 2,18 S18,-54 42,-109"/>
+      <path d="M57,96 C36,69 35,28 12,13 S-39,-43 -34,-106"/>
+    </g>
+    <g id="woven" fill="none" stroke="currentColor" stroke-linecap="round">
+      <path d="M-90,48 C-52,-47 -18,72 17,-24 S70,-48 91,-77"/>
+      <path d="M-95,15 C-44,-75 -15,42 25,-51 S62,-38 77,-99"/>
+      <path d="M-72,91 C-37,-7 -4,98 37,3 S81,23 97,-19"/>
+      <path d="M-68,-99 C31,-72 -79,-37 18,-2 S-14,62 56,101"/>
+      <path d="M-31,-122 C67,-83 -42,-42 53,-5 S5,71 39,119"/>
+      <path d="M-92,-49 C5,-14 -91,17 -6,53 S-26,93 9,125"/>
+    </g>
+  </defs>
+  <rect width="1600" height="1240" fill="url(#background)"/>
+  <g font-family="DejaVu Sans, sans-serif">
+    <text x="64" y="62" fill="#7fabc7" font-size="14" letter-spacing="5">BRIAR / FACE STUDY 01</text>
+    <text x="62" y="119" fill="#edf5ff" font-size="42" font-weight="bold">A face made of light.</text>
+    <text x="65" y="154" fill="#99abc0" font-size="17">One smoked-glass form. Six expressions. Depth, movement and colour — without eyes or a mouth.</text>
+    <text x="1536" y="62" text-anchor="end" fill="#6c819b" font-size="13">CONCEPT / NOT LIVE STATUS</text>
+
+    <!-- Quiet: diffuse, spacious paths. -->
+    <g transform="translate(64 194)">
+      <rect width="474" height="448" rx="19" fill="url(#card)" stroke="#26364a"/>
+      <text x="24" y="35" fill="#8093aa" font-size="12" letter-spacing="2">01 / QUIET</text>
+      <g transform="translate(237 204)">
+        <use href="#shell"/>
+        <g clip-path="url(#faceClip)" color="#419fff">
+          <ellipse rx="100" ry="125" fill="url(#light)" opacity=".55"/>
+          <use href="#flow" stroke-width="3" filter="url(#bloom)" opacity=".6"/>
+          <use href="#flow" opacity=".5"/><use href="#dust" opacity=".45"/>
+          <use href="#knots" opacity=".5"/>
+        </g><use href="#shine"/>
+      </g>
+      <text x="24" y="385" fill="#e2efff" font-size="21">Here, without demanding attention.</text>
+      <text x="24" y="416" fill="#8c9eb5" font-size="14">Deep blue · open spacing · slow drift</text>
+    </g>
+
+    <!-- Listening: four paths gather, not an eye or pupil. -->
+    <g transform="translate(563 194)">
+      <rect width="474" height="448" rx="19" fill="url(#card)" stroke="#26364a"/>
+      <text x="24" y="35" fill="#8093aa" font-size="12" letter-spacing="2">02 / LISTENING</text>
+      <g transform="translate(237 204)">
+        <use href="#shell"/>
+        <g clip-path="url(#faceClip)" color="#55caff">
+          <ellipse cy="6" rx="78" ry="104" fill="url(#light)"/>
+          <use href="#inward" stroke-width="6" filter="url(#bloom)" opacity=".8"/>
+          <use href="#inward" stroke-width="1.4" opacity=".8"/>
+          <use href="#inward" transform="rotate(13) scale(.8)" stroke-width=".65" opacity=".35"/>
+          <use href="#dust" opacity=".6"/>
+          <g fill="#ddf9ff"><circle cx="-12" cy="-8" r="2.7"/><circle cx="12" cy="13" r="2"/><circle cx="2" cy="18" r="1.5"/></g>
+        </g><use href="#shine"/>
+      </g>
+      <text x="24" y="385" fill="#e2efff" font-size="21">Light gathers towards your words.</text>
+      <text x="24" y="416" fill="#8c9eb5" font-size="14">Clear blue · inward flow · gentle focus</text>
+    </g>
+
+    <!-- Working: multiple connected threads, not a progress gauge. -->
+    <g transform="translate(1062 194)">
+      <rect width="474" height="448" rx="19" fill="url(#card)" stroke="#26364a"/>
+      <text x="24" y="35" fill="#8093aa" font-size="12" letter-spacing="2">03 / WORKING</text>
+      <g transform="translate(237 204)">
+        <use href="#shell"/>
+        <g clip-path="url(#faceClip)" color="#5db8ff">
+          <ellipse rx="102" ry="128" fill="url(#light)" opacity=".75"/>
+          <use href="#woven" stroke-width="5" filter="url(#bloom)" opacity=".65"/>
+          <use href="#woven" stroke-width="1" opacity=".85"/>
+          <use href="#flow" transform="scale(.8)" opacity=".3"/>
+          <use href="#dust"/><use href="#dust" transform="rotate(31) scale(.72)" opacity=".6"/>
+          <g fill="#edfaff"><circle cx="17" cy="-24" r="2.5"/><circle cx="-6" cy="53" r="2.2"/><circle cx="25" cy="-51" r="1.8"/><circle cx="53" cy="-5" r="2.1"/></g>
+        </g><use href="#shine"/>
+      </g>
+      <text x="24" y="385" fill="#e2efff" font-size="21">Threads connect, then rearrange.</text>
+      <text x="24" y="416" fill="#8c9eb5" font-size="14">Blue-white · interweaving · measured activity</text>
+    </g>
+
+    <!-- Speaking: off-centre organic ripples, no mouth. -->
+    <g transform="translate(64 666)">
+      <rect width="474" height="448" rx="19" fill="url(#card)" stroke="#26364a"/>
+      <text x="24" y="35" fill="#8093aa" font-size="12" letter-spacing="2">04 / SPEAKING</text>
+      <g transform="translate(237 204)">
+        <use href="#shell"/>
+        <g clip-path="url(#faceClip)" color="#58b9ff">
+          <ellipse cx="-16" cy="18" rx="104" ry="116" fill="url(#light)"/>
+          <g fill="none" stroke="currentColor" transform="translate(-15 12) rotate(-19)">
+            <path d="M-18,-27 C12,-41 42,-17 34,12 S-8,44 -29,21 S-44,-11 -18,-27Z" opacity=".85" stroke-width="1.5"/>
+            <path d="M-29,-53 C22,-70 69,-29 57,19 S-11,72 -49,36 S-68,-28 -29,-53Z" opacity=".65"/>
+            <path d="M-40,-79 C35,-99 96,-40 80,27 S-14,102 -70,51 S-94,-45 -40,-79Z" opacity=".45"/>
+            <path d="M-51,-104 C47,-129 126,-52 104,34 S-17,134 -90,67" opacity=".25"/>
+          </g>
+          <use href="#flow" filter="url(#bloom)" opacity=".8"/>
+          <use href="#flow" opacity=".2"/><use href="#dust" opacity=".65"/>
+          <g fill="#e0faff"><circle cx="-35" cy="-18" r="2.1"/><circle cx="18" cy="31" r="2.5"/></g>
+        </g><use href="#shine"/>
+      </g>
+      <text x="24" y="385" fill="#e2efff" font-size="21">A voice carried through ripples.</text>
+      <text x="24" y="416" fill="#8c9eb5" font-size="14">Blue + white · expanding waves · speech rhythm</text>
+    </g>
+
+    <!-- Urgent: distinct geometry and a written label, no flashing. -->
+    <g transform="translate(563 666)">
+      <rect width="474" height="448" rx="19" fill="url(#card)" stroke="#65363e"/>
+      <text x="24" y="35" fill="#e3a0a5" font-size="12" letter-spacing="2">05 / URGENT</text>
+      <g transform="translate(237 204)">
+        <use href="#shell"/>
+        <g clip-path="url(#faceClip)" color="#ff4057">
+          <ellipse rx="90" ry="113" fill="url(#light)"/>
+          <g fill="none" stroke="currentColor" stroke-linejoin="round">
+            <path d="M-16,-100 L63,-56 70,25 9,92 -64,51 -78,-27Z" stroke-width="8" filter="url(#bloom)" opacity=".75"/>
+            <path d="M-16,-100 L63,-56 70,25 9,92 -64,51 -78,-27Z" stroke-width="1.6" opacity=".9"/>
+            <path d="M-10,-71 L45,-40 50,18 6,65 -45,36 -56,-19Z" stroke-width="1.1" opacity=".65"/>
+            <path d="M-7,-43 L28,-25 30,11 3,40 -28,22 -34,-12Z" stroke-width=".8" opacity=".5"/>
+            <path d="M-16,-100 L-10,-71 M63,-56 L45,-40 M70,25 L50,18 M9,92 L6,65 M-64,51 L-45,36 M-78,-27 L-56,-19" opacity=".6"/>
+          </g><use href="#dust" opacity=".4"/>
+          <g fill="#ffd4d8"><circle cx="63" cy="-56" r="2.4"/><circle cx="-64" cy="51" r="2.3"/><circle cx="9" cy="92" r="1.8"/></g>
+        </g><use href="#shine"/>
+      </g>
+      <text x="24" y="385" fill="#ffe4e7" font-size="21">Something needs your attention.</text>
+      <text x="24" y="416" fill="#c798a1" font-size="14">Red · contracted structure · steady, never flashing</text>
+    </g>
+
+    <!-- Recovering: the red structure opens into blue flow. -->
+    <g transform="translate(1062 666)">
+      <rect width="474" height="448" rx="19" fill="url(#card)" stroke="#26364a"/>
+      <text x="24" y="35" fill="#8093aa" font-size="12" letter-spacing="2">06 / RECOVERING</text>
+      <g transform="translate(237 204)">
+        <use href="#shell"/>
+        <g clip-path="url(#faceClip)">
+          <g color="#449fff"><ellipse rx="104" ry="128" fill="url(#light)"/><use href="#flow" filter="url(#bloom)" opacity=".7"/><use href="#flow" opacity=".75"/><use href="#dust" opacity=".6"/></g>
+          <g fill="none" stroke="#fa6672" stroke-linecap="round" opacity=".5">
+            <path d="M-15,-103 Q26,-88 65,-53 M71,27 Q48,65 10,95 M-65,51 Q-79,14 -79,-28" filter="url(#soft)" stroke-width="2"/>
+            <path d="M-10,-72 Q21,-60 46,-40 M49,20 Q35,48 7,67" stroke-width=".8" opacity=".6"/>
+          </g><use href="#knots" opacity=".65"/>
+        </g><use href="#shine"/>
+      </g>
+      <text x="24" y="385" fill="#e2efff" font-size="21">The structure opens; blue returns.</text>
+      <text x="24" y="416" fill="#8c9eb5" font-size="14">Fading red traces · relaxed flow · gradual settling</text>
+    </g>
+    <path d="M64,1150 H1536" stroke="#25354b"/>
+    <text x="64" y="1180" fill="#9dafc4" font-size="14">DESIGN RULE: colour supports the pattern and written state; it never substitutes for them.</text>
+    <text x="64" y="1207" fill="#657b95" font-size="12">Inspired by Netflix’s Lost in Space. Original Briar concept artwork; not a reproduction of the show’s face graphics.</text>
+    <text x="1536" y="1207" text-anchor="end" fill="#657b95" font-size="12">Briar · 10 November 2026</text>
+  </g>
+</svg>

@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Briar — a face made of light</title>
+<style>
+  :root { color-scheme: dark; font-family: system-ui, sans-serif; background:#060c15; color:#e5effc; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:radial-gradient(ellipse at 34% 38%,#10253b 0, #080f1b 48%,#050a12 100%); min-height:100vh; }
+  button,input { font:inherit; }
+  button { cursor:pointer; }
+  button:focus-visible,input:focus-visible { outline:2px solid #8fdcff; outline-offset:5px; }
+  header { padding:30px 42px; display:flex; justify-content:space-between; align-items:center; gap:20px; border-bottom:1px solid #26364a; }
+  .eyebrow { color:#8ab9d3; text-transform:uppercase; font-size:11px; letter-spacing:3px; }
+  .pill { font-size:11px; letter-spacing:1px; color:#9fb2c7; border:1px solid #334258; padding:8px 12px; border-radius:30px; }
+  main { max-width:1420px; margin:auto; padding:36px 42px 24px; display:grid; grid-template-columns:minmax(0,1fr) 370px; gap:48px; }
+  .stage { position:relative; min-height:640px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .stage::before { content:''; position:absolute; inset:0; pointer-events:none; background-image:linear-gradient(#7eafff05 1px,transparent 1px),linear-gradient(90deg,#7eafff05 1px,transparent 1px); background-size:48px 48px; mask-image:radial-gradient(ellipse,#000,transparent 70%); }
+  canvas { display:block; width:min(100%,660px); aspect-ratio:1; position:relative; }
+  .caption { text-align:center; margin-top:-12px; position:relative; }
+  h1 { margin:8px 0; font-size:29px; font-weight:500; letter-spacing:-.7px; }
+  .caption p { color:#91a8c0; font-size:14px; margin:8px 0; }
+  .indicator { display:inline-block; width:6px; height:6px; background:#79c5ff; border-radius:50%; margin-right:9px; box-shadow:0 0 12px #5fb9ff; }
+  aside { padding-top:24px; }
+  h2 { font-size:24px; margin:12px 0; font-weight:500; letter-spacing:-.5px; }
+  .intro { color:#91a8c0; font-size:14px; line-height:1.7; margin:0 0 25px; }
+  .states { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .state { padding:15px; text-align:left; border-radius:12px; border:1px solid #2a3b50; background:#111d2c88; color:#c0d0e2; transition:background .2s,border-color .2s; }
+  .state:hover { background:#1c3046; }
+  .state[aria-pressed="true"] { border-color:#69bcef; background:#15334a; color:#f0f8ff; }
+  .state[data-state="urgent"][aria-pressed="true"] { border-color:#ff6679; background:#401e2c; }
+  .state small { display:block; color:#849ab1; font-size:10px; text-transform:uppercase; letter-spacing:1px; margin-top:6px; }
+  .control { margin-top:28px; padding-top:24px; border-top:1px solid #29384c; }
+  .labelrow { display:flex; justify-content:space-between; gap:12px; align-items:center; font-size:13px; }
+  output { color:#a3b9ce; font-variant-numeric:tabular-nums; font-size:12px; }
+  input[type="range"] { width:100%; margin:22px 0 10px; accent-color:#8dcaff; cursor:pointer; }
+  .scale { display:flex; justify-content:space-between; color:#7d9eb9; font-size:11px; }
+  .scale span:last-child { color:#df8c9a; }
+  .note { font-size:12px; color:#8197ae; line-height:1.7; margin:14px 0 0; }
+  .toggles { display:flex; flex-wrap:wrap; gap:16px; margin:22px 0; color:#afc0d2; font-size:12px; }
+  .toggles label { display:flex; align-items:center; gap:7px; cursor:pointer; }
+  input[type="checkbox"] { accent-color:#8dcaff; }
+  .secondary { color:#c6d6e8; background:transparent; border:1px solid #35475b; padding:9px 14px; border-radius:8px; font-size:12px; }
+  footer { max-width:1420px; margin:auto; padding:22px 42px; display:flex; justify-content:space-between; gap:24px; color:#6f879f; font-size:11px; line-height:1.7; border-top:1px solid #223247; }
+  @media(max-width:900px) { header { padding:22px; } main { grid-template-columns:1fr; padding:8px 22px 30px; gap:0; } .stage { min-height:0; } canvas { max-width:530px; } aside { max-width:600px; width:100%; margin:auto; padding-top:32px; } footer { padding:20px 22px; } }
+  @media(max-width:480px) { header { gap:10px; } .eyebrow { font-size:9px; letter-spacing:2px; } .pill { font-size:9px; padding:7px 9px; } h1 { font-size:24px; } .caption p { font-size:12px; } footer { flex-direction:column; gap:6px; } }
+</style>
+</head>
+<body>
+<header><div class="eyebrow">Briar / face study 02</div><div class="pill">MANUAL DEMO · NOT LIVE STATUS</div></header>
+<main>
+  <section class="stage" aria-label="Face preview">
+    <canvas id="face" width="1000" height="1000" role="img" aria-label="Briar face: quiet, with slowly flowing blue light"></canvas>
+    <div class="caption" aria-live="polite" aria-atomic="true">
+      <div class="eyebrow"><span class="indicator" id="indicator"></span><span id="stateName">Quiet</span></div>
+      <h1 id="headline">Here, without demanding attention.</h1>
+      <p id="description">Open blue threads drift behind smoked glass.</p>
+    </div>
+  </section>
+  <aside>
+    <div class="eyebrow">A face made of light</div>
+    <h2>Explore the expressions.</h2>
+    <p class="intro">Same face, different movement. Choose an expression, or explore how flowing blue light becomes a tighter red structure.</p>
+    <div class="states" role="group" aria-label="Face expression">
+      <button class="state" data-state="quiet" aria-pressed="true">Quiet<small>Slow drift</small></button>
+      <button class="state" data-state="listening" aria-pressed="false">Listening<small>Inward flow</small></button>
+      <button class="state" data-state="working" aria-pressed="false">Working<small>Connecting threads</small></button>
+      <button class="state" data-state="speaking" aria-pressed="false">Speaking<small>Expanding ripples</small></button>
+      <button class="state" data-state="urgent" aria-pressed="false">Urgent<small>Steady red structure</small></button>
+      <button class="state" data-state="recovering" aria-pressed="false">Recovering<small>Blue opens out</small></button>
+    </div>
+    <div class="control">
+      <div class="labelrow"><label for="transition">Blue → red transition study</label><output id="amount" for="transition">0% red</output></div>
+      <input id="transition" type="range" min="0" max="100" value="0" aria-valuetext="0 percent red">
+      <div class="scale"><span>BLUE / FLOWING</span><span>RED / CONTRACTED</span></div>
+      <p class="note">The slider studies colour and shape together. Red means “needs attention”, never anger towards you.</p>
+    </div>
+    <div class="control">
+      <div class="toggles">
+        <label><input id="paused" type="checkbox"> Pause motion</label>
+        <label><input id="reduced" type="checkbox"> Reduced motion</label>
+      </div>
+      <button id="reset" class="secondary">Reset to quiet</button>
+      <p class="note">A visual sketch only. No microphone, no network requests, no live agent connection. Speaking uses a synthetic rhythm, not real audio.</p>
+    </div>
+  </aside>
+</main>
+<footer><span>Inspired by Lost in Space. Original Briar patterns, not the show’s face graphics.</span><span>Briar · 10 November 2026</span></footer>
+<script>
+'use strict';
+const canvas = document.querySelector('#face');
+const ctx = canvas.getContext('2d');
+const buttons = [...document.querySelectorAll('[data-state]')];
+const slider = document.querySelector('#transition');
+const paused = document.querySelector('#paused');
+const reduced = document.querySelector('#reduced');
+const media = matchMedia('(prefers-reduced-motion: reduce)');
+reduced.checked = media.matches;
+const presets = {
+  quiet: { index:0, red:0, name:'Quiet', title:'Here, without demanding attention.', description:'Open blue threads drift behind smoked glass.' },
+  listening: { index:1, red:0, name:'Listening', title:'Light gathers towards your words.', description:'Soft currents converge without forming eyes or a mouth.' },
+  working: { index:2, red:0, name:'Working', title:'Threads connect, then rearrange.', description:'A measured weave of blue-white light; not a progress meter.' },
+  speaking: { index:3, red:0, name:'Speaking', title:'A voice carried through ripples.', description:'Expanding light follows a synthetic speech-like rhythm.' },
+  urgent: { index:4, red:1, name:'Urgent', title:'Something needs your attention.', description:'A tighter red structure, held steadily. No flashing.' },
+  recovering: { index:5, red:.18, name:'Recovering', title:'The structure opens; blue returns.', description:'Loose blue threads with faint traces of red at the edge.' }
+};
+let chosen = 'quiet';
+let target = [1,0,0,0,0,0];
+let weights = target.slice();
+let redTarget = 0;
+let red = 0;
+let clock = 0;
+let last = performance.now();
+let frameId = 0;
+let pageVisible = !document.hidden;
+const TAU = Math.PI * 2;
+const stars = Array.from({length:145},(_,i) => {
+  const r = Math.sqrt((Math.sin(i*127.1+3)*43758.5453)%1+1)%1;
+  const a = i*2.399963;
+  return {x:Math.cos(a)*r*.94,y:Math.sin(a)*r*.94,size:.45+(i%5)*.23,phase:i*1.731};
+});
+function colour(r,alpha=1) {
+  return `rgba(${Math.round(74+181*r)},${Math.round(180-111*r)},${Math.round(255-161*r)},${alpha})`;
+}
+function setCaption(name,title,description) {
+  document.querySelector('#stateName').textContent = name;
+  document.querySelector('#headline').textContent = title;
+  document.querySelector('#description').textContent = description;
+  canvas.setAttribute('aria-label',`Briar face: ${name}. ${description}`);
+}
+function updateSlider(value) {
+  const percent = Math.round(value*100);
+  slider.value = percent;
+  slider.setAttribute('aria-valuetext',`${percent} percent red`);
+  document.querySelector('#amount').value = `${percent}% red`;
+}
+function select(name) {
+  chosen = name;
+  const p = presets[name];
+  target = Array.from({length:6},(_,i)=>Number(i===p.index));
+  redTarget = p.red;
+  buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.state===name)));
+  updateSlider(p.red);
+  setCaption(p.name,p.title,p.description);
+  requestDraw();
+}
+buttons.forEach(b=>b.addEventListener('click',()=>select(b.dataset.state)));
+slider.addEventListener('input',()=>{
+  chosen = 'study';
+  const r = Number(slider.value)/100;
+  target = [1-r,0,0,0,r,0];
+  redTarget = r;
+  updateSlider(r);
+  buttons.forEach(b=>b.setAttribute('aria-pressed','false'));
+  setCaption('Transition study','From flowing blue to structured red.',`${Math.round(r*100)}% red · manual colour and shape study, not live status.`);
+  requestDraw();
+});
+document.querySelector('#reset').addEventListener('click',()=>select('quiet'));
+paused.addEventListener('change',requestDraw);
+reduced.addEventListener('change',()=>{ clock=0; requestDraw(); });
+media.addEventListener('change',e=>{ reduced.checked=e.matches; clock=0; requestDraw(); });
+document.addEventListener('visibilitychange',()=>{ pageVisible=!document.hidden; last=performance.now(); if(pageVisible) requestDraw(); });
+
+// All states share a parameterisation so changes morph instead of crossfading faces.
+function point(state,j,u,t) {
+  const a = u*TAU;
+  const offset = j*TAU/7;
+  switch(state) {
+    case 0: return [Math.sin(a+offset)*(.43+.12*Math.cos(a*2+offset+t*.1)), Math.cos(a+offset*.35)*.77];
+    case 1: {
+      const radius=.06+.83*u;
+      const theta=offset+.38*Math.sin(u*5+t*.13);
+      return [Math.cos(theta)*radius*.87,Math.sin(theta)*radius];
+    }
+    case 2: return [Math.sin(a*1.7+offset+t*.12)*.71, (u*2-1)*.89+.06*Math.sin(a*3+offset)];
+    case 3: {
+      const radius=.12+((u+j/7)%1)*.78;
+      const theta=offset+a*.8;
+      const breath=1+.035*Math.sin(t*2.8)+.018*Math.sin(t*6.7);
+      return [-.08+Math.cos(theta)*radius*.82*breath,.06+Math.sin(theta)*radius*breath];
+    }
+    case 4: {
+      const k=u*6;
+      const segment=Math.min(5,Math.floor(k));
+      const frac=k-segment;
+      const radius=.36+j*.065;
+      const angle=segment*TAU/6-.5*Math.PI;
+      const next=angle+TAU/6;
+      return [(Math.cos(angle)*(1-frac)+Math.cos(next)*frac)*radius*.88,(Math.sin(angle)*(1-frac)+Math.sin(next)*frac)*radius];
+    }
+    case 5: {
+      const q=point(0,j,u,t);
+      return [q[0]*1.1,q[1]*.98];
+    }
+  }
+}
+function mixedPoint(j,u,t) {
+  let x=0,y=0;
+  for(let k=0;k<6;k++) if(weights[k]>.0001) {
+    const p=point(k,j,u,t); x+=p[0]*weights[k]; y+=p[1]*weights[k];
+  }
+  return [x*155,y*200];
+}
+function path(j,t) {
+  ctx.beginPath();
+  for(let n=0;n<=130;n++) {
+    const p=mixedPoint(j,n/130,t);
+    if(n===0) ctx.moveTo(...p); else ctx.lineTo(...p);
+  }
+}
+function render(t) {
+  const W=canvas.width;
+  ctx.setTransform(W/660,0,0,W/660,0,0);
+  ctx.clearRect(0,0,660,660);
+  ctx.save(); ctx.translate(330,325);
+  const aura=ctx.createRadialGradient(0,0,110,0,0,290);
+  aura.addColorStop(0,colour(red,.09)); aura.addColorStop(1,colour(red,0));
+  ctx.fillStyle=aura; ctx.fillRect(-330,-325,660,660);
+  ctx.shadowColor='#000';ctx.shadowBlur=28;ctx.shadowOffsetY=15;
+  const rim=ctx.createLinearGradient(-180,-220,180,220);
+  rim.addColorStop(0,'#536d82');rim.addColorStop(.18,'#24374b');rim.addColorStop(.5,'#0a1421');rim.addColorStop(1,'#3b536a');
+  ctx.beginPath();ctx.ellipse(0,0,181,229,0,0,TAU);ctx.fillStyle=rim;ctx.fill();
+  ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+  ctx.beginPath();ctx.ellipse(0,0,174,221,0,0,TAU);ctx.fillStyle='#01050c';ctx.fill();
+  ctx.save();ctx.beginPath();ctx.ellipse(0,0,169,216,0,0,TAU);ctx.clip();
+  const glass=ctx.createRadialGradient(-44,-80,10,0,0,250);
+  glass.addColorStop(0,'#0d2135');glass.addColorStop(.7,'#040c17');glass.addColorStop(1,'#01050b');
+  ctx.fillStyle=glass;ctx.fillRect(-180,-230,360,460);
+  for(const s of stars) {
+    ctx.beginPath();ctx.arc(s.x*160,s.y*207,s.size,0,TAU);
+    ctx.fillStyle=colour(red,.16+.25*(.5+.5*Math.sin(t*.2+s.phase)));ctx.fill();
+  }
+  const intensity=.48+weights[1]*.22+weights[2]*.3+weights[3]*.14+weights[4]*.18;
+  ctx.lineCap='round';ctx.lineJoin='round';
+  for(let j=0;j<7;j++) {
+    path(j,t);ctx.strokeStyle=colour(red,intensity*.16);ctx.lineWidth=7;ctx.shadowBlur=17;ctx.shadowColor=colour(red,.9);ctx.stroke();
+    ctx.shadowBlur=0;ctx.strokeStyle=colour(red,intensity*(.55+(j%3)*.12));ctx.lineWidth=.65+(j%3)*.25;ctx.stroke();
+    for(let n=0;n<5;n++) {
+      let u=(n/5+j*.071+t*(.009+weights[1]*.012+weights[2]*.014))%1;
+      if(weights[1]>.5) u=1-u;
+      const p=mixedPoint(j,u,t);
+      ctx.beginPath();ctx.arc(p[0],p[1],n===0?1.65:.85,0,TAU);
+      ctx.fillStyle=n===0?'#dff6ff':colour(red,.7);ctx.shadowColor=colour(red,1);ctx.shadowBlur=n===0?12:5;ctx.fill();ctx.shadowBlur=0;
+    }
+  }
+  if(weights[5]>.01) {
+    ctx.strokeStyle=`rgba(247,96,119,${weights[5]*.42})`;ctx.lineWidth=1;ctx.shadowColor='#ff5675';ctx.shadowBlur=8;
+    for(let j=0;j<3;j++) {
+      ctx.beginPath();ctx.ellipse(0,0,139-j*9,180-j*9,-.2,j*2.1,j*2.1+.45);ctx.stroke();
+    }ctx.shadowBlur=0;
+  }
+  const sheen=ctx.createLinearGradient(-140,-190,15,90);
+  sheen.addColorStop(0,'#c9e9ff1c');sheen.addColorStop(.5,'#c9e9ff05');sheen.addColorStop(1,'#c9e9ff00');
+  ctx.beginPath();ctx.ellipse(-69,-100,53,130,.46,0,TAU);ctx.fillStyle=sheen;ctx.fill();
+  ctx.restore();
+  ctx.beginPath();ctx.ellipse(0,0,176,223,0,3.82,4.96);ctx.strokeStyle='#d4edff2b';ctx.lineWidth=.9;ctx.stroke();
+  ctx.beginPath();ctx.ellipse(0,0,177,224,0,.25,1.12);ctx.strokeStyle='#84abc51c';ctx.stroke();
+  ctx.restore();
+  const indicator=document.querySelector('#indicator');
+  indicator.style.background=colour(red);indicator.style.boxShadow=`0 0 12px ${colour(red,.65)}`;
+}
+function tick(now) {
+  frameId=0;
+  const dt=Math.min((now-last)/1000,.05);last=now;
+  const still=paused.checked||reduced.checked;
+  const factor=still?1:1-Math.exp(-dt*4);
+  weights=weights.map((w,i)=>w+(target[i]-w)*factor);
+  red+=(redTarget-red)*factor;
+  if(!still) clock+=dt;
+  render(reduced.checked?0:clock);
+  if(!still&&pageVisible) frameId=requestAnimationFrame(tick);
+}
+function requestDraw() { if(!frameId&&pageVisible) { last=performance.now();frameId=requestAnimationFrame(tick); } }
+requestDraw();
+</script>
+</body>
+</html>
