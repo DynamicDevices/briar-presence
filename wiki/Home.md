@@ -17,7 +17,7 @@ separate GitHub Wiki service has been populated.
 | [Platform capabilities](Platforms.md) | Desktop, Godot, browser, desk-device and VR strengths, constraints and evidence gaps |
 | [API direction](API.md) | Proposed producer-neutral integration: Briar harness or other clients; not a running API |
 | [Visual-language API review and plan](Visual-Language-API.md) | Approved review, concurrent work/concerns, contract, extensibility, safeguards and staged acceptance |
-| [Vocabulary and scenarios](Visual-Language-Vocabulary.md) | Selected design decisions, proposed semantics, 18 synthetic scenarios and outstanding readability checks |
+| [Vocabulary and scenarios](Visual-Language-Vocabulary.md) | Selected design decisions, proposed semantics, 21 synthetic scenarios and outstanding readability checks |
 | [Input contract — draft](API-Contract-Draft.md) | Proposed records, snapshot/session rules, user interactions, examples and open decisions; no implemented API |
 | [Static schema and fixtures — draft](../design/api/0.1-draft/README.md) | JSON Schema proposal, positive/negative examples, validation scope and unexecuted semantic scenarios |
 | [Godot study](../design/GODOT.md) | Renderer, behaviour-port checks, engine provenance and desktop limitations |

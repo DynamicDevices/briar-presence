@@ -35,6 +35,17 @@ No listener, adapter, reducer, renderer change or producer-system action is adde
   idempotency/conflict handling; neither supplies an actor identity or authority.
 - Acknowledgement shape has no resolution/action field. Answering questions,
   snooze, resolution authorisation and preference synchronisation are deferred.
+  Alex selected explicit user closure of user-raised concerns after evidence;
+  producer suggestions/checks cannot close them. Provenance/permission checks
+  remain semantic requirements, not schema proof.
+- Focus and acknowledgement are shared in real time across authorised displays
+  of the same user/workspace. Reconnect adopts current accepted state; superseded
+  focus choices are not replayed or offered for reconciliation. Expected-view
+  revisions propose conflict detection, not a sync implementation. Preference/
+  inspection-history sync is not implied, and offline views must show their limits.
+- Confirmation of an acknowledged provisional critical impact is a selected
+  exception to the impact/response-change cue rule: briefly announce confirmation,
+  preserve acknowledgement history, and keep repeated confirmation quiet.
 - Extension keys use a proposed namespace/name convention. Extension objects are
   untrusted data, not executable content; required-feature support is a separate
   semantic check. Unknown core values/properties are rejected by this draft.
@@ -80,7 +91,7 @@ out of order, cross-scope, contradictory or unsupported by capabilities.
 Finite validation used system Python with jsonschema 4.19.2, Draft202012Validator,
 schema meta-validation and the explicit date-time profile assertion above. All
 21 fixture outcomes matched (10 valid, 11 invalid), and the contract page's JSON
-example validates. Local documentation links checked were intact. Seven semantic
+example validates. Local documentation links checked were intact. Eleven semantic
 scenarios are specified but have not been executed against a state handler.
 
 The example corpus is deliberately small and synthetic. It does not complete

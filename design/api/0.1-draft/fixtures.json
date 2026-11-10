@@ -138,6 +138,26 @@
       "expected": ["One brief bounded combined cue, then a steady summary", "Every item remains inspectable with its own severity, timing and freshness", "No focus theft; grouping interval and rate limits remain to be specified"]
     },
     {
+      "id": "confirmed-acknowledged-critical",
+      "context": "Acknowledged provisional critical impact becomes established with unchanged impact level/request.",
+      "expected": ["Brief renewed cue explains confirmation", "Preserve acknowledgement history and steady concern cue", "Repeated confirmation stays quiet; do not generalise the exception to every evidence change"]
+    },
+    {
+      "id": "user-raised-concern-resolution",
+      "context": "A relevant check supports resolving a concern the user raised.",
+      "expected": ["Show evidence/result ready and offer a resolution suggestion", "Keep the concern open until that user explicitly closes it", "Producer cannot impersonate user closure by asserting an origin field"]
+    },
+    {
+      "id": "shared-user-focus-and-acknowledgement",
+      "context": "One of two connected authorised displays accepts the same user's focus change or concern-revision acknowledgement within a workspace.",
+      "expected": ["Follow accepted shared focus/acknowledgement", "Keep other users/workspaces isolated", "Acknowledgement does not resolve or acknowledge a later unseen revision", "No delivery implementation or latency guarantee is claimed"]
+    },
+    {
+      "id": "reconnect-superseded-focus",
+      "context": "A disconnected display holds an old focus choice; shared focus has moved on.",
+      "expected": ["Rejoin current accepted shared state", "Do not replay old focus or ask to reconcile superseded choices", "Client wall clocks do not establish ordering authority", "Show disconnected/sync limits honestly"]
+    },
+    {
       "id": "structurally-valid-but-not-authorised",
       "inputCases": ["focus-work", "acknowledge-seen-concern"],
       "context": "Referenced records belong to another user or expected user-view revision is stale.",

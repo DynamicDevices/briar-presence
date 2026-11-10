@@ -49,7 +49,16 @@ needs an authorised actor and reason/evidence; successful work alone cannot supp
 it. Reopening preserves history. Concern revisions let the consumer identify what
 was acknowledged. Alex selected a brief renewed cue for changed impact or response
 needs, not for repeated/cosmetic updates; acknowledgement history is preserved.
-Response requests must not be inferred solely from concern severity.
+Response requests must not be inferred solely from concern severity. Alex selected
+an exception: confirmation of acknowledged provisional critical impact gets a
+brief fresh cue even with unchanged impact level/request; repeats stay quiet.
+
+User-raised concerns stay open until that user explicitly resolves them after
+seeing evidence. A producer may offer evidence and suggest resolution, not
+manufacture a user closure. Authenticated provenance, not a payload's asserted
+`origin`, establishes the user attribution. The future resolution interaction
+and its permission checks are outside the first focus/acknowledgement schema;
+no new action authority is granted here.
 
 ## Snapshot and ordering proposal
 
@@ -105,6 +114,14 @@ a reviewed persistence/time model can justify retaining freshness.
 
 - User focus chooses the clearest work grouping; other work has a quiet summary.
   Important background concerns remain discoverable. A producer cannot steal focus.
+- Alex selected shared real-time focus and concern-revision acknowledgement
+  across the same user's authorised displays in a workspace. Deliberate user
+  focus changes can update other connected displays; this is not producer focus
+  theft. Preferences/inspection cursors are not implicitly synchronised. Reconnect
+  adopts current accepted state: old queued focus choices are superseded, not
+  replayed or offered for reconciliation. Order by accepted revisions, not client
+  wall clocks. Disconnected displays must not imply synchronisation; no delivery
+  implementation or latency guarantee is established by this design choice.
 - Keep response-needed distinct from concern severity. Facts describe impact,
   requested respondent and any evidenced deadline; presentation applies user limits.
 - Alex selected consequences/recoverability as the severity basis: minor means
@@ -140,7 +157,10 @@ a reviewed persistence/time model can justify retaining freshness.
   when impact or what the user needs to do changes: increased impact, a changed
   decision/request or another materially changed response need. Explain what
   changed and preserve acknowledgement history. Other evidence changes remain
-  inspectable without automatic announcement. Repeated identical updates and
+  inspectable without automatic announcement, except confirmation of acknowledged
+  provisional critical impact, which gets a brief fresh cue even with unchanged
+  impact level/request. Preserve acknowledgement history; repeated confirmations
+  do not reannounce. Repeated identical updates and
   cosmetic edits never reannounce. Exact timing/colours and technical
   material-change comparison still need specification.
 - Face gathering expresses recognisable presence, not health/listening/resolution.
@@ -203,7 +223,10 @@ facts, authorised scope or correct state transitions.
 | Invalid/oversized/rate-excess input | Explicit bounded rejection; existing view remains subject to normal freshness |
 | Concern acknowledged, unchanged | Steady visible cue, no repeated announcement; remains open |
 | Acknowledged concern changes impact or requested response | Brief bounded cue, explain change, preserve history and steady cue |
-| Evidence changes without changing impact/response need | Inspectable evidence; no automatic renewed cue |
+| Evidence changes without changing impact/response need | Inspectable evidence without a new cue, except provisional critical impact becoming confirmed |
+| Acknowledged provisional critical impact becomes confirmed | Brief fresh cue and explanation, preserving history and steady cue; repeats stay quiet |
+| Producer reports evidence addressing the user's own worry | Offer evidence/resolution suggestion; stay open until that user explicitly closes it |
+| Display rejoins with superseded focus | Restore current accepted shared state; no replay or reconciliation prompt for old choices |
 | New critical concern already being handled, for awareness | Brief bounded announcement then steady concern cue; do not invent a request for the user |
 | New minor concern with a time-sensitive response request | Brief bounded announcement for its timing; explain the actual impact and requested response |
 | New ordinary response request, no serious concern | Quieter visible Needs you indication; no automatic stronger announcement |
@@ -234,7 +257,9 @@ retention policy; that UI requirement does not mandate a broker or network strea
 - Specify selected omission reconciliation precisely; review work withdrawal,
   tombstones, ownership and concern-resolution semantics.
 - Specify admission/fencing, durable ordering, freshness bounds and retry behaviour.
-- Design user-view operations and last-inspected history without assuming sync.
+- Specify shared focus/acknowledgement delivery and reconnect concurrency;
+  separately define inspection history, local settings/snooze and future explicit
+  user-resolution interaction without replaying superseded focus choices.
 - Review domain-specific examples for the selected severity/recoverability and
   consequence-of-delay rules; specify technical material-change comparison consistent with
   the selected new-item threshold, renewed cue and steady acknowledged cue.

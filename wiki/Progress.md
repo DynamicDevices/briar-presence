@@ -12,7 +12,7 @@ integration. This records direction and future work, not an implemented API or
 deployment approval. No runtime or installed launcher changed.
 
 Next-step work: [issue #4's vocabulary/scenarios](Visual-Language-Vocabulary.md)
-now records Alex's seventeen selected design decisions and 18 synthetic acceptance
+now records Alex's selected design decisions and 21 synthetic acceptance
 scenarios. Human readability checks and unselected semantics remain open.
 [Issue #5's input-contract draft](API-Contract-Draft.md) proposes records,
 snapshot ordering, session fencing, freshness and interaction boundaries. Alex
@@ -27,6 +27,13 @@ choices, not implemented grading or animations. A first [static schema/fixture
 draft](../design/api/0.1-draft/README.md) now covers producer snapshots and separate
 focus/acknowledgement. It includes shape checks and separately described semantic
 scenarios, not an implemented validator, reducer, listener or live integration.
+
+Latest example review selects a fresh cue for confirmed previously provisional
+critical impact, explicit user closure of user-raised concerns, and shared
+real-time focus/acknowledgement. Rejoining displays take current accepted state,
+not replay superseded choices. Eleven semantic scenarios now specify these
+requirements; they have not run against a state handler. The structural schema
+and its 21 positive/negative fixture cases are unchanged by this review.
 
 | Area | Current evidence | Still open |
 | --- | --- | --- |

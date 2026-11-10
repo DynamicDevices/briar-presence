@@ -172,8 +172,8 @@ abuse-case tests do not authorise remote testing, a listener, telemetry or actio
 
 ## Staged work and acceptance
 
-First work product: [vocabulary, selected decisions and 18 scenarios](Visual-Language-Vocabulary.md)
-for issue #4. Alex's seventeen MCQ selections are recorded separately from proposed
+First work product: [vocabulary, selected decisions and 21 scenarios](Visual-Language-Vocabulary.md)
+for issue #4. Alex's explicit selections are recorded separately from proposed
 semantics; human readability is not yet demonstrated. The issue remains open.
 Next: [input contract draft](API-Contract-Draft.md) for #5; no live API is introduced.
 

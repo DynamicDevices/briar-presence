@@ -30,6 +30,14 @@ plus a timing basis for time-sensitive requests. Nearby qualifying arrivals shar
 one brief combined cue then a steady summary; inspection retains each item's
 facts, and focus is not stolen. Exact visual timing remains to be tested.
 
+Further example review selects a fresh cue when acknowledged provisional critical
+impact becomes confirmed, even with unchanged impact level/request. User-raised
+concerns stay open until the user explicitly resolves them after evidence. Focus
+and concern-revision acknowledgement are shared in real time across that user's
+authorised displays in the same workspace. Reconnect joins current accepted focus;
+superseded choices are not replayed or offered for reconciliation. These are
+requirements, not deployed synchronisation or an instantaneous-delivery promise.
+
 - Irregular cloudlets and fine light detail, not connecting lines or a fixed mask.
 - Continuous varied movement, not a sequence that visibly moves once and settles
   into an apparently static image. Lights should wander independently rather than

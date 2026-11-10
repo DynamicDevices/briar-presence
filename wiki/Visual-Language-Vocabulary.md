@@ -32,12 +32,17 @@ initial draft; they are not evidence of implemented behaviour or user testing.
 | Timing basis | Time-sensitive requires a stated consequence of delay and timing basis/window; show a deadline when known. Merely being blocked on the user is insufficient. |
 | Nearby arrivals | One brief combined cue, then a steady summary. Keep every item inspectable with its own severity, response need and freshness; do not steal focus. |
 | First schema scope | Producer status snapshots plus separate user focus/acknowledgement records. Display preferences constrain presentation locally; preference sync is deferred. |
+| Confirmed critical impact | Briefly reannounce when an acknowledged provisional critical impact becomes confirmed, even if impact level/request are unchanged; explain confirmation and preserve acknowledgement history. |
+| Resolving a user-raised concern | The user explicitly resolves it after seeing evidence. Briar can offer evidence/results and suggest resolution; a producer cannot close it on the user's behalf. |
+| Multiple displays | Share focus and concern-revision acknowledgement across the same user's authorised displays in the same workspace. Other users remain isolated. |
+| Superseded focus choices | Alex: “I view this as being real-time so old choices will have been superceded”. Rejoin current accepted shared focus; do not replay old choices or ask to reconcile superseded selections. |
 
 The selected steady acknowledged-concern cue must remain distinct from the
 brief announcement of new stronger attention. Other work's important concerns
 must not be hidden by selected focus. Snooze duration, technical material-change
-comparison, domain-specific classification examples and cross-display synchronisation
-remain unresolved. The severity/attention labels, severity basis and announcement threshold are
+comparison, domain-specific classification examples and cross-display delivery mechanics
+remain unresolved. Shared focus/acknowledgement and current-state reconnect are
+selected, not implemented synchronisation or a latency promise. The severity/attention labels, severity basis and announcement threshold are
 selected; exact API enum spellings, timing, colours and numeric cutoffs are not.
 
 ## The questions a glance should answer
@@ -145,9 +150,12 @@ the accepted quiet clustered-light appearance.
 | S13 No producer | First launch has no source configured | No work source connected; demo is explicitly labelled if shown | Demo blue is represented as verified real-world health |
 | S14 Another user | A second isolated user inspects their own work | Their records, focus and acknowledgements only | Alex's work, another user's focus or acknowledgement leaks |
 | S15 Checks miss the worry | Checks pass, but do not address the user's concern about unsaved work | Explain the coverage gap and keep the concern open | Successful unrelated checks become reassurance or resolution |
-| S16 Changed acknowledged concern | A previously acknowledged concern gains materially different evidence | Preserve history; briefly reannounce only if impact or response need changes, explaining what changed | Announce cosmetic/repeated updates, imply acceptance of new facts or resolve silently |
+| S16 Changed acknowledged concern | A previously acknowledged concern gains materially different evidence | Preserve history; briefly reannounce for changed impact/response need or the selected confirmed-critical exception | Announce cosmetic/repeated updates, imply acceptance of new facts or resolve silently |
 | S17 Returning after absence | Several meaningful changes occurred while the user was away | On inspection, show unresolved requests/concerns first, then a short change summary; no automatic panel or alert replay | Replay every event or mistake last inspection for acknowledgement |
 | S18 Omitted concern | Otherwise valid snapshot drops an open concern while work changes | Accept valid changes; preserve concern, source-omission warning and original concern freshness; repeated omissions do not reannounce | Refresh/resolve the omitted concern, hide it or accept unrelated invalid records |
+| S19 Confirmed critical concern | Acknowledged provisional critical impact becomes confirmed with the same impact level/request | Brief fresh cue and explanation; preserve history and steady cue | Suppress confirmation under the ordinary evidence-only rule or reannounce repeated confirmation |
+| S20 Evidence for the user's worry | A relevant check directly addresses a user-raised concern | Offer evidence and suggest resolution; concern stays open until the user explicitly closes it | Producer unilaterally resolves it or treats evidence-ready as acceptance |
+| S21 Shared real-time focus | Focus changes on a connected display; another display reconnects with an old choice | Connected authorised displays follow shared focus; reconnect restores current accepted state without replay/reconciliation of superseded choices | Old queued focus overrides current state, leaks between users or implies sync while disconnected |
 
 S11's item count is a test-fixture parameter, not an adopted capacity limit.
 S09 supplies requirements for future reliability tests, not evidence they run now.
@@ -172,9 +180,9 @@ visuals from observed confusion. This check still needs a representative study.
 
 1. Domain-specific examples and verification of producers' impact/timing evidence;
    use the selected consequences/recoverability and consequence-of-delay rules.
-2. How focus, acknowledgement and snooze should work across multiple displays
-   and users; specify comparison for the selected impact/response-change rule
-   without treating every revision as a fresh attention request.
+2. Delivery/concurrency for shared focus and acknowledgement, local snooze and
+   inspection history; specify comparison for the changed-impact/response rule
+   and confirmed-critical exception without announcing every revision.
 
 Existing agreed direction also includes supportive/unobtrusive presentation,
 parallel work, findable concerns, no false reassurance, acknowledgement not
