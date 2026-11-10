@@ -18,6 +18,10 @@ Source: Alex's direct instructions in the Briar face-design chat,
 | D09 | Consider desk-device and VR uses later | “In future we might build this into a physical device on my desk and perhaps add this into VR” |
 | D10 | Support future headless-harness users | “I also want to be able to use this in future for other users who work with the briar headless harness” |
 | D11 | Create a dedicated DD repository | “I think you should create a new DD repo for this work” |
+| D12 | Develop Cloudlets with fine granular detail as the next appearance study | Alex selected “Combine Cloudlets + fine granular detail” in the desktop visual-review question on 10 November 2026; final appearance and motion remain unapproved |
+| D13 | Explore the hybrid in a simulated motion study | Alex selected “Explore this appearance in motion” in the desktop review on 10 November 2026; this is not final motion acceptance |
+| D14 | Sometimes let the lights coalesce into an abstract face | “ok and it would be good for sometimes it to come together like an abstract face”; this supersedes the earlier proposed exclusion of all facial suggestion |
+| D15 | Preserve the hybrid light material and current motion study as the accepted starting baseline | “ok this is a good start - lock this in”; this accepts an exploratory baseline, not a final design, verified browser behaviour or live integration |
 
 ## Briar's proposals: not settled design
 

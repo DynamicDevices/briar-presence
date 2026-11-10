@@ -3,7 +3,10 @@
 A visual presence for Briar: quiet enough to live alongside other work, expressive
 enough to show our interaction, and clear enough to direct attention to concerns.
 
-**Stage: design exploration. No live harness connection or production client.**
+**Stage: accepted starting design baseline, 10 November 2026.**
+No live harness connection or production client. Alex's “good start — lock this
+in” preserves the current hybrid light material and motion studies; it does not
+freeze the final design or establish production readiness.
 
 The first intended surface is a non-intrusive display on Alex's laptop. Future
 surfaces may include a desk device and VR, and the design must be usable by other
@@ -17,6 +20,10 @@ not commitments to build hardware, VR or harness integrations now.
 - [Decisions](design/DECISIONS.md) — agreed requirements versus proposals.
 - [Round 01](design/studies/01-light-clusters/README.md) — three light-cluster
   directions, each showing attention, focused work and concern.
+- [Round 02](design/studies/02-cloudlets-and-grain/README.md) — the selected
+  Cloudlets + fine-grain direction, accepted for exploration in motion.
+- [Round 03](design/studies/03-motion/README.md) — a manually played design
+  animatic, including an occasional abstract face; accepted as a starting point.
 - [Review notes](design/REVIEW.md) — one current review record and next experiment.
 - [Visual references](design/REFERENCES.md) — production sources and limits.
 
