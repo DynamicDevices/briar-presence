@@ -11,6 +11,11 @@ safeguards, extensions, offline validation and the separately scoped first
 integration. This records direction and future work, not an implemented API or
 deployment approval. No runtime or installed launcher changed.
 
+Next-step work: [issue #4's vocabulary/scenario draft](Visual-Language-Vocabulary.md)
+separates work, attention, concerns, interaction and freshness and supplies 14
+synthetic acceptance scenarios. Human readability checks and terminology decisions
+remain open; no API implementation or live work input has been introduced.
+
 | Area | Current evidence | Still open |
 | --- | --- | --- |
 | Portable light behaviour | Separate seeded scene generator, Canvas renderer, synthetic-state input and desktop host | Future adapters and wider platform tests |

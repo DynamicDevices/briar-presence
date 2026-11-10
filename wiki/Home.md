@@ -17,6 +17,7 @@ separate GitHub Wiki service has been populated.
 | [Platform capabilities](Platforms.md) | Desktop, Godot, browser, desk-device and VR strengths, constraints and evidence gaps |
 | [API direction](API.md) | Proposed producer-neutral integration: Briar harness or other clients; not a running API |
 | [Visual-language API review and plan](Visual-Language-API.md) | Approved review, concurrent work/concerns, contract, extensibility, safeguards and staged acceptance |
+| [Vocabulary and scenarios — draft](Visual-Language-Vocabulary.md) | Proposed meanings, user-facing phrases, 14 synthetic scenarios and human readability checks |
 | [Godot study](../design/GODOT.md) | Renderer, behaviour-port checks, engine provenance and desktop limitations |
 | [Project development skill](../.agents/skills/briar-presence/SKILL.md) | Quiet interaction constraints, retained-vector resizing and affected verification |
 

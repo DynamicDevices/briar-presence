@@ -172,6 +172,10 @@ abuse-case tests do not authorise remote testing, a listener, telemetry or actio
 
 ## Staged work and acceptance
 
+First work product: [vocabulary and 14 synthetic scenarios](Visual-Language-Vocabulary.md)
+for issue #4. This is a draft for review, not frozen field names or demonstrated
+new-user readability. The issue remains open.
+
 Tracking: [parent issue #3](https://github.com/DynamicDevices/briar-presence/issues/3).
 
 | Sub-issue | Outcome | Prerequisites |
