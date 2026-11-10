@@ -16,6 +16,14 @@ retaining omitted open concerns with a source warning while accepting otherwise
 valid updates, and briefly reannouncing changed impact/response needs for an
 acknowledged concern. Neither repeated updates nor cosmetic edits reannounce.
 
+Alex subsequently selected severity labels **minor, significant, critical** and
+separate attention categories **For awareness, Needs you, Time-sensitive**. New
+time-sensitive requests and significant/critical concerns get a brief stronger
+cue, then settle; ordinary requests/minor concerns get a quieter indication.
+Explain impact/evidence and timing, showing a deadline when known. Severity is
+not a demand for a response or permission to act. User motion/brightness limits
+still apply. Classification boundaries and exact visual treatments need design.
+
 - Irregular cloudlets and fine light detail, not connecting lines or a fixed mask.
 - Continuous varied movement, not a sequence that visibly moves once and settles
   into an apparently static image. Lights should wander independently rather than

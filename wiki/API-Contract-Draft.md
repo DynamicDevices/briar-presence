@@ -103,6 +103,15 @@ a reviewed persistence/time model can justify retaining freshness.
   Important background concerns remain discoverable. A producer cannot steal focus.
 - Keep response-needed distinct from concern severity. Facts describe impact,
   requested respondent and any evidenced deadline; presentation applies user limits.
+- Alex selected severity labels **minor, significant, critical**, with impact and
+  evidence explained. These describe reported consequences, not execution authority
+  or whether the user must respond now. Classification boundaries remain to be
+  specified; do not silently assign minor severity when evidence is missing.
+- Alex selected attention categories **For awareness, Needs you, Time-sensitive**.
+  A time-sensitive request needs an explanation of timing, with a deadline shown
+  when known. A critical concern can be handled without a response from the user;
+  a minor issue or harmless choice may nevertheless need a timely response.
+  No requested attention is distinct from an awareness item; wire encoding is open.
 - Acknowledgement stores who saw which concern revision. It stops repeated pulses,
   not the steady visible concern cue, and changes neither lifecycle nor authority.
 - Last-inspected cursor is not acknowledgement or resolution. On deliberate
@@ -111,7 +120,11 @@ a reviewed persistence/time model can justify retaining freshness.
   cross-device history honestly; do not promise a summary of lost events.
 - New stronger attention may have a brief bounded motion/colour announcement,
   then a steady cue. No flashing or unattended-time escalation; user accessibility
-  preferences win. For an acknowledged concern, Alex selected a brief new cue
+  preferences win. Alex selected the default threshold for **new items**: briefly
+  announce time-sensitive requests and significant/critical concerns; give ordinary
+  requests and minor concerns a quieter visible indication. Grouping/rate limits
+  still need design so simultaneous items do not produce an alert storm.
+  For an acknowledged concern, Alex selected a brief new cue
   when impact or what the user needs to do changes: increased impact, a changed
   decision/request or another materially changed response need. Explain what
   changed and preserve acknowledgement history. Other evidence changes remain
@@ -172,6 +185,9 @@ claimed to pass a validator.
 | Concern acknowledged, unchanged | Steady visible cue, no repeated announcement; remains open |
 | Acknowledged concern changes impact or requested response | Brief bounded cue, explain change, preserve history and steady cue |
 | Evidence changes without changing impact/response need | Inspectable evidence; no automatic renewed cue |
+| New critical concern already being handled, for awareness | Brief bounded announcement then steady concern cue; do not invent a request for the user |
+| New minor concern with a time-sensitive response request | Brief bounded announcement for its timing; explain the actual impact and requested response |
+| New ordinary response request, no serious concern | Quieter visible Needs you indication; no automatic stronger announcement |
 | Consumer lacks change history | Explain the gap and show current view, not a fabricated since-last-visit summary |
 
 ## Transport, errors and compatibility
@@ -200,8 +216,9 @@ retention policy; that UI requirement does not mandate a broker or network strea
   tombstones, ownership and concern-resolution semantics.
 - Specify admission/fencing, durable ordering, freshness bounds and retry behaviour.
 - Design user-view operations and last-inspected history without assuming sync.
-- Define attention/severity terms and technical material-change comparison
-  consistent with the selected renewed cue and steady acknowledged cue.
+- Define classification boundaries for the selected severity/attention terms,
+  evidence for timing and technical material-change comparison, consistent with
+  the selected new-item threshold, renewed cue and steady acknowledged cue.
 - Produce actual schemas and valid/invalid fixtures after these decisions.
 - Select a supported standards/tooling profile with safeguards (#7) and extensions
   (#8); no library, listener or service is adopted by this document.

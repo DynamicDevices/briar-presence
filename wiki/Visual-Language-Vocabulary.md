@@ -24,11 +24,16 @@ initial draft; they are not evidence of implemented behaviour or user testing.
 | Stronger attention | A brief bounded increase in motion/colour, then a persistent steady cue; respect reduced motion and brightness limits, with no flashing or unlimited escalation. |
 | Omitted open concern | Keep it visible with a source-omission warning; accept other changes only if the snapshot is otherwise valid. Concern freshness stays separate from work freshness. |
 | Changed acknowledged concern | Briefly draw attention again when impact or what the user needs to do changes; explain the change and retain acknowledgement history. Repeated/cosmetic updates do not reannounce. |
+| Severity | Minor, significant, critical; explain reported impact and evidence separately from response timing. |
+| Attention category | For awareness, Needs you, Time-sensitive. Explain timing for time-sensitive requests and show a deadline when known. |
+| New-item announcement threshold | Brief stronger cue for new time-sensitive requests and significant/critical concerns; ordinary requests and minor concerns receive a quieter visible indication. |
 
 The selected steady acknowledged-concern cue must remain distinct from the
 brief announcement of new stronger attention. Other work's important concerns
 must not be hidden by selected focus. Snooze duration, technical material-change
-comparison, severity bands and cross-display synchronisation remain unresolved.
+comparison, severity classification boundaries and cross-display synchronisation
+remain unresolved. The severity/attention labels and announcement threshold are
+selected; exact API enum spellings, timing, colours and numeric cutoffs are not.
 
 ## The questions a glance should answer
 
@@ -48,8 +53,8 @@ must not have to memorise colours to discover a concern or missing information.
 | Work lifecycle | Where is this work in its execution? | Queued, running, waiting, finished | Success, acceptance or urgency |
 | Activity | What kind of work is happening? | Researching, building, checking, preparing | Private reasoning or measured progress |
 | Outcome | What result is actually known? | Succeeded, failed, cancelled; unknown where evidence is missing | That the person has accepted the result |
-| Attention | What response is being requested? | None, information to notice, response needed, time-sensitive response | Permission to act or unlimited animation |
-| Severity | How consequential is the concern? | Described impact and evidence; proposed broad bands to test | A requirement to interrupt immediately |
+| Attention | What response is being requested? | For awareness, Needs you, Time-sensitive; absence of a request is separate | Permission to act or unlimited animation |
+| Severity | How consequential is the concern? | Minor, significant, critical, with reported impact and evidence | That Alex must respond now |
 | Connection | Can the producer communicate? | Connected, disconnected, unavailable/unknown | Work health or fresh observations |
 | Freshness | How current is this observation? | Current, stale, unknown | That stale work has stopped or succeeded |
 | User focus | What has the person chosen to inspect? | An item, group or overview | Authority, priority override or shared focus for every user |
@@ -160,8 +165,8 @@ visuals from observed confusion. This check still needs a representative study.
 
 ## Decisions still needed before freezing a contract
 
-1. Which attention/severity bands are useful; impact, requested response and
-   supported deadlines should stay explicit rather than an unexplained number.
+1. Classification boundaries for minor/significant/critical and evidence for
+   time-sensitive requests; retain impact, response and known deadlines explicitly.
 2. How focus, acknowledgement and snooze should work across multiple displays
    and users; specify comparison for the selected impact/response-change rule
    without treating every revision as a fresh attention request.
