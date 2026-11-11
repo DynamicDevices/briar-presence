@@ -22,18 +22,28 @@ opening and Escape closing without quitting, clear task selection/details/return
 and acknowledgement meaning seen rather than resolved. These are native user
 observations, separate from headless tests.
 
-Stay-above remains unresolved. GNOME's Always on Top remains checked for Briar;
-Alex reports Briar stays above normal Files but can fall behind a normal Codex
-window whose own Always on Top is unchecked. Full-screen mode and competing
-checked top-layer options therefore do not explain the observed comparison.
-An X11 metadata query did not expose a matching Codex window; that does not prove
-Codex's backend or stacking state. Godot does not document its always-on-top
-flag as implemented on Wayland. No compositor or Codex setting was changed.
+Stay-above fails on the current reopened preview: Alex corrected the earlier
+comparison with “No it doesn't stay at the front of anything”. Do not treat
+this as a Codex-only defect. Earlier GNOME manual Always on Top checked state
+and success against normal Files predate relaunch; neither proves the current
+window's state. Whether that manual setting survives a new window is unverified.
+Godot does not document its always-on-top flag as implemented on Wayland, and
+the readiness property proves intent only. No compositor or Codex setting was
+changed; no stacking fix is claimed.
+
+Further native checks: Alex confirmed lights, backing and name stay sharp and
+proportioned while enlarging/shrinking, with no flashing. He tested another
+monitor and accepted face/panel sizing and placement there. Monitor identities
+and scale factors were not measured; no universal monitor-matrix pass inferred.
+He also confirmed Tab/Shift+Tab navigation, keyboard task activation, Escape
+work-panel close and subsequent Shift+F10 face-menu reopening. This accepts
+that focus path, not an exhaustive accessibility review.
 
 The expiry/unknown question timed out, so interpretation remains unverified.
-Resize fidelity, cross-monitor sizing/placement, other focus paths and Alex's
-source-bound independent local review also remain open. No complete desktop,
-replacement or installation acceptance is claimed.
+The current-window GNOME setting question lost its tool connection; no answer
+was recovered and no setting state is inferred. Stay-above and Alex's source-bound
+independent local review remain open. No complete desktop, replacement or
+installation acceptance is claimed.
 
 Separate cross-build repair: signed build source
 `46e8f26dce156e98e3ce0c07084c11e2433fe969` in
