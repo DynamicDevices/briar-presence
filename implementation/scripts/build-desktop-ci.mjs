@@ -42,6 +42,7 @@ platform="${target.platform}"
 runnable=true
 export_filter="selected_resources"
 export_files=PackedStringArray(${resources})
+include_filter=""
 exclude_filter="*_test.gd"
 export_path=""
 encrypt_pck=false
@@ -109,6 +110,33 @@ export async function verifyDesktopArtifact(directory){
   return manifest;
 }
 
+export function stageDesktopProject(root,workspace){
+  fs.mkdirSync(workspace,{recursive:true});
+  for(const name of APP_FILES){
+    const input=path.join(root,'godot',name);if(!fs.lstatSync(input).isFile())throw new Error('Non-regular source: '+name);
+    fs.copyFileSync(input,path.join(workspace,name));
+    if(fs.existsSync(input+'.uid'))fs.copyFileSync(input+'.uid',path.join(workspace,name+'.uid'));
+  }
+  fs.writeFileSync(path.join(workspace,'export_presets.cfg'),desktopPresets());
+}
+
+export function godotFailureDetails(log){
+  const lines=log.split(/\r?\n/),selected=new Set();
+  for(let i=0;i<lines.length;i++)if(/(?:SCRIPT ERROR|ERROR):/.test(lines[i]))for(let j=Math.max(0,i-1);j<Math.min(lines.length,i+4);j++)selected.add(j);
+  const details=selected.size?[...selected].sort((a,b)=>a-b).map(i=>lines[i]).join('\n'):lines.slice(-20).join('\n');
+  return Buffer.from(details).subarray(0,3500).toString('utf8');
+}
+
+export function runGodotStep({engine,workspace,env,work},args,logName,execute=execFileSync){
+  const log=path.join(work,logName),fd=fs.openSync(log,'wx');
+  let failure;
+  try{execute(engine,['--headless','--path',workspace,...args],{env,timeout:180000,stdio:['ignore',fd,fd]});}
+  catch(error){failure=error;}
+  finally{fs.closeSync(fd);}
+  const text=fs.readFileSync(log,'utf8');
+  if(failure||/^(?:ERROR|SCRIPT ERROR):/m.test(text))throw new Error('Godot failed; '+log+'\n'+godotFailureDetails(text),failure?{cause:failure}:undefined);
+}
+
 export async function buildDesktopArtifacts({root,work,sourceCommit,env=process.env}){
   if(!/^[a-f0-9]{40}$/.test(sourceCommit))throw new Error('Missing exact source commit');
   const downloads=path.join(work,'downloads'),workspace=path.join(work,'project'),artifacts=path.join(work,'artifacts');
@@ -121,19 +149,8 @@ export async function buildDesktopArtifacts({root,work,sourceCommit,env=process.
   for(const directory of [isolatedEnv.XDG_DATA_HOME,isolatedEnv.XDG_CONFIG_HOME,isolatedEnv.XDG_CACHE_HOME,isolatedEnv.XDG_RUNTIME_DIR,isolatedEnv.TMPDIR])fs.mkdirSync(directory,{recursive:true,mode:0o700});
   const templateDirectory=path.join(isolatedEnv.XDG_DATA_HOME,'godot','export_templates','4.7.2.stable');
   for(const target of TARGETS)extractMember(downloaded.templates,'templates/'+target.template,path.join(templateDirectory,target.template),target.id!=='macos-universal');
-  for(const name of APP_FILES){
-    const input=path.join(root,'godot',name);if(!fs.lstatSync(input).isFile())throw new Error('Non-regular source: '+name);
-    fs.copyFileSync(input,path.join(workspace,name));
-    if(fs.existsSync(input+'.uid'))fs.copyFileSync(input+'.uid',path.join(workspace,name+'.uid'));
-  }
-  fs.writeFileSync(path.join(workspace,'export_presets.cfg'),desktopPresets());
-  function godot(args,logName){
-    const log=path.join(work,logName),fd=fs.openSync(log,'wx');
-    try{execFileSync(engine,['--headless','--path',workspace,...args],{env:isolatedEnv,timeout:180000,stdio:['ignore',fd,fd]});}
-    catch(error){throw new Error('Godot failed; '+log+'\n'+fs.readFileSync(log,'utf8').slice(-2000),{cause:error});}
-    finally{fs.closeSync(fd);}
-    if(/^(?:ERROR|SCRIPT ERROR):/m.test(fs.readFileSync(log,'utf8')))throw new Error('Godot logged errors; '+log);
-  }
+  stageDesktopProject(root,workspace);
+  const godot=(args,logName)=>runGodotStep({engine,workspace,env:isolatedEnv,work},args,logName);
   godot(['--editor','--import'],'import.log');
   for(const target of TARGETS){
     const bundle=path.join(artifacts,target.id);fs.mkdirSync(bundle);

@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import {assertCiContext,desktopPresets,TARGETS,DOWNLOADS,safeArchiveMembers,assertBinary,verifyDesktopArtifact,downloadPinned} from '../scripts/build-desktop-ci.mjs';
+import {assertCiContext,desktopPresets,TARGETS,DOWNLOADS,safeArchiveMembers,assertBinary,verifyDesktopArtifact,downloadPinned,godotFailureDetails,runGodotStep,stageDesktopProject} from '../scripts/build-desktop-ci.mjs';
 import {APP_FILES} from '../scripts/package-godot.mjs';
 import {writeManifest} from '../scripts/package-files.mjs';
 
@@ -19,6 +19,7 @@ test('three export presets retain every runtime dependency and disable signing',
   assert.equal(TARGETS.length,3);
   for(const target of TARGETS){assert.ok(presets.includes(`platform="${target.platform}"`));assert.ok(presets.includes(`name="${target.preset}"`));}
   for(const name of APP_FILES.filter(n=>/\.(gd|gdshader|tscn)$/.test(n)))assert.equal(presets.split(`"res://${name}"`).length-1,3);
+  assert.equal(presets.split('include_filter=""').length-1,3,'Godot requires include_filter even when empty');
   assert.ok(presets.includes('codesign/codesign=0'));assert.ok(presets.includes('notarization/notarization=0'));
   assert.ok(presets.includes('application/modify_resources=false'));
   assert.equal(DOWNLOADS.templates.sha256,'f298490b8d44d934be425a5a65a51bf15f422428b229a06a6e11d9ffea248011');
@@ -63,4 +64,32 @@ test('self-hosted workflow has trusted triggers, exact routing and SHA-pinned No
   assert.ok(!/^\s*pull_request(?:_target)?:/m.test(workflow));assert.ok(!workflow.includes('secrets.'));
   for(const [,action,sha] of workflow.matchAll(/uses: ([\w/-]+)@([^\s]+)/g)){assert.match(sha,/^[a-f0-9]{40}$/);assert.ok(['actions/checkout','actions/setup-node','actions/upload-artifact'].includes(action));}
   for(const target of TARGETS)assert.ok(workflow.includes(`BriarPresence-${target.id}.zip`));
+  assert.ok(workflow.includes("if: failure() && steps.export.outputs.work != ''"));
+  assert.ok(workflow.includes('BriarPresence-build-diagnostics-${{ github.sha }}'));
+});
+
+test('Godot import errors are exposed even when the engine exits zero',()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'briar-import-log-'));
+  try{
+    const options={engine:'fixture',workspace:dir,env:{},work:dir};
+    assert.throws(()=>runGodotStep(options,['--editor','--import'],'zero.log',(_engine,_args,run)=>{
+      fs.writeSync(run.stdio[1],'SCRIPT ERROR: Parse Error: broken dependency\n   at: res://study.gd:3\n');
+    }),/Parse Error: broken dependency[\s\S]*study.gd:3/);
+    assert.throws(()=>runGodotStep(options,[],'nonzero.log',(_engine,_args,run)=>{
+      fs.writeSync(run.stdio[1],'Missing a required shared library\n');throw new Error('exit 1');
+    }),/Missing a required shared library/);
+    assert.doesNotThrow(()=>runGodotStep(options,[],'success.log',(_engine,_args,run)=>fs.writeSync(run.stdio[1],'import complete\n')));
+    const detail=godotFailureDetails('ERROR: first error\n at: first.gd:5\n'+'progress\n'.repeat(5000));
+    assert.ok(detail.includes('first.gd:5'));assert.ok(Buffer.byteLength(detail)<=3500);
+  }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
+
+test('staged cross-export project contains only declared inputs and generated presets',()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'briar-stage-'));
+  try{
+    stageDesktopProject(path.resolve(import.meta.dirname,'..'),dir);
+    for(const name of APP_FILES)assert.ok(fs.statSync(path.join(dir,name)).isFile());
+    assert.equal(fs.readFileSync(path.join(dir,'export_presets.cfg'),'utf8'),desktopPresets());
+    assert.ok(!fs.existsSync(path.join(dir,'inspection_test.gd')));
+  }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });

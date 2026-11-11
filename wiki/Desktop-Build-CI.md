@@ -27,6 +27,12 @@ first, then extract the contained package ZIP. Keeping package ZIPs intact
 preserves Linux/macOS executable permission bits. Artifacts expire after seven
 days. There is no GitHub Release or installer publication.
 
+On failure, CI exposes the actual Godot error/context in the job log and retains
+the full import/export logs as a separate diagnostic artifact for seven days.
+An engine exit status of zero does not hide logged import or script errors.
+The generated presets include an explicit empty `include_filter`, required by
+the pinned engine; this has a regression reproducing the first build failure.
+
 Each package carries the original GPLv3-or-later project source/build scripts,
 GPL text, Godot/upstream notices, exact source commit and per-file hashes.
 The downloaded engine, template and notice hashes are recorded. Exports are
