@@ -4,6 +4,11 @@
 
 ## Where the work stands
 
+Transport/device work is split into [MQTT #11](https://github.com/DynamicDevices/briar-presence/issues/11)
+and [LVGL/ESP32 subscriber #12](https://github.com/DynamicDevices/briar-presence/issues/12).
+Both belong to API parent #3; the device's agreed view contract depends on MQTT.
+These are tracked implementation targets, not installed broker/device support.
+
 Overnight next-step candidate: [the six-step plan](Baseline-Next-Steps.md) now
 links a separate work-inspection mock-up, proposed harness event mapping and
 executable synthetic producer/API examples. These do not connect live data or

@@ -12,6 +12,14 @@ and subscribers. [The MQTT review/profile](../design/api/0.1-draft/MQTT-TRANSPOR
 is part of steps 3 and 6, linked to contract issue #5 and integration issue #10.
 It does not replace the embedded API or authorise a broker/network connection.
 
+Alex also requested an LVGL implementation for an ESP32-class MQTT-subscribing
+display, then asked for separate issues. These are now
+[MQTT transport #11](https://github.com/DynamicDevices/briar-presence/issues/11)
+and [LVGL/ESP32 display #12](https://github.com/DynamicDevices/briar-presence/issues/12),
+both under API parent #3. The device target depends on the MQTT/view contract;
+its [design requirements](../design/api/0.1-draft/LVGL-ESP32-DISPLAY.md) are separate
+from any firmware, broker or hardware execution.
+
 | Step | Deliverable and acceptance | Dependency / current boundary |
 | --- | --- | --- |
 | 1. API review | Alex records exact reviewed source, findings and verdict; demonstrated defects are corrected and retested | Review package exists; visual approval and green CI are not independent code review |
@@ -29,7 +37,7 @@ labelled and preserve the accepted default. Do not wait idly for the code review
 when independent authorised work remains, and do not mark the review complete.
 
 The existing [API parent issue #3](https://github.com/DynamicDevices/briar-presence/issues/3)
-and its issues #4–#10 remain the work tracker. This page is the agreed sequence,
+and its issues #4–#12 remain the work tracker. This page is the agreed sequence,
 not a new competing backlog. Issue #10 owns first-integration scope; issue
 acceptance must retain real review, actual-platform and live-data boundaries.
 

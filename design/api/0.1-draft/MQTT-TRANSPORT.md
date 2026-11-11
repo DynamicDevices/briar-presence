@@ -5,6 +5,10 @@ can connect to the visualisation API. This is an additional proposed transport,
 not a replacement for the embedded library, a selected broker or an implemented
 network connection. Synthetic overnight scope remains unchanged.
 
+Dedicated work item: [MQTT transport #11](https://github.com/DynamicDevices/briar-presence/issues/11).
+The [LVGL/ESP32 subscriber #12](https://github.com/DynamicDevices/briar-presence/issues/12)
+is separate and depends on the agreed view contract.
+
 ## Proposed architecture
 
 Multiple admitted producer clients publish **inputs**. One accepted-state owner
@@ -115,8 +119,8 @@ security clearance or licence acceptance.
 
 ## Tracked review and implementation sequence
 
-1. Review this profile under API contract issue #5, linked to first-integration
-   issue #10 and the six-step baseline plan. Alex's request adds MQTT to the
+1. Review and implement this profile under dedicated issue #11, linked to API
+   contract #5, first-integration #10 and the six-step baseline plan. Alex's request adds MQTT to the
    work; specific topic/owner/retention choices remain proposals.
 2. Specify and offline-test versioned envelopes, topic/scope mapping, duplicate/
    out-of-order handling and reconnect/unknown rules using synthetic fixtures.
