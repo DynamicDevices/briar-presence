@@ -4,6 +4,11 @@
 
 ## Where the work stands
 
+An [opt-in API-recording adapter for the Godot candidate](Godot-API-Recording.md)
+now exists. It uses canonical accepted scenes and leaves the default/installed
+display alone. Its expiry regression exposed and corrected a synthetic demo
+lease error; actual native display acceptance remains outstanding.
+
 Transport/device work is split into [MQTT #11](https://github.com/DynamicDevices/briar-presence/issues/11)
 and [LVGL/ESP32 subscriber #12](https://github.com/DynamicDevices/briar-presence/issues/12).
 Both belong to API parent #3; the device's agreed view contract depends on MQTT.

@@ -16,6 +16,9 @@ Local review and genuine CI remain separate from implementation progress.
 Next: [the six-step baseline plan](Baseline-Next-Steps.md), including separate
 work-inspection design and the synthetic-only overnight boundary.
 
+Development host: [synthetic API recording in Godot](Godot-API-Recording.md),
+an opt-in uninstalled candidate, not a live connection or device payload.
+
 | Page | What it covers |
 | --- | --- |
 | [Design and interaction](Design.md) | Agreed visual direction, attention, gentle controls and portrait-reference limits |

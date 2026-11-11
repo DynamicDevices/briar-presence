@@ -17,6 +17,8 @@ test('Godot candidate launch is explicit, local and preserves the display backen
  assert.ok(!plan.args.includes('--display-driver'));
  assert.deepEqual(launchPlan('/example',['--smoke']).args.slice(-2),['--','--briar-smoke']);
  assert.equal(launchPlan('/example',['--check']).check,true);
+ assert.deepEqual(launchPlan('/example',['--api-recording']).args.slice(-2),['--','--api-recording']);
+ assert.equal(launchPlan('/example',['--api-recording']).apiRecording,true);
  for(const args of [['--script'],['--check','--smoke'],['--instanced-study']])
   assert.throws(()=>launchPlan('/example',args),/Usage/);
 });

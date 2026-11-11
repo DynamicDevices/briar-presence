@@ -6,10 +6,11 @@ import {fileURLToPath} from 'node:url';
 import {createEmbeddedPresence} from '../api/embedded.mjs';
 import {validate, epochMs, snapshot, work, concern, severity, ack} from '../test/helpers/embedded-fixtures.mjs';
 
+export function createAcceptedDemoTrace() {
 const policy = {seed: 0x5eed1234, cueDurationMs: 1800, cueSpeedMultiplier: 1.6};
 const api = createEmbeddedPresence({userId: 'alex-demo', workspaceId: 'workspace-demo', validate,
   policy: {epochMs, observationTtlMs: 22000, futureSkewMs: 5, groupWindowMs: 10}, presentation: policy});
-const {port} = api.admitProducer({producerId: 'demo', session: 'session-a', generation: 1, leaseMs: 22000, userRaisedConcernIds: ['risk']}, 0);
+const {port} = api.admitProducer({producerId: 'demo', session: 'session-a', generation: 1, leaseMs: 14000, userRaisedConcernIds: ['risk']}, 0);
 const preferences = {brightness: 0.85, reducedMotion: false, attentionEnabled: true};
 const trace = [];
 function capture(at, label, acknowledgement = null) {
@@ -31,7 +32,11 @@ capture(12010, 'Acknowledged — still open', {producerId: 'demo', id: 'risk', r
 assert.equal(api.user.resolveConcern({producerId: 'demo', id: 'risk', revision: 2, reason: 'Synthetic evidence reviewed', expectedViewRevision: api.user.read(16000).viewRevision}, 16000).ok, true);
 capture(16010, 'Explicitly resolved — quiet work remains');
 capture(22500, 'Source expired — unknown, not healthy idle');
+return {trace,policy};
+}
 
+export async function buildEmbeddedPreview() {
+const {trace,policy}=createAcceptedDemoTrace();
 const source = async path => (await readFile(new URL(path, import.meta.url), 'utf8'))
   .replace(/^import .*;\n/gm, '').replace(/^export /gm, '');
 const bundled = (await Promise.all(['../core/presence.mjs', '../api/presentation.mjs', '../renderers/canvas.mjs'].map(source))).join('\n');
@@ -63,4 +68,6 @@ function tick(stamp){if(previous&&!paused)elapsed+=Math.min(stamp-previous,100);
 const output = new URL('../test-artifacts/embedded-api-preview.html', import.meta.url);
 await mkdir(new URL('.', output), {recursive: true});
 await writeFile(output, html);
-console.log(fileURLToPath(output));
+return fileURLToPath(output);
+}
+if(process.argv[1]===fileURLToPath(import.meta.url))console.log(await buildEmbeddedPreview());

@@ -57,12 +57,16 @@ step 4 or actual overlay acceptance in step 5.
 
 New regressions cover recorded-state provenance, task grouping, unassigned
 facts, keyboard interaction, Canvas execution, atomic producer caching and
-success/acknowledgement/closure/expiry semantics. The accepted baseline's
-generator, model, facade, projection and Canvas renderer are unchanged.
+success/acknowledgement/closure/expiry semantics. The accepted visual model,
+facade, projection and Canvas renderer remain unchanged. The later
+[Godot recording adapter](Godot-API-Recording.md) reuses those scenes and
+corrects the preview generator's source-expiry fixture.
 
-Final local integrated result for this draft batch: **81 tests pass, zero
-fail/skip/cancel**, using the existing real Canvas and Python schema oracle.
-That is not a genuine CI result for this batch or Alex's independent review.
+The design/producer batch `ab83cec` passed 81 tests locally and in genuine CI
+run42935804700. The later overlay-recording candidate passes **83 Node tests**
+locally, zero fail/skip/cancel, and **20 headless Godot checks each** against
+sample and full recordings. Its own exact-source CI remains to be recorded.
+These results are not Alex's independent review or actual-native acceptance.
 
 ## Questions for Alex's return
 

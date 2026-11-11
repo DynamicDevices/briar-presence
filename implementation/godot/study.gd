@@ -5,6 +5,8 @@ const LightScene = preload("res://light_scene.gd")
 const ResizePolicy = preload("res://resize_policy.gd")
 const SettingsWindow = preload("res://settings_window.gd")
 const DisplaySizing = preload("res://display_sizing.gd")
+const ApiRecording = preload("res://api_recording.gd")
+var _api_recording: RefCounted
 var _model := Presence.new(0x5eed1234)
 var _visual := LightScene.new()
 var _elapsed := 0.0
@@ -40,6 +42,13 @@ func _ready() -> void:
 	get_viewport().gui_embed_subwindows = false
 	_smoke = OS.get_cmdline_user_args().has("--briar-smoke")
 	_reference_frame = _smoke and OS.get_cmdline_user_args().has("--reference-frame")
+	if OS.get_cmdline_user_args().has("--api-recording"):
+		_api_recording = ApiRecording.new()
+		if not _api_recording.open_recording():
+			print(JSON.stringify({"type":"godot-api-recording-error","passed":false,"reason":_api_recording.validation_error}))
+			_visual.free()
+			get_tree().quit(2)
+			return
 	if _smoke and DisplayServer.get_name() == "headless":
 		print(JSON.stringify({"type":"godot-render-smoke","passed":false,"reason":"Native viewport smoke requires a display; use the separate headless behaviour tests."}))
 		_visual.free()
@@ -64,7 +73,7 @@ func _ready() -> void:
 	get_viewport().size_changed.connect(_layout)
 	_sync_display()
 	_layout()
-	get_window().title = "Briar · corner-resize study"
+	get_window().title = "Briar · synthetic API recording" if _api_recording != null else "Briar · corner-resize study"
 	await RenderingServer.frame_post_draw
 	print(JSON.stringify({"type":"godot-study-ready","pid":OS.get_process_id(),"displayServer":DisplayServer.get_name(),"syntheticOnly":true,"studyOnly":true,"resizable":not get_window().unresizable,"visibleResizeControls":false,"alwaysOnTop":get_window().always_on_top,"screen":_display_id,"usableDisplaySize":[_display_area.size.x,_display_area.size.y],"windowSize":[get_window().size.x,get_window().size.y],"faceSize":[_face_rect.size.x,_face_rect.size.y],"relativeHeight":_display_height_fraction}))
 
@@ -122,7 +131,12 @@ func _process(_delta: float) -> void:
 			print(JSON.stringify({"type":"godot-smoke-phase","phase":_smoke_phase,"windowMode":get_window().mode}))
 	var started := Time.get_ticks_usec()
 	var scene_time := REFERENCE_TIME if _reference_frame else _elapsed
-	var scene := _model.sample({"time":scene_time,"state":"quiet","reducedMotion":_reduced_motion})
+	var scene := _scene_for_display(scene_time)
+	if scene.is_empty() and _api_recording != null:
+		print(JSON.stringify({"type":"godot-api-recording-error","passed":false,"reason":_api_recording.validation_error}))
+		_visual.set_scene({},_face_rect.size,1.6,1.2)
+		get_tree().quit(2)
+		return
 	_sample_usec += Time.get_ticks_usec()-started
 	started = Time.get_ticks_usec()
 	_visual.set_scene(scene,_face_rect.size,1.6,1.2)
@@ -178,7 +192,12 @@ func _show_settings() -> void:
 func _set_reduced_motion(value: bool) -> void:
 	_reduced_motion = value
 	var scene_time := REFERENCE_TIME if _reference_frame else _elapsed
-	_visual.set_scene(_model.sample({"time":scene_time,"state":"quiet","reducedMotion":value}),_face_rect.size,1.6,1.2)
+	_visual.set_scene(_scene_for_display(scene_time),_face_rect.size,1.6,1.2)
+
+func _scene_for_display(scene_time: float) -> Dictionary:
+	if _api_recording != null:
+		return _api_recording.sample(scene_time,_reduced_motion)
+	return _model.sample({"time":scene_time,"state":"quiet","reducedMotion":_reduced_motion})
 
 func _set_stay_above(value: bool) -> void:
 	_stay_above = value

@@ -19,6 +19,8 @@ test('recorded preview renders accepted transitions, replays and pauses without 
   const context = vm.createContext({document: {querySelector: id => id === 'canvas' ? canvas : nodes[id]},
     matchMedia: () => ({matches: false}), devicePixelRatio: 1, requestAnimationFrame: fn => {callback = fn;}});
   vm.runInContext(script, context, {timeout: 2000});
+  assert.equal(vm.runInContext('projectAcceptedView(trace.at(-1).view).baseState', context), 'unknown');
+  assert.equal(vm.runInContext('trace.at(-1).view.producers[0].lease', context), 'expired');
   const labels = new Set();
   for (let t = 1; t <= 26301; t += 100) {
     callback(t);

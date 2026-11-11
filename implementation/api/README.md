@@ -19,6 +19,7 @@ From `implementation/` with the existing Python `jsonschema` environment:
 node scripts/synthetic-adapter-example.mjs
 node scripts/embedded-preview.mjs
 node scripts/inspection-mockup.mjs
+node scripts/api-overlay-recording.mjs
 ```
 
 The first command prints a bounded synthetic trace. The second generates the
@@ -26,6 +27,10 @@ accepted face demonstration. The third generates the **proposed** work-inspectio
 mock-up. Open the respective HTML files in `test-artifacts/`; no server is needed.
 These examples use the existing test-only Python schema oracle in the Node host.
 They are not production validation, authentication or actual-platform acceptance.
+
+The fourth command exports an ignored local fidelity-test scene tape, with an
+opt-in Godot consumer described in [the host guide](../../wiki/Godot-API-Recording.md).
+It is not an MQTT/device wire representation; no visible launch is automatic.
 
 ## Host responsibilities and module boundaries
 

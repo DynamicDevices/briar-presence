@@ -7,6 +7,12 @@ package, not a record that the review has happened. No new worker is needed.
 
 ## What to review
 
+Overlay recording candidate: also review [the Godot adapter and fixture
+correction](Godot-API-Recording.md), its Node/Godot tests and optional launcher
+path. This uses a temporary local scene tape, not a selected live transport.
+The earlier baseline's claimed final-label behaviour was weaker evidence than
+the new actual expired/unknown-state assertions.
+
 Next-step draft additions also need review: `implementation/api/synthetic-producer.mjs`,
 its executable example/tests and the separate `design/inspection/0.1-proposal/`
 mock-up. Its interaction is proposed, not adopted. Baseline CI evidence below
