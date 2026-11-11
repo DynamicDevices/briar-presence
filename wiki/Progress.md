@@ -14,11 +14,26 @@ not; explicit backend options remain. Other native interaction
 checks and independent review are still open; earlier evidence below identifies
 its original candidate/backend rather than superseding this observation.
 
-Follow-up: native Wayland stay-above and dialog-size checks failed. Alex selected
-standard logical dialog sizing on Wayland; the revised sizing passes policy and
-headless checks, but its native question timed out and readability remains open.
-Godot does not document its always-on-top flag as implemented on Wayland. These
-limits prevent a complete replacement/installation acceptance claim.
+Follow-up: Alex selected standard logical dialog sizing on Wayland and later
+said “I think that worked well”. This is positive compact-dialog feedback, not
+acceptance of every panel or focus path. On the current Wayland preview Alex
+also confirmed continued gentle motion, click/drag separation, Shift+F10 menu
+opening and Escape closing without quitting, clear task selection/details/return,
+and acknowledgement meaning seen rather than resolved. These are native user
+observations, separate from headless tests.
+
+Stay-above remains unresolved. GNOME's Always on Top remains checked for Briar;
+Alex reports Briar stays above normal Files but can fall behind a normal Codex
+window whose own Always on Top is unchecked. Full-screen mode and competing
+checked top-layer options therefore do not explain the observed comparison.
+An X11 metadata query did not expose a matching Codex window; that does not prove
+Codex's backend or stacking state. Godot does not document its always-on-top
+flag as implemented on Wayland. No compositor or Codex setting was changed.
+
+The expiry/unknown question timed out, so interpretation remains unverified.
+Resize fidelity, cross-monitor sizing/placement, other focus paths and Alex's
+source-bound independent local review also remain open. No complete desktop,
+replacement or installation acceptance is claimed.
 
 Separate cross-build repair: signed build source
 `46e8f26dce156e98e3ce0c07084c11e2433fe969` in

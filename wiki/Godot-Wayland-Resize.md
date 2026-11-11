@@ -10,6 +10,20 @@ This is evidence for this desktop/backend, not every Linux compositor or platfor
 
 ## Run the verified route
 
+Subsequent Wayland interaction checks with Alex confirmed continued gentle
+motion, correct click/drag separation, Shift+F10/Escape menu handling without
+quitting, task selection/details/return, and acknowledgement distinct from
+resolution. Resize fidelity and cross-monitor behaviour remain separate checks.
+Compact-dialog feedback was positive, not universal panel/focus acceptance.
+
+Actual stacking is still unresolved: GNOME Always on Top stays checked for
+Briar and works against normal Files, but Alex reports a normal Codex window
+can cover Briar even with Codex's own Always on Top unchecked. Godot's flag
+does not establish Wayland compositor behaviour. The X11 metadata query found
+no matching Codex class, which establishes neither backend nor stacking state.
+No compositor/security change is proposed as a proven fix. The accepted resize
+workaround must not be presented as a stay-above repair.
+
 From `implementation/`, with the existing pinned Godot engine already present:
 
 ```sh
