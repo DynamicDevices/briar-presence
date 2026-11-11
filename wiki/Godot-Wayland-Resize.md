@@ -19,8 +19,16 @@ node scripts/launch-godot.mjs --inspection-wayland
 This explicitly selects Godot's native Wayland backend and the synthetic
 inspection recording. It needs a working Wayland session/socket. It downloads
 nothing and does not install, connect live harness data or change the desktop
-session. The ordinary `--inspection` option still leaves backend selection to
-Godot; there is no silent fallback or default-backend change in this iteration.
+session. Alex subsequently selected preferring native Wayland when available,
+with an explanation on X11-only sessions. Ordinary interactive launches,
+including `--inspection`, now select Wayland when the advertised Wayland socket
+exists. Otherwise they select X11 and print its known resize limitation. A
+regular file is not treated as a socket; an unavailable Wayland connection is
+not inferred solely from the desktop session name. A failed Wayland launch is
+not silently retried through X11. Explicit `--inspection-wayland` and
+`--inspection-x11` retain manual choices. Opaque/plain diagnostics explicitly
+use X11 so automatic selection cannot invalidate the comparison. Finite smoke
+and engine-check modes keep their previous backend behaviour.
 
 Startup reported `displayServer: Wayland`, `transparentWindow: true`,
 `transparentViewport: true`, `opaqueResizeTest: false`, and a resizable window.
@@ -61,6 +69,13 @@ tested corner. They do not establish those behaviours on native Wayland.
 
 ## What remains
 
+On the next native Wayland trial Alex confirmed the preview was running but
+reported that it did not stay above other windows despite the setting, and
+the dialogs were too large. These are failed native checks, not accepted
+behaviour. A requested stay-above engine flag must not be presented as proof
+of actual stacking. The exact dialog-scaling cause and suitable correction
+still need diagnosis and native retesting. No stacking/sizing fix is claimed.
+
 Check native Wayland click/drag and corner fidelity, keyboard/focus/close,
 task selection and return, acknowledgement versus resolution, expiry/unknown,
 continued unobtrusive motion, monitor scaling and actual stay-above behaviour.
@@ -68,7 +83,7 @@ The startup stay-above flag is not proof that Wayland honours it. Do not bypass
 compositor restrictions to enforce it. Independent code review and Windows/macOS
 native acceptance remain separate. The installed app has not been replaced.
 
-The next launcher decision is whether to prefer Wayland when available and what
-to offer on X11-only desktops. That policy is not silently adopted here.
+The backend policy above is Alex's selected direction, not installation
+acceptance or a guarantee that every Wayland compositor supports every feature.
 
 Assisted-by: Briar

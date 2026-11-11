@@ -7,6 +7,34 @@ package, not a record that the review has happened. No new worker is needed.
 
 ## What to review
 
+### Current desktop and cross-build additions
+
+Review [PR #14](https://github.com/DynamicDevices/briar-presence/pull/14) as a
+separate desktop change, and [PR #13](https://github.com/DynamicDevices/briar-presence/pull/13)
+as a separate build change. Record each actual reviewed commit and its result;
+this checklist is not approval. The earlier state-only review scope below
+does not approve either addition.
+
+- Desktop: `application_menu.gd`, `about_window.gd`, `settings_window.gd`,
+  `study.gd`, input routing and inspection tests; verify hidden application
+  actions, no quit-on-preference change, passive centred name and focus/close.
+- Launcher: `launch-godot.mjs` and `godot-launch.test.mjs`; check real socket
+  detection, explicit backend options, honest X11 warning, no silent retry
+  after Wayland failure, and unchanged finite smoke/check behaviour.
+- Build: `.github/workflows/desktop-builds.yml`, `build-desktop-ci.mjs` and
+  `desktop-build.test.mjs`; verify exact trusted DD runner/ref guards, no PR
+  execution/secrets, pinned downloads, source/notices, generated app name,
+  unchanged strict archive validation and honest unsigned/cross-export limits.
+- Both: trace scripts to export/package inventories, review failure handling,
+  preserve synthetic-only data and distinguish native evidence from test counts.
+
+[Native findings](Godot-Wayland-Resize.md) include successful resize-flashing
+avoidance but failed stay-above and dialog sizing on Wayland. Do not approve a
+complete desktop replacement while those remain unresolved. Independent review
+can record findings; green CI and Alex's visual preference are not that verdict.
+
+### Earlier API review scope
+
 Overlay recording candidate: also review [the Godot adapter and fixture
 correction](Godot-API-Recording.md), its Node/Godot tests and optional launcher
 path. This uses a temporary local scene tape, not a selected live transport.

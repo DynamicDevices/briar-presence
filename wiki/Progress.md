@@ -8,7 +8,9 @@
 preview running through native Wayland, with transparency restored. X11 face and
 plain-window comparisons both flashed. The opt-in launch command, centred Briar
 name, upstream issue and limits are recorded in [Native Wayland resizing](Godot-Wayland-Resize.md).
-The installed app and default backend remain unchanged. Other native interaction
+The installed app remains unchanged. Alex subsequently selected preferring
+native Wayland when its socket is available, with an X11 resize warning when
+not; explicit backend options remain. Other native interaction
 checks and independent review are still open; earlier evidence below identifies
 its original candidate/backend rather than superseding this observation.
 
