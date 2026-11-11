@@ -44,6 +44,7 @@ func _button(text: String, parent: Node) -> Button:
 	var button := Button.new()
 	button.text = text
 	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	button.custom_minimum_size.y = roundi(38*ui_scale)
 	button.add_theme_font_size_override("font_size",roundi(14*ui_scale))
@@ -93,7 +94,11 @@ func _build() -> void:
 	_details = VBoxContainer.new()
 	_details.add_theme_constant_override("separation",roundi(12*ui_scale))
 	content.add_child(_details)
-	var actions := HBoxContainer.new()
+	# Footer captions need their natural width, unlike wrapping task rows.
+	# Flow onto another row on narrow displays rather than becoming tall strips.
+	var actions := HFlowContainer.new()
+	actions.add_theme_constant_override("h_separation",roundi(8*ui_scale))
+	actions.add_theme_constant_override("v_separation",roundi(6*ui_scale))
 	_column.add_child(actions)
 	_overview = _button("All work",actions)
 	_overview.pressed.connect(func(): select_task(""))
@@ -101,6 +106,8 @@ func _build() -> void:
 	settings.pressed.connect(func(): hide(); settings_requested.emit())
 	var close_button := _button("Close",actions)
 	close_button.pressed.connect(close_inspection)
+	for button: Button in [_overview,settings,close_button]:
+		button.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_label("Read-only preview · selection stays local\nAcknowledged means seen, not resolved.",_column)
 
 func set_semantic(semantic: Dictionary) -> void:

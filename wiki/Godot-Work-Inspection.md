@@ -81,9 +81,24 @@ production view protocol or LVGL implementation. No real tasks, transcripts,
 broker connection, firmware or live harness are used.
 
 Local candidate evidence: 94 Node tests passed with zero fail/skip/cancel; the
-verified Godot engine passed 324 checks over 36 projection vectors and the full
+verified Godot engine passed 353 checks over 36 projection vectors and the full
 inspection tape. The existing baseline tape retained its 20 passing headless
 checks. Exact source hashes and logs are local artifacts; genuine CI and review
 status are recorded on the development PR, not inferred from these local results.
+
+## Native review finding: collapsed footer
+
+Alex's desktop screenshot exposed footer buttons collapsing into narrow vertical
+strips, leaving too little room for the tasks. The old tests created widgets but
+did not check their settled layout. Alex explicitly approved the targeted layout
+fix and restart of the separate candidate.
+
+The footer now uses non-wrapping captions in a flow container; task rows expand
+to the available width. On narrow panels the footer can use another row, while
+tasks remain scrollable. Actual-layout regressions cover four scales, including
+the trial display scale, caption widths, compact heights and task access. They
+reproduce the original defect before the correction. The candidate was restarted
+with the fix, but Alex's visual re-check is still pending. Passing these geometry
+checks is not native readability, pointer or accessibility acceptance.
 
 Assisted-by: Briar

@@ -72,6 +72,42 @@ func _run() -> void:
 	check(panel.borderless and panel.transient and not panel.exclusive,"borderless non-modal inspection")
 	check(not panel.visible,"panel does not auto-open on state update")
 	check(panel._rows.size() == 3,"native task widgets reflect all three tasks")
+	# Exercise actual container layout, not just widget creation/signals. Embed
+	# the window in this headless test viewport; never open a desktop window.
+	root.gui_embed_subwindows = true
+	root.size = Vector2i(1800,1400)
+	var layout_metrics: Array = []
+	for configuration: Dictionary in [{"scale":1.0,"size":Vector2i(440,580)},{"scale":1.6,"size":Vector2i(704,928)},{"scale":2340.0/1080.0,"size":Vector2i(953,1257)},{"scale":0.85,"size":Vector2i(255,493)}]:
+		panel.ui_scale = configuration.scale
+		panel._build()
+		panel._fingerprint = ""
+		panel.set_semantic(initial_semantic)
+		panel.size = configuration.size
+		panel.show()
+		for settle: int in range(4):
+			await process_frame
+		var actions: Container = panel._overview.get_parent()
+		var dimensions: Array = []
+		for button: Button in actions.get_children():
+			var text_size := button.get_theme_font("font").get_string_size(button.text,HORIZONTAL_ALIGNMENT_LEFT,-1,button.get_theme_font_size("font_size"))
+			var padding := button.get_theme_stylebox("normal").get_minimum_size()
+			check(button.size.x+1 >= text_size.x+padding.x,"footer caption fits at scale "+str(configuration.scale))
+			check(button.size.y <= 2*button.get_theme_font_size("font_size")+padding.y+2,"footer button stays compact at scale "+str(configuration.scale))
+			dimensions.append([button.text,button.size.x,button.size.y])
+		var scroll: ScrollContainer = panel._column.get_children().filter(func(c: Node): return c is ScrollContainer)[0]
+		if configuration.size.x >= roundi(400*configuration.scale):
+			check(panel._tasks.size.y <= scroll.size.y+1,"all three task rows fit at scale "+str(configuration.scale))
+		else:
+			# The accepted design permits scrolling on narrow screens. Do not
+			# shrink text or force every task on screen merely to pass a test.
+			check(scroll.size.y >= panel._rows[0].size.y,"narrow task area fits a complete row")
+			scroll.ensure_control_visible(panel._rows[-1])
+			await process_frame
+			# Scroll offsets are integer pixels while scaled control rectangles
+			# can be fractional. Allow the one-pixel rounding at the button border.
+			check(scroll.get_global_rect().grow(1).encloses(panel._rows[-1].get_global_rect()),"narrow panel can scroll to the last task within pixel rounding")
+		layout_metrics.append({"scale":configuration.scale,"panel":[panel.size.x,panel.size.y],"buttons":dimensions,"taskHeight":panel._tasks.size.y,"scrollHeight":scroll.size.y,"scrollRect":str(scroll.get_global_rect()),"lastTaskRect":str(panel._rows[-1].get_global_rect()),"scrollPosition":scroll.scroll_vertical})
+	panel.hide()
 	if not panel._rows.is_empty():
 		panel._rows[0].pressed.emit()
 		check(not panel.selected_key.is_empty(),"task button selects locally")
@@ -122,6 +158,7 @@ func _run() -> void:
 	host.free()
 	var result := {"type":"godot-inspection-headless","passed":failures.is_empty(),"checks":checks,"failures":failures,"vectors":data.vectors.size(),"scope":"Accepted-state projection, geometry and programmatic widget/keyboard checks only; not native pointer, rendered pixels, compositor or screen-reader acceptance."}
 	result.fullRecording = full
+	result.layoutMetrics = layout_metrics
 	result.sources = {}
 	for source: String in ["study.gd","api_recording.gd","inspection_model.gd","inspection_layout.gd","inspection_window.gd","inspection_test.gd","inspection_input_host.gd"]:
 		result.sources[source] = FileAccess.get_sha256("res://"+source)
