@@ -10,13 +10,34 @@ separate GitHub Wiki service has been populated.
 
 ## Read by topic
 
+Latest implementation: [embedded API and recorded synthetic preview](Embedded-API-Preview.md).
+Local review and genuine CI remain separate from implementation progress.
+
+Next: [the six-step baseline plan](Baseline-Next-Steps.md), including separate
+work-inspection design and the synthetic-only overnight boundary.
+
+Development host: [accepted work-inspection design in the Godot candidate](Godot-Work-Inspection.md),
+and [synthetic API recording in Godot](Godot-API-Recording.md),
+an opt-in uninstalled candidate, not a live connection or device payload.
+
 | Page | What it covers |
 | --- | --- |
 | [Design and interaction](Design.md) | Agreed visual direction, attention, gentle controls and portrait-reference limits |
 | [Current progress and preview](Progress.md) | What works, test evidence, unfinished work and how to try the existing preview |
 | [Platform capabilities](Platforms.md) | Desktop, Godot, browser, desk-device and VR strengths, constraints and evidence gaps |
 | [API direction](API.md) | Proposed producer-neutral integration: Briar harness or other clients; not a running API |
+| [Visual-language API review and plan](Visual-Language-API.md) | Approved review, concurrent work/concerns, contract, extensibility, safeguards and staged acceptance |
+| [Vocabulary and scenarios](Visual-Language-Vocabulary.md) | Selected design decisions, proposed semantics, 21 synthetic scenarios and outstanding readability checks |
+| [Input contract — draft](API-Contract-Draft.md) | Proposed records, snapshot/session rules, user interactions, examples and open decisions; no implemented API |
+| [Static schema and fixtures — draft](../design/api/0.1-draft/README.md) | JSON Schema proposal, positive/negative examples and validation scope |
+| [Offline state handler](../implementation/core/STATE.md) | Executable synthetic scenarios, host boundary, local test evidence and remaining limits |
+| [Review and CI plan](Review-and-CI-Plan.md) | Current local-review direction, deferred Preloop setup and remaining review/CI limits |
+| [Local state review](Local-State-Review.md) | Self-review findings, regression fixes, scenario coverage and evidence boundaries |
+| [Alex's local review package](Alex-Local-Review.md) | Source scope, review checklist, local test instructions and result fields |
+| [Offline test CI draft — inactive](../design/api/0.1-draft/CI-Readiness.md) | Proposed isolated test job, reproducibility and activation requirements; not configured CI |
+| [First API integration proposal](../design/api/0.1-draft/EMBEDDED-PROPOSAL.md) | Reversible embedded-first assumption, semantic display boundary and synthetic end-to-end acceptance |
 | [Godot study](../design/GODOT.md) | Renderer, behaviour-port checks, engine provenance and desktop limitations |
+| [Project development skill](../.agents/skills/briar-presence/SKILL.md) | Quiet interaction constraints, retained-vector resizing and affected verification |
 
 ## Project direction
 
