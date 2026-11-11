@@ -29,6 +29,7 @@ var _last_sample_usec := 0
 var _smoke_phase := "starting"
 var _smoke_started_usec := 0
 var _backing := StyleBoxFlat.new()
+var _name_label := Label.new()
 var _face_rect := Rect2(8,8,180,230)
 var _backing_rect := Rect2(8,8,180,230)
 var _settings: SettingsWindow
@@ -44,7 +45,12 @@ var _applying_display_size := false
 func _ready() -> void:
 	# Window interaction must not inherit the intentionally quiet light-update rate.
 	Engine.max_fps = 60
-	get_viewport().transparent_bg = true
+	var opaque_resize_test := OS.get_cmdline_user_args().has("--opaque-resize-test")
+	get_window().transparent = not opaque_resize_test
+	get_viewport().transparent_bg = not opaque_resize_test
+	if opaque_resize_test:
+		# One-launch A/B diagnostic only; do not change the normal project settings.
+		RenderingServer.set_default_clear_color(Color(21.0/255.0,38.0/255.0,57.0/255.0,1.0))
 	get_viewport().gui_embed_subwindows = false
 	_smoke = OS.get_cmdline_user_args().has("--briar-smoke")
 	_reference_frame = _smoke and OS.get_cmdline_user_args().has("--reference-frame")
@@ -76,12 +82,19 @@ func _ready() -> void:
 	_backing.shadow_color = Color(21.0/255.0,38.0/255.0,57.0/255.0,.2)
 	_backing.shadow_size = 6
 	add_child(_visual)
+	_name_label.text = "Briar"
+	_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_name_label.focus_mode = Control.FOCUS_NONE
+	_name_label.add_theme_color_override("font_color",Color(0.78,0.86,0.93,0.9))
+	add_child(_name_label)
 	get_viewport().size_changed.connect(_layout)
 	_sync_display()
 	_layout()
 	get_window().title = "Briar · synthetic API recording" if _api_recording != null else "Briar · corner-resize study"
+	if opaque_resize_test:
+		get_window().title += " · opaque resize test"
 	await RenderingServer.frame_post_draw
-	print(JSON.stringify({"type":"godot-study-ready","pid":OS.get_process_id(),"displayServer":DisplayServer.get_name(),"syntheticOnly":true,"studyOnly":true,"resizable":not get_window().unresizable,"visibleResizeControls":false,"alwaysOnTop":get_window().always_on_top,"screen":_display_id,"usableDisplaySize":[_display_area.size.x,_display_area.size.y],"windowSize":[get_window().size.x,get_window().size.y],"faceSize":[_face_rect.size.x,_face_rect.size.y],"relativeHeight":_display_height_fraction}))
+	print(JSON.stringify({"type":"godot-study-ready","pid":OS.get_process_id(),"displayServer":DisplayServer.get_name(),"syntheticOnly":true,"studyOnly":true,"opaqueResizeTest":opaque_resize_test,"transparentWindow":get_window().transparent,"transparentViewport":get_viewport().transparent_bg,"resizable":not get_window().unresizable,"visibleResizeControls":false,"alwaysOnTop":get_window().always_on_top,"screen":_display_id,"usableDisplaySize":[_display_area.size.x,_display_area.size.y],"windowSize":[get_window().size.x,get_window().size.y],"faceSize":[_face_rect.size.x,_face_rect.size.y],"relativeHeight":_display_height_fraction}))
 
 func _smoke_watchdog() -> void:
 	if _smoke_phase == "capture-complete":
@@ -103,7 +116,16 @@ func _layout() -> void:
 	if not _visual._scene.is_empty():
 		_visual.resize_scene(_face_rect.size)
 	_backing.set_corner_radius_all(int(minf(_backing_rect.size.x,_backing_rect.size.y)*.27))
+	_layout_name()
 	queue_redraw()
+
+func _layout_name() -> void:
+	# Centre the name inside the backing, below the curved top rather than a title bar.
+	# A passive label leaves the whole face available for click/drag/right-click.
+	var radius := minf(_backing_rect.size.x,_backing_rect.size.y)*.27
+	_name_label.add_theme_font_size_override("font_size",clampi(roundi(_face_rect.size.y*.029),12,28))
+	_name_label.reset_size()
+	_name_label.position = Vector2(_backing_rect.get_center().x-_name_label.size.x/2.0,_backing_rect.position.y+radius*.22)
 
 func _sync_display() -> void:
 	var display := get_window().current_screen

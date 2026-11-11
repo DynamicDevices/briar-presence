@@ -21,6 +21,14 @@ test('Godot candidate launch is explicit, local and preserves the display backen
  assert.equal(launchPlan('/example',['--api-recording']).apiRecording,true);
  assert.deepEqual(launchPlan('/example',['--inspection']).args.slice(-3),['--','--api-recording','--inspection']);
  assert.equal(launchPlan('/example',['--inspection']).apiRecording,true);
+ assert.deepEqual(launchPlan('/example',['--inspection-opaque']).args.slice(-4),['--','--api-recording','--inspection','--opaque-resize-test']);
+ assert.equal(launchPlan('/example',['--inspection-opaque']).apiRecording,true);
+ assert.equal(launchPlan('/example',['--inspection']).args.includes('--opaque-resize-test'),false);
+ assert.deepEqual(launchPlan('/example',['--plain-resize-test']).args.slice(-2),['--script','res://resize_diagnostic.gd']);
+ assert.equal(launchPlan('/example',['--plain-resize-test']).apiRecording,false);
+ assert.deepEqual(launchPlan('/example',['--inspection-wayland']).args.slice(2),['--display-driver','wayland','--','--api-recording','--inspection']);
+ assert.equal(launchPlan('/example',['--inspection-wayland']).apiRecording,true);
+ assert.equal(launchPlan('/example',['--inspection-wayland']).args.includes('--opaque-resize-test'),false);
  for(const args of [['--script'],['--check','--smoke'],['--instanced-study']])
   assert.throws(()=>launchPlan('/example',args),/Usage/);
 });

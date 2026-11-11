@@ -4,6 +4,14 @@
 
 ## Where the work stands
 
+11 November native resize result: Alex reports “that worked” with the face
+preview running through native Wayland, with transparency restored. X11 face and
+plain-window comparisons both flashed. The opt-in launch command, centred Briar
+name, upstream issue and limits are recorded in [Native Wayland resizing](Godot-Wayland-Resize.md).
+The installed app and default backend remain unchanged. Other native interaction
+checks and independent review are still open; earlier evidence below identifies
+its original candidate/backend rather than superseding this observation.
+
 An [opt-in API-recording adapter for the Godot candidate](Godot-API-Recording.md)
 now exists. It uses canonical accepted scenes and leaves the default/installed
 display alone. Its expiry regression exposed and corrected a synthetic demo

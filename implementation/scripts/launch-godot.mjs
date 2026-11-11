@@ -9,12 +9,12 @@ const binaryName='Godot_v4.7.2-stable_linux.x86_64';
 const binarySha256='8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e';
 
 export function launchPlan(projectRoot, args=[], environment=process.env) {
- if(args.length>1 || (args.length===1 && !['--check','--smoke','--api-recording','--inspection'].includes(args[0])))
-  throw new Error('Usage: node scripts/launch-godot.mjs [--check|--smoke|--api-recording|--inspection]');
+ if(args.length>1 || (args.length===1 && !['--check','--smoke','--api-recording','--inspection','--inspection-opaque','--plain-resize-test','--inspection-wayland'].includes(args[0])))
+  throw new Error('Usage: node scripts/launch-godot.mjs [--check|--smoke|--api-recording|--inspection|--inspection-opaque|--plain-resize-test|--inspection-wayland]');
  const tools=path.join(projectRoot,'.tools');
  return {engine:path.join(tools,'godot-4.7.2',binaryName),
-  args:['--path',path.join(projectRoot,'godot'),...(args[0]==='--smoke'?['--','--briar-smoke']:args[0]==='--inspection'?['--','--api-recording','--inspection']:args[0]==='--api-recording'?['--','--api-recording']:[])],
-  check:args[0]==='--check',smoke:args[0]==='--smoke',apiRecording:['--api-recording','--inspection'].includes(args[0]),
+  args:['--path',path.join(projectRoot,'godot'),...(args[0]==='--inspection-wayland'?['--display-driver','wayland']:[]),...(args[0]==='--plain-resize-test'?['--script','res://resize_diagnostic.gd']:args[0]==='--smoke'?['--','--briar-smoke']:args[0]==='--inspection-opaque'?['--','--api-recording','--inspection','--opaque-resize-test']:['--inspection','--inspection-wayland'].includes(args[0])?['--','--api-recording','--inspection']:args[0]==='--api-recording'?['--','--api-recording']:[])],
+  check:args[0]==='--check',smoke:args[0]==='--smoke',apiRecording:['--api-recording','--inspection','--inspection-opaque','--inspection-wayland'].includes(args[0]),
   env:{...environment,
    XDG_CONFIG_HOME:path.join(tools,'runtime/config'),
    XDG_CACHE_HOME:path.join(tools,'runtime/cache'),

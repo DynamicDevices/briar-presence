@@ -8,6 +8,7 @@ const Sizing = preload("res://display_sizing.gd")
 const ApplicationMenu = preload("res://application_menu.gd")
 const AboutWindow = preload("res://about_window.gd")
 const SettingsWindow = preload("res://settings_window.gd")
+const Study = preload("res://study.gd")
 var failures: Array[String] = []
 var checks := 0
 
@@ -215,6 +216,20 @@ func _run() -> void:
 	about.close_button.pressed.emit()
 	check(not about.visible,"About close hides the panel without exiting the host")
 	about.free()
+	# Check passive name placement without starting the visible study runtime.
+	var study := Study.new()
+	study.add_child(study._visual)
+	study.add_child(study._name_label)
+	study._name_label.text = "Briar"
+	study._name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for dimensions: Vector2 in [Vector2(196,246),Vector2(554,702),Vector2(1108,1404),Vector2(900,300)]:
+		study._backing_rect = Study.ResizePolicy.backing_rect(dimensions)
+		study._face_rect = Study.ResizePolicy.face_rect(dimensions)
+		study._layout_name()
+		check(study._backing_rect.encloses(study._name_label.get_rect()),"Briar name stays inside backing "+str(dimensions))
+		check(absf(study._name_label.get_rect().get_center().x-study._backing_rect.get_center().x) < 1 and study._name_label.position.y < dimensions.y/2,"Briar name stays top-centre "+str(dimensions))
+	check(study._name_label.mouse_filter == Control.MOUSE_FILTER_IGNORE,"name does not capture face input")
+	study.free()
 	var result := {"type":"godot-inspection-headless","passed":failures.is_empty(),"checks":checks,"failures":failures,"vectors":data.vectors.size(),"scope":"Accepted-state projection, geometry and programmatic widget/keyboard checks only; not native pointer, rendered pixels, compositor or screen-reader acceptance."}
 	result.fullRecording = full
 	result.layoutMetrics = layout_metrics
