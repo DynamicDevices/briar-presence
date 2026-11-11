@@ -5,6 +5,10 @@ No CI job, worker, credential or dependency installation has been started.
 The current offline grant excludes workflow administration; activation needs
 separate verified coverage. Preloop setup remains deferred.
 
+A [concrete inactive candidate](ci/README.md) now includes the example workflow,
+an npm integrity lock and a platform-specific hashed Python dependency lock.
+These are preparation artifacts, not a workflow installed in `.github`.
+
 ## Proposed isolated test job
 
 Use a GitHub-hosted Linux job on normal pull-request source, with only
@@ -20,8 +24,8 @@ Steps to encode in the reviewed workflow candidate:
    observed test versions, not a claim that future runner images contain them.
 3. Provision only test dependencies in job-private storage, from reviewed
    pinned/locked inputs. Do not install Electron or launch a desktop engine just
-   to run Node's built-in tests. Prepare and validate dependency locks before
-   activation; no new dependency lock or install is supplied by this draft.
+   to run Node's built-in tests. Draft dependency locks are now supplied; clean
+   runner installation remains untested and must be verified before acceptance.
 4. Fail explicitly unless Python can load the required validator and the
    configured `BRIAR_CANVAS_MODULE` resolves and can create a Canvas. Do not use
    Alex's laptop-specific cache path or permit absent Canvas support to become

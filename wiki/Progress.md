@@ -53,6 +53,20 @@ result fields without filling in Alex's verdict. The
 [inactive test CI draft](../design/api/0.1-draft/CI-Readiness.md) records the
 no-secret job design and missing activation evidence; no workflow is enabled.
 
+Following Alex's request to continue overnight using sensible assumptions,
+[embedded-first is the working proposal](../design/api/0.1-draft/EMBEDDED-PROPOSAL.md),
+not a settled transport or live endpoint. A
+[concrete inactive CI candidate](../design/api/0.1-draft/ci/README.md) now includes
+pinned Node24 actions, integrity/hash-locked test dependencies and explicit
+failure instead of skipped Canvas checks. YAML, shell syntax, dependency closure
+and present/missing-Canvas preflight checks pass locally. No package was installed,
+workflow enabled, listener opened or runtime adapter implemented.
+The candidate's exact Node/TAP test command also passes locally: 49 tests,
+zero skipped/cancelled, about 18.46 seconds. This reuses the existing installed
+test dependencies; it does not establish clean-runner installation or a real
+Actions result. Questions are queued for Alex's return rather than blocking
+reversible proposal work overnight.
+
 | Area | Current evidence | Still open |
 | --- | --- | --- |
 | Portable light behaviour | Separate seeded scene generator, Canvas renderer, synthetic-state input and desktop host | Future adapters and wider platform tests |
