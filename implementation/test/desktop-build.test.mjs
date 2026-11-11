@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import {assertCiContext,desktopPresets,TARGETS,DOWNLOADS,safeArchiveMembers,assertBinary,verifyDesktopArtifact,downloadPinned,godotFailureDetails,runGodotStep,stageDesktopProject} from '../scripts/build-desktop-ci.mjs';
+import {assertCiContext,desktopPresets,TARGETS,DOWNLOADS,safeArchiveMembers,inspectMacArchive,assertBinary,verifyDesktopArtifact,downloadPinned,godotFailureDetails,runGodotStep,stageDesktopProject} from '../scripts/build-desktop-ci.mjs';
 import {APP_FILES} from '../scripts/package-godot.mjs';
 import {writeManifest} from '../scripts/package-files.mjs';
 
@@ -28,6 +28,20 @@ test('export archive names cannot escape the app directory',()=>{
   assert.deepEqual(safeArchiveMembers('BriarPresence.app/\nBriarPresence.app/Contents/Info.plist\n','BriarPresence.app/'),['BriarPresence.app/','BriarPresence.app/Contents/Info.plist']);
   for(const name of ['../bad','/tmp/bad','BriarPresence.app/../bad','BriarPresence.app/Contents/../../bad','BriarPresence.app/\\bad','other.app/file',''])assert.throws(()=>safeArchiveMembers(name,'BriarPresence.app/'));
   assert.throws(()=>safeArchiveMembers('BriarPresence.app/a\nBriarPresence.app/a','BriarPresence.app/'));
+});
+test('macOS archive diagnostics survive rejection without extracting unsafe paths',()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'briar-mac-members-'));
+  try{
+    const listing='Unexpected.app/Contents/Info.plist\n';
+    const execute=(command,args,options)=>{
+      assert.equal(command,'unzip');assert.deepEqual(args,['-Z1','candidate.zip']);
+      assert.equal(options.maxBuffer,1024*1024);return listing;
+    };
+    assert.throws(()=>inspectMacArchive('candidate.zip',dir,execute),/Unsafe archive path/);
+    assert.equal(fs.readFileSync(path.join(dir,'macos-archive-members.log'),'utf8'),listing);
+    assert.deepEqual(fs.readdirSync(dir),['macos-archive-members.log']);
+    assert.throws(()=>inspectMacArchive('candidate.zip',dir,execute),/EEXIST/);
+  }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
 test('binary and source-bearing manifests reject corruption, omissions and links',async()=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'briar-cross-test-'));

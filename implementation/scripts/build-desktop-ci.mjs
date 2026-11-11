@@ -62,6 +62,14 @@ export function safeArchiveMembers(list,root){
   return members;
 }
 
+export function inspectMacArchive(archive,work,execute=execFileSync){
+  const list=execute('unzip',['-Z1',archive],{encoding:'utf8',maxBuffer:1024*1024});
+  // Keep the generated member names before validation fails, not after extraction.
+  // The failure-diagnostics artifact already retains project-owned *.log files.
+  fs.writeFileSync(path.join(work,'macos-archive-members.log'),list,{flag:'wx'});
+  return safeArchiveMembers(list,'BriarPresence.app/');
+}
+
 export async function downloadPinned(spec,directory){
   const destination=path.join(directory,spec.name);
   const response=await fetch(spec.url,{signal:AbortSignal.timeout(25*60*1000)});
@@ -167,8 +175,7 @@ export async function buildDesktopArtifacts({root,work,sourceCommit,env=process.
     const output=path.join(bundle,target.output);
     godot(['--export-release',target.preset,output],target.id+'.log');
     if(target.id==='macos-universal'){
-      const list=execFileSync('unzip',['-Z1',output],{encoding:'utf8',maxBuffer:1024*1024});
-      safeArchiveMembers(list,'BriarPresence.app/');
+      inspectMacArchive(output,work);
       execFileSync('unzip',['-q',output,'-d',bundle],{timeout:120000});fs.unlinkSync(output);
       const binaries=filesUnder(bundle).filter(name=>name.startsWith('BriarPresence.app/Contents/MacOS/'));
       if(binaries.length!==1)throw new Error('Unexpected macOS executable layout');
