@@ -17,6 +17,14 @@ now exercises multiple producer namespaces and shared accepted-state reads.
 It also identifies retained/session-queue and per-display-controller requirements;
 no broker interoperability or actual subscription delivery is claimed.
 
+The executable `implementation/scripts/multi-display-example.mjs` demonstrates
+one accepted synthetic view feeding independent presentation controllers, with
+normal/reduced motion and attention-disabled preferences. Shared focus,
+acknowledgement without resolution and source expiry retain the same meanings.
+This tests in-process display behaviour only; it does not implement transport,
+broker subscriptions, reconnect policy or an LVGL renderer. See the
+[API examples and temporary host-pump limitation](../implementation/api/README.md).
+
 Alex also requested an LVGL implementation for an ESP32-class MQTT-subscribing
 display, then asked for separate issues. These are now
 [MQTT transport #11](https://github.com/DynamicDevices/briar-presence/issues/11)

@@ -24,6 +24,7 @@ node scripts/synthetic-adapter-example.mjs
 node scripts/embedded-preview.mjs
 node scripts/inspection-mockup.mjs
 node scripts/api-overlay-recording.mjs
+node scripts/multi-display-example.mjs
 ```
 
 The first command prints a bounded synthetic trace. The second generates the
@@ -35,6 +36,16 @@ They are not production validation, authentication or actual-platform acceptance
 The fourth command exports an ignored local fidelity-test scene tape, with an
 opt-in Godot consumer described in [the host guide](../../wiki/Godot-API-Recording.md).
 It is not an MQTT/device wire representation; no visible launch is automatic.
+
+The fifth command demonstrates three independent presentation controllers fed
+from one accepted synthetic view: normal motion, reduced motion and attention
+disabled. Each keeps its own clock, preferences and cue sequence. Acknowledging
+a concern is shared state, not resolution; source expiry is unknown everywhere.
+This is in-process fan-out, not subscriptions or MQTT delivery. The example's
+single host pump calls the existing facade's `present()` before `read()` to flush
+announcements; displays must not each consume that facade controller. A real
+bridge still needs a reviewed view envelope, owner/expiry rules and reconnect
+policy. No production API or accepted renderer is changed by this example.
 
 ## Host responsibilities and module boundaries
 
