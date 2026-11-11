@@ -4,6 +4,11 @@
 
 ## Where the work stands
 
+11 November visual acceptance: Alex asked to lock in the shown synthetic
+preview as the baseline to build on. [The recorded decision](Embedded-API-Preview.md#accepted-baseline--11-november-2026)
+identifies the source and preserves the quiet clustered-light direction.
+This is not a substitute for independent code review or approval to deploy.
+
 11 November implementation update: the [embedded synthetic API-to-face
 candidate](Embedded-API-Preview.md) now exists, with a recorded looping preview
 and an isolated development CI workflow. The planning notes below describe the

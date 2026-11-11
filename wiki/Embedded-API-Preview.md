@@ -7,6 +7,26 @@ connects the existing state handler to a separate presentation adapter and the
 unchanged clustered-light renderer. It does not connect to the live harness or
 replace the installed desktop display.
 
+## Accepted baseline — 11 November 2026
+
+After viewing the recorded preview, Alex said: “I like this work very much
+K+++++ - lock this in we can build on this”. This records acceptance of the
+shown visual prototype as the basis for further iterations, not a request to
+replace it with a different visual direction.
+
+The baseline is the synthetic API-to-face implementation at
+`3748f9303e8a34b317ce2c8a76f46e5d7584305f`; `0031bf1` only corrects the
+review documentation. Preserve the clustered-light face, wandering motion,
+quiet default presence and bounded attention cues as we build on this work.
+Keep work, concern, acknowledgement, resolution and unknown source state
+distinct. Future changes should make their differences from this baseline
+clear and remain supportive and unobtrusive.
+
+This is visual-direction approval of the preview, not a recorded independent
+code review, exhaustive usability/accessibility acceptance, merge or deployment
+approval. The installed desktop display remains unchanged. Keep the portable
+state/presentation boundary separate from platform hosts for future work.
+
 ## Try the recorded demonstration
 
 From `implementation/`, run `node scripts/embedded-preview.mjs`, then open
@@ -19,8 +39,9 @@ confirmed impact, acknowledgement, explicit user resolution and an expired
 source. Blue, amber and rose distinguish these meanings. Stronger motion and
 colour are brief; acknowledgement leaves an unresolved concern visible. An
 expired source is unknown, not healthy idle. Click the face to pause. Browser
-reduced-motion preference is respected. Browser rendering and desktop/VR/device
-acceptance still need human checks.
+reduced-motion preference is respected. The shown browser prototype is accepted
+as a visual baseline; broader usability, accessibility and desktop/VR/device
+acceptance still need their own checks.
 
 ## Library boundary
 
