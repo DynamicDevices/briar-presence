@@ -63,7 +63,11 @@ test('self-hosted workflow has trusted triggers, exact routing and SHA-pinned No
   assert.ok(workflow.includes('timeout-minutes: 45'));assert.ok(workflow.includes('cancel-in-progress: false'));
   assert.ok(!/^\s*pull_request(?:_target)?:/m.test(workflow));assert.ok(!workflow.includes('secrets.'));
   for(const [,action,sha] of workflow.matchAll(/uses: ([\w/-]+)@([^\s]+)/g)){assert.match(sha,/^[a-f0-9]{40}$/);assert.ok(['actions/checkout','actions/setup-node','actions/upload-artifact'].includes(action));}
-  for(const target of TARGETS)assert.ok(workflow.includes(`BriarPresence-${target.id}.zip`));
+  for(const target of TARGETS){
+    const output=target.id.replaceAll('-','_');
+    assert.ok(workflow.includes(`if: \u0024{{ !cancelled() && steps.export.outputs.${output} != '' }}`));
+    assert.ok(workflow.includes(`path: \u0024{{ steps.export.outputs.${output} }}`));
+  }
   assert.ok(workflow.includes("if: failure() && steps.export.outputs.work != ''"));
   assert.ok(workflow.includes('BriarPresence-build-diagnostics-${{ github.sha }}'));
 });
@@ -87,9 +91,13 @@ test('Godot import errors are exposed even when the engine exits zero',()=>{
 test('staged cross-export project contains only declared inputs and generated presets',()=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'briar-stage-'));
   try{
+    const original=fs.readFileSync(new URL('../godot/project.godot',import.meta.url),'utf8');
     stageDesktopProject(path.resolve(import.meta.dirname,'..'),dir);
     for(const name of APP_FILES)assert.ok(fs.statSync(path.join(dir,name)).isFile());
     assert.equal(fs.readFileSync(path.join(dir,'export_presets.cfg'),'utf8'),desktopPresets());
+    const project=fs.readFileSync(path.join(dir,'project.godot'),'utf8');
+    assert.match(project,/\[rendering\]\s+textures\/vram_compression\/import_etc2_astc=true/,'macOS universal requires ARM texture imports');
+    assert.equal(fs.readFileSync(new URL('../godot/project.godot',import.meta.url),'utf8'),original,'cross-export settings must not mutate the accepted source project');
     assert.ok(!fs.existsSync(path.join(dir,'inspection_test.gd')));
   }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });

@@ -118,6 +118,16 @@ export function stageDesktopProject(root,workspace){
     if(fs.existsSync(input+'.uid'))fs.copyFileSync(input+'.uid',path.join(workspace,name+'.uid'));
   }
   fs.writeFileSync(path.join(workspace,'export_presets.cfg'),desktopPresets());
+  // ARM64/universal export requires this import format even with no textures.
+  // Change only the staging copy; the accepted desktop project is untouched.
+  const project=path.join(workspace,'project.godot'),source=fs.readFileSync(project,'utf8');
+  const section=/(\[rendering\]\r?\n)([\s\S]*?)(?=\r?\n\[|$)/;
+  if(!section.test(source))throw new Error('Missing rendering settings');
+  fs.writeFileSync(project,source.replace(section,(_match,header,body)=>{
+    const key='textures/vram_compression/import_etc2_astc=true';
+    const existing=/^textures\/vram_compression\/import_etc2_astc=.*$/m;
+    return header+(existing.test(body)?body.replace(existing,key):key+'\n'+body);
+  }));
 }
 
 export function godotFailureDetails(log){
@@ -137,7 +147,7 @@ export function runGodotStep({engine,workspace,env,work},args,logName,execute=ex
   if(failure||/^(?:ERROR|SCRIPT ERROR):/m.test(text))throw new Error('Godot failed; '+log+'\n'+godotFailureDetails(text),failure?{cause:failure}:undefined);
 }
 
-export async function buildDesktopArtifacts({root,work,sourceCommit,env=process.env}){
+export async function buildDesktopArtifacts({root,work,sourceCommit,env=process.env,onArtifact=()=>{}}){
   if(!/^[a-f0-9]{40}$/.test(sourceCommit))throw new Error('Missing exact source commit');
   const downloads=path.join(work,'downloads'),workspace=path.join(work,'project'),artifacts=path.join(work,'artifacts');
   for(const directory of [downloads,workspace,artifacts])fs.mkdirSync(directory,{recursive:true});
@@ -199,7 +209,9 @@ The CI entry point additionally checks the approved runner/event/ref.
     await writeManifest(bundle,{kind:'godot-cross-export',target:target.id,sourceCommit,godotVersion:VERSION,signed:false,nativeTested:false,downloads:DOWNLOADS});
     await verifyDesktopArtifact(bundle);
     // Zip inside the job, so the uploader does not discard executable bits.
-    execFileSync('zip',['-q','-r',path.join(artifacts,'BriarPresence-'+target.id+'.zip'),'.'],{cwd:bundle,timeout:180000});
+    const archive=path.join(artifacts,'BriarPresence-'+target.id+'.zip');
+    execFileSync('zip',['-q','-r',archive,'.'],{cwd:bundle,timeout:180000});
+    onArtifact(target,archive);
     console.log(JSON.stringify({target:target.id,sourceCommit,artifact:'BriarPresence-'+target.id+'.zip',verified:true}));
   }
   const sums=[];
@@ -213,6 +225,8 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
   const work=fs.mkdtempSync(path.join(process.env.RUNNER_TEMP,'briar-cross-'));
   const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
   fs.appendFileSync(process.env.GITHUB_OUTPUT,`work=${work}\n`);
-  const artifacts=await buildDesktopArtifacts({root,work,sourceCommit:process.env.GITHUB_SHA});
+  const artifacts=await buildDesktopArtifacts({root,work,sourceCommit:process.env.GITHUB_SHA,onArtifact:(target,archive)=>{
+    fs.appendFileSync(process.env.GITHUB_OUTPUT,`${target.id.replaceAll('-','_')}=${archive}\n`);
+  }});
   fs.appendFileSync(process.env.GITHUB_OUTPUT,`artifacts=${artifacts}\n`);
 }

@@ -32,6 +32,10 @@ the full import/export logs as a separate diagnostic artifact for seven days.
 An engine exit status of zero does not hide logged import or script errors.
 The generated presets include an explicit empty `include_filter`, required by
 the pinned engine; this has a regression reproducing the first build failure.
+The staging project also enables ETC2/ASTC texture import support, required by
+Godot for ARM64/macOS universal exports. This does not edit the accepted source
+project. Completed verified platform ZIPs are uploaded even if a later platform
+fails; the job remains failed and missing platforms are not presented as built.
 
 Each package carries the original GPLv3-or-later project source/build scripts,
 GPL text, Godot/upstream notices, exact source commit and per-file hashes.

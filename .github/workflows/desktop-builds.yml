@@ -48,26 +48,29 @@ jobs:
         id: export
         run: node implementation/scripts/build-desktop-ci.mjs
       - name: Upload Linux x64
+        if: ${{ !cancelled() && steps.export.outputs.linux_x64 != '' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2, Node24
         with:
           name: BriarPresence-linux-x64-${{ github.sha }}
-          path: ${{ steps.export.outputs.artifacts }}/BriarPresence-linux-x64.zip
+          path: ${{ steps.export.outputs.linux_x64 }}
           if-no-files-found: error
           retention-days: 7
           compression-level: 0
       - name: Upload Windows x64
+        if: ${{ !cancelled() && steps.export.outputs.windows_x64 != '' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2, Node24
         with:
           name: BriarPresence-windows-x64-${{ github.sha }}
-          path: ${{ steps.export.outputs.artifacts }}/BriarPresence-windows-x64.zip
+          path: ${{ steps.export.outputs.windows_x64 }}
           if-no-files-found: error
           retention-days: 7
           compression-level: 0
       - name: Upload macOS universal
+        if: ${{ !cancelled() && steps.export.outputs.macos_universal != '' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2, Node24
         with:
           name: BriarPresence-macos-universal-${{ github.sha }}
-          path: ${{ steps.export.outputs.artifacts }}/BriarPresence-macos-universal.zip
+          path: ${{ steps.export.outputs.macos_universal }}
           if-no-files-found: error
           retention-days: 7
           compression-level: 0
