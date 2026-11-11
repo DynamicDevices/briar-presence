@@ -76,6 +76,17 @@ behaviour. A requested stay-above engine flag must not be presented as proof
 of actual stacking. The exact dialog-scaling cause and suitable correction
 still need diagnosis and native retesting. No stacking/sizing fix is claimed.
 
+Alex subsequently selected standard logical dialog sizing on Wayland, followed
+by a native check. Settings, inspection, About and menu now use scale1.0 in
+normal Wayland logical desktop space, shrinking to fit small displays; X11
+keeps the existing height-based policy. The six-display sizing test and390
+full-recording headless checks pass. The new native sizing question timed out,
+so comfortable text/window size is not yet accepted. No always-on-top repair
+was applied. Godot's [documented always-on-top flag](https://docs.godotengine.org/en/stable/classes/class_displayserver.html#enum-displayserver-windowflags)
+lists Linux X11, macOS and Windows, not Wayland. A compositor-supported user
+choice or another agreed host route still needs consideration; no settings,
+privileged extension or security policy were changed.
+
 Check native Wayland click/drag and corner fidelity, keyboard/focus/close,
 task selection and return, acknowledgement versus resolution, expiry/unknown,
 continued unobtrusive motion, monitor scaling and actual stay-above behaviour.

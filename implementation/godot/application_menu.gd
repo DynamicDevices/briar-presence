@@ -39,11 +39,11 @@ func configure(scale: float) -> void:
 
 func show_menu(point: Vector2i, face: Window) -> void:
 	var area := DisplayServer.screen_get_usable_rect(face.current_screen)
-	configure(Sizing.settings_scale(area.size))
+	configure(Sizing.settings_scale(area.size,DisplayServer.get_name() == "Wayland"))
 	current_screen = face.current_screen
 	reset_size()
 	var desired := get_contents_minimum_size()
-	desired.x = maxi(desired.x,roundi(230*Sizing.settings_scale(area.size)))
+	desired.x = maxi(desired.x,roundi(230*Sizing.settings_scale(area.size,DisplayServer.get_name() == "Wayland")))
 	popup(Rect2i(Sizing.fit_position(point+Vector2i(8,8),desired,area),desired))
 
 func _activate(id: int) -> void:

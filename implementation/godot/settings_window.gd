@@ -98,7 +98,7 @@ func _build_ui(scale: float) -> void:
 
 func show_options(reduced_motion: bool, stay_above: bool, face: Window) -> void:
 	var area := DisplayServer.screen_get_usable_rect(face.current_screen)
-	ui_scale = Sizing.settings_scale(area.size)
+	ui_scale = Sizing.settings_scale(area.size,DisplayServer.get_name() == "Wayland")
 	_build_ui(ui_scale)
 	min_size = Vector2i.ZERO
 	var content_minimum := _panel.get_combined_minimum_size()

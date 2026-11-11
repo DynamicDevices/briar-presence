@@ -20,8 +20,10 @@ static func window_size(usable: Vector2i, height_fraction: float = DEFAULT_HEIGH
 static func fit_position(position: Vector2i, size: Vector2i, area: Rect2i) -> Vector2i:
 	return Vector2i(clampi(position.x,area.position.x,maxi(area.position.x,area.end.x-size.x)),clampi(position.y,area.position.y,maxi(area.position.y,area.end.y-size.y)))
 
-static func settings_scale(usable: Vector2i) -> float:
-	var comfortable := clampf(float(usable.y)/1080.0,0.85,2.5)
+static func settings_scale(usable: Vector2i, logical_coordinates: bool = false) -> float:
+	# Wayland already supplies logical desktop units; do not enlarge text again
+	# simply because a logical monitor is taller than the original reference.
+	var comfortable := 1.0 if logical_coordinates else clampf(float(usable.y)/1080.0,0.85,2.5)
 	return maxf(0.25,minf(comfortable,minf(float(usable.x-32)/400.0,float(usable.y-32)/380.0)))
 
 static func settings_position(face: Rect2i, size: Vector2i, area: Rect2i, gap: int) -> Vector2i:

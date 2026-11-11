@@ -14,6 +14,23 @@ not; explicit backend options remain. Other native interaction
 checks and independent review are still open; earlier evidence below identifies
 its original candidate/backend rather than superseding this observation.
 
+Follow-up: native Wayland stay-above and dialog-size checks failed. Alex selected
+standard logical dialog sizing on Wayland; the revised sizing passes policy and
+headless checks, but its native question timed out and readability remains open.
+Godot does not document its always-on-top flag as implemented on Wayland. These
+limits prevent a complete replacement/installation acceptance claim.
+
+Separate cross-build repair: signed build source
+`46e8f26dce156e98e3ce0c07084c11e2433fe969` in
+[PR #13](https://github.com/DynamicDevices/briar-presence/pull/13) passed
+[DD-runner CI43036127144](https://github.com/DynamicDevices/briar-presence/actions/runs/43036127144).
+Linux x64, Windows x64 and macOS universal source-bearing unsigned artifacts and
+checksums were uploaded. The macOS mismatch was a generated application name;
+only staged project naming changed, not strict archive validation. This build
+branch is separate from PR #14: its packages do not include the latest desktop
+menu/backend/dialog changes. Native Windows/macOS testing and independent review
+are still open. A cross-export is not a native platform acceptance test.
+
 An [opt-in API-recording adapter for the Godot candidate](Godot-API-Recording.md)
 now exists. It uses canonical accepted scenes and leaves the default/installed
 display alone. Its expiry regression exposed and corrected a synthetic demo

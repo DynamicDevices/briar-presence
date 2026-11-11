@@ -54,6 +54,8 @@ func _run() -> void:
 		if placement.ok:
 			check(area.encloses(placement.rect) and not face.intersects(placement.rect),"panel on screen and beside/below face "+str(area))
 	check(not Layout.plan(Rect2i(0,0,360,640),Rect2i(0,0,360,640),1.0).ok,"no-space never overlaps face")
+	check(Sizing.settings_scale(Vector2i(2256,1504),true) == 1.0,"Wayland logical dialog scale is standard")
+	check(Sizing.settings_scale(Vector2i(2256,1504),false) > 1.0,"X11 physical-height sizing is retained")
 	var tape := ApiRecording.new()
 	var full := OS.get_cmdline_user_args().has("--full-inspection")
 	check(tape.open_recording(not full,true),"native inspection tape opens")
@@ -234,7 +236,7 @@ func _run() -> void:
 	result.fullRecording = full
 	result.layoutMetrics = layout_metrics
 	result.sources = {}
-	for source: String in ["study.gd","api_recording.gd","inspection_model.gd","inspection_layout.gd","inspection_window.gd","inspection_test.gd","inspection_input_host.gd","application_menu.gd","about_window.gd","settings_window.gd"]:
+	for source: String in ["study.gd","api_recording.gd","inspection_model.gd","inspection_layout.gd","inspection_window.gd","inspection_test.gd","inspection_input_host.gd","application_menu.gd","about_window.gd","settings_window.gd","display_sizing.gd"]:
 		result.sources[source] = FileAccess.get_sha256("res://"+source)
 	result.vectorsSha256 = FileAccess.get_sha256(path)
 	result.tapeSha256 = FileAccess.get_sha256(ProjectSettings.globalize_path("res://../test-artifacts/api-inspection-"+("recording" if full else "sample")+".jsonl"))

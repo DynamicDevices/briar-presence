@@ -73,7 +73,7 @@ func build(scale: float) -> void:
 func show_about(face: Window) -> bool:
 	_face = face
 	var area := DisplayServer.screen_get_usable_rect(face.current_screen)
-	var scale := Sizing.settings_scale(area.size)
+	var scale := Sizing.settings_scale(area.size,DisplayServer.get_name() == "Wayland")
 	var placement := Layout.plan(Rect2i(face.position,face.size),area,scale)
 	if not placement.ok:
 		return false

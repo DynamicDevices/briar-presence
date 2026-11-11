@@ -175,7 +175,7 @@ func _render() -> void:
 func show_inspection(semantic: Dictionary, face: Window) -> bool:
 	_face = face
 	var area := DisplayServer.screen_get_usable_rect(face.current_screen)
-	ui_scale = Sizing.settings_scale(area.size)
+	ui_scale = Sizing.settings_scale(area.size,DisplayServer.get_name() == "Wayland")
 	var placement := Layout.plan(Rect2i(face.position,face.size),area,ui_scale)
 	if not placement.ok:
 		print(JSON.stringify({"type":"inspection-no-space","reason":placement.reason}))
@@ -200,7 +200,7 @@ func follow_face() -> void:
 	var face_rect := Rect2i(_face.position,_face.size)
 	if face_rect == _last_face_rect and area == _last_area:
 		return
-	var scale := Sizing.settings_scale(area.size)
+	var scale := Sizing.settings_scale(area.size,DisplayServer.get_name() == "Wayland")
 	var placement := Layout.plan(face_rect,area,scale)
 	if not placement.ok:
 		hide()
