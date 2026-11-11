@@ -1,13 +1,13 @@
-# Offline test CI draft — inactive
+# Offline test CI readiness
 
-This is a preparation document, not an installed workflow or execution grant.
-No CI job, worker, credential or dependency installation has been started.
-The current offline grant excludes workflow administration; activation needs
-separate verified coverage. Preloop setup remains deferred.
+11 November: separate signed scope now covers isolated tests. The workflow is
+installed at `.github/workflows/offline-tests.yml` on the development candidate.
+Genuine run results must be recorded separately; local preparation does not
+prove CI success. Preloop setup remains deferred and Alex reviews locally.
 
 A [concrete inactive candidate](ci/README.md) now includes the example workflow,
 an npm integrity lock and a platform-specific hashed Python dependency lock.
-These are preparation artifacts, not a workflow installed in `.github`.
+The example remains outside `.github`; the active copy uses the same locks.
 
 ## Proposed isolated test job
 

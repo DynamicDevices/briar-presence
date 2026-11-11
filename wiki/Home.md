@@ -10,6 +10,9 @@ separate GitHub Wiki service has been populated.
 
 ## Read by topic
 
+Latest implementation: [embedded API and recorded synthetic preview](Embedded-API-Preview.md).
+Local review and genuine CI remain separate from implementation progress.
+
 | Page | What it covers |
 | --- | --- |
 | [Design and interaction](Design.md) | Agreed visual direction, attention, gentle controls and portrait-reference limits |

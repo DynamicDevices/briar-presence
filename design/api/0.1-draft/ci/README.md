@@ -1,5 +1,10 @@
 # Inactive offline test workflow candidate
 
+11 November: an active copy now lives at
+`../../../../.github/workflows/offline-tests.yml` under separately approved
+isolated development-test scope. This directory retains the original example
+and the locks used by that job. Actual CI success requires a genuine run record.
+
 This directory is preparation only. `offline-tests.yml.example` is deliberately
 outside `.github/workflows`, cannot receive Actions events here, and is not
 permission to install, dispatch, merge or change repository settings.

@@ -7,6 +7,12 @@ package, not a record that the review has happened. No new worker is needed.
 
 ## What to review
 
+11 November addition: also review the [embedded integration](Embedded-API-Preview.md),
+`implementation/api/embedded.mjs`, `implementation/api/presentation.mjs`,
+the embedded and playback tests, and `.github/workflows/offline-tests.yml`.
+Use the candidate commit on PR #2, recording its exact SHA. This extends the
+package below; the earlier state-only hashes do not approve the added adapter.
+
 This review is limited to the offline state-handler milestone, not all of
 [PR #2](https://github.com/DynamicDevices/briar-presence/pull/2), its Godot host
 or its installation. The original offline baseline is

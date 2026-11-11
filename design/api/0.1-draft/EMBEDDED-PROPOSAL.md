@@ -1,9 +1,10 @@
-# First API integration — embedded-first working proposal
+# First API integration — embedded-first
 
-Alex asked Briar to continue without questions overnight and make sensible
-assumptions. **Embedded-first is a reversible working assumption**, not a settled
-transport decision or permission to activate a listener. It will be included in
-the scheduled follow-up. This page is a proposal, not implemented integration.
+Alex confirmed embedded-library-first on resuming, 11 November. The synthetic
+implementation and recorded preview are described in
+[the implementation notes](../../../wiki/Embedded-API-Preview.md). No listener,
+live harness or installed display change is included. The sections below retain
+the design rationale; they are not proof of review, CI or deployment.
 
 ## First demonstrable result
 

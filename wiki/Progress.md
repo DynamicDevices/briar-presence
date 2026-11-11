@@ -4,6 +4,12 @@
 
 ## Where the work stands
 
+11 November implementation update: the [embedded synthetic API-to-face
+candidate](Embedded-API-Preview.md) now exists, with a recorded looping preview
+and an isolated development CI workflow. The planning notes below describe the
+earlier design stages. The installed display remains unchanged; local review,
+genuine CI and visual acceptance are not implied by implementation.
+
 API planning update, 10 November 2026: Alex approved the comprehensive
 [visual-language API review](Visual-Language-API.md). [Parent issue #3](https://github.com/DynamicDevices/briar-presence/issues/3)
 and seven sub-issues (#4–#10) track vocabulary, contract/reliability, aggregation,
