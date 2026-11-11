@@ -7,6 +7,12 @@ package, not a record that the review has happened. No new worker is needed.
 
 ## What to review
 
+Next-step draft additions also need review: `implementation/api/synthetic-producer.mjs`,
+its executable example/tests and the separate `design/inspection/0.1-proposal/`
+mock-up. Its interaction is proposed, not adopted. Baseline CI evidence below
+does not establish review or CI for these later additions; record the actual
+new candidate SHA and results when reviewing them.
+
 11 November addition: also review the [embedded integration](Embedded-API-Preview.md),
 `implementation/api/embedded.mjs`, `implementation/api/presentation.mjs`,
 the embedded and playback tests, and `.github/workflows/offline-tests.yml`.

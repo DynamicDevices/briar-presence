@@ -2,6 +2,13 @@
 
 [Wiki home](Home.md) · [Current progress](Progress.md)
 
+11 November status: the isolated workflow is active and genuine run
+[42932532228](https://github.com/DynamicDevices/briar-presence/actions/runs/42932532228)
+passed all 73 baseline tests on `3748f93`. Alex has accepted the shown visual
+baseline, not supplied independent code review. Later synthetic next-step
+additions need their own source-bound evidence. The offline-only/inactive
+statements below describe earlier preparation, not the current CI state.
+
 ## Current direction — local review, 10 November 2026
 
 Alex changed the route: “we can do local review as we are having problems with

@@ -1,5 +1,12 @@
 # Static API schema proposal — 0.1-draft
 
+11 November implementation note: the schema remains a draft, but the isolated
+handler, embedded facade, synthetic producer example and presentation now exist.
+Use [the API module guide](../../../implementation/api/README.md) for current
+implemented boundaries and [the proposed harness mapping](HARNESS-CONNECTION.md)
+for live-connection requirements. The historical preparation notes below are
+not a claim that the current repository has no adapter or renderer integration.
+
 [Contract discussion](../../../wiki/API-Contract-Draft.md) · [Selected language](../../../wiki/Visual-Language-Vocabulary.md)
 
 Alex selected consequences/recoverability as severity's basis, provisional

@@ -4,6 +4,12 @@
 
 ## Where the work stands
 
+Overnight next-step candidate: [the six-step plan](Baseline-Next-Steps.md) now
+links a separate work-inspection mock-up, proposed harness event mapping and
+executable synthetic producer/API examples. These do not connect live data or
+replace the accepted face/installed display. Inspection design and independent
+code review still need Alex's verdict.
+
 11 November visual acceptance: Alex asked to lock in the shown synthetic
 preview as the baseline to build on. [The recorded decision](Embedded-API-Preview.md#accepted-baseline--11-november-2026)
 identifies the source and preserves the quiet clustered-light direction.
