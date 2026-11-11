@@ -7,6 +7,10 @@ const SettingsWindow = preload("res://settings_window.gd")
 const DisplaySizing = preload("res://display_sizing.gd")
 const ApiRecording = preload("res://api_recording.gd")
 const InspectionWindow = preload("res://inspection_window.gd")
+const ApplicationMenu = preload("res://application_menu.gd")
+const AboutWindow = preload("res://about_window.gd")
+var _application_menu: ApplicationMenu
+var _about: AboutWindow
 var _inspection: InspectionWindow
 var _api_recording: RefCounted
 var _model := Presence.new(0x5eed1234)
@@ -184,6 +188,8 @@ func _process(_delta: float) -> void:
 
 func _show_settings() -> void:
 	_press_pending = false
+	if is_instance_valid(_about):
+		_about.hide()
 	if is_instance_valid(_inspection):
 		_inspection.hide()
 	if not is_instance_valid(_settings):
@@ -197,6 +203,8 @@ func _show_settings() -> void:
 
 func _show_inspection() -> void:
 	_press_pending = false
+	if is_instance_valid(_about):
+		_about.hide()
 	if _api_recording == null:
 		_show_settings()
 		return
@@ -209,6 +217,29 @@ func _show_inspection() -> void:
 		add_child(_inspection)
 		_inspection.settings_requested.connect(_show_settings)
 	_inspection.show_inspection(_api_recording.current.get("semantic",{}),get_window())
+
+func _show_context_menu(point: Vector2i) -> void:
+	_press_pending = false
+	if not is_instance_valid(_application_menu):
+		_application_menu = ApplicationMenu.new()
+		_application_menu.visible = false
+		add_child(_application_menu)
+		_application_menu.settings_requested.connect(_show_settings)
+		_application_menu.about_requested.connect(_show_about)
+		_application_menu.quit_requested.connect(func(): get_tree().quit())
+	_application_menu.show_menu(point,get_window())
+
+func _show_about() -> void:
+	_press_pending = false
+	if is_instance_valid(_inspection):
+		_inspection.hide()
+	if is_instance_valid(_settings):
+		_settings.hide()
+	if not is_instance_valid(_about):
+		_about = AboutWindow.new()
+		_about.visible = false
+		add_child(_about)
+	_about.show_about(get_window())
 
 func _set_reduced_motion(value: bool) -> void:
 	_reduced_motion = value
@@ -235,6 +266,15 @@ func _begin_corner_resize(edge: int) -> void:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_MENU or (event.keycode == KEY_F10 and event.shift_pressed):
+			_show_context_menu(get_window().position+Vector2i(24,24))
+			return
+		if event.keycode == KEY_ESCAPE and is_instance_valid(_application_menu) and _application_menu.visible:
+			_application_menu.hide()
+			return
+		if event.keycode == KEY_ESCAPE and is_instance_valid(_about) and _about.visible:
+			_about.close_about()
+			return
 		if event.keycode == KEY_ESCAPE and is_instance_valid(_inspection) and _inspection.visible:
 			_inspection.close_inspection()
 			return
@@ -254,6 +294,10 @@ func _input(event: InputEvent) -> void:
 		if _press_pending and event.position.distance_to(_press_position) >= 6.0:
 			_press_pending = false
 			_begin_face_drag()
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT and _backing_rect.has_point(event.position):
+		_show_context_menu(get_window().position+Vector2i(event.position))
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			var edge := ResizePolicy.corner_edge(event.position,get_viewport_rect().size)

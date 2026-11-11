@@ -5,6 +5,9 @@ const Inspection = preload("res://inspection_window.gd")
 const InputHost = preload("res://inspection_input_host.gd")
 const ApiRecording = preload("res://api_recording.gd")
 const Sizing = preload("res://display_sizing.gd")
+const ApplicationMenu = preload("res://application_menu.gd")
+const AboutWindow = preload("res://about_window.gd")
+const SettingsWindow = preload("res://settings_window.gd")
 var failures: Array[String] = []
 var checks := 0
 
@@ -155,12 +158,68 @@ func _run() -> void:
 	enter.keycode = KEY_ENTER
 	host._input(enter)
 	check(host.inspections == 2,"keyboard activation opens inspection")
+	press.position = Vector2(70,70)
+	host._input(press)
+	var right := press.duplicate() as InputEventMouseButton
+	right.button_index = MOUSE_BUTTON_RIGHT
+	host._input(right)
+	host._input(release)
+	check(host.menus == 1 and host.inspections == 2 and host.drags == 1,"right-click opens menu and consumes pending left click")
+	var menu_key := InputEventKey.new()
+	menu_key.pressed = true
+	menu_key.keycode = KEY_MENU
+	host._input(menu_key)
+	menu_key.keycode = KEY_F10
+	menu_key.shift_pressed = true
+	host._input(menu_key)
+	check(host.menus == 3,"Menu key and Shift+F10 open application menu")
 	host.free()
+	var menu := ApplicationMenu.new()
+	menu.visible = false
+	root.add_child(menu)
+	check(menu.borderless and menu.transient and not menu.visible,"application menu is borderless and hidden until requested")
+	check(menu.item_count == 4 and menu.get_item_text(0) == "Display settings" and menu.get_item_text(1) == "About Briar" and menu.get_item_text(3) == "Quit Briar","application actions have a separate explicit menu")
+	var actions := {"about":0,"quit":0,"settings":0}
+	menu.about_requested.connect(func(): actions.about += 1)
+	menu.quit_requested.connect(func(): actions.quit += 1)
+	menu.settings_requested.connect(func(): actions.settings += 1)
+	menu._activate(ApplicationMenu.ABOUT)
+	check(actions.about == 1 and actions.quit == 0,"About never requests quit")
+	menu._activate(ApplicationMenu.SETTINGS)
+	check(actions.settings == 1 and actions.quit == 0,"display settings never requests quit")
+	menu._activate(ApplicationMenu.QUIT)
+	check(actions.quit == 1,"only explicit Quit menu action requests quit")
+	for scale: float in [0.85,1.0,1.6,2340.0/1080.0]:
+		menu.configure(scale)
+		check(menu.get_theme_font_size("font_size") == roundi(15*scale),"menu text follows display scale "+str(scale))
+		check(menu.get_contents_minimum_size().x > 0,"menu has natural caption width "+str(scale))
+	menu.free()
+	var settings := SettingsWindow.new()
+	settings.visible = false
+	root.add_child(settings)
+	settings._build_ui(1.0)
+	check(settings.done.get_parent().get_child_count() == 1,"display settings contains Done but no Quit button")
+	settings.free()
+	var about := AboutWindow.new()
+	about.visible = false
+	root.add_child(about)
+	check(about.borderless and about.transient and not about.exclusive,"About is a borderless non-modal companion panel")
+	for scale: float in [0.85,1.0,1.6,2340.0/1080.0]:
+		about.build(scale)
+		about.size = Vector2i(roundi(440*scale),roundi(420*scale))
+		about.show()
+		await process_frame
+		await process_frame
+		check(about._panel.get_combined_minimum_size().y <= about.size.y,"About content fits display scale "+str(scale))
+		check(about.close_button.size.x >= 100*scale-1,"About close caption has space "+str(scale))
+	about.close_button.pressed.emit()
+	check(not about.visible,"About close hides the panel without exiting the host")
+	about.free()
 	var result := {"type":"godot-inspection-headless","passed":failures.is_empty(),"checks":checks,"failures":failures,"vectors":data.vectors.size(),"scope":"Accepted-state projection, geometry and programmatic widget/keyboard checks only; not native pointer, rendered pixels, compositor or screen-reader acceptance."}
 	result.fullRecording = full
 	result.layoutMetrics = layout_metrics
 	result.sources = {}
-	for source: String in ["study.gd","api_recording.gd","inspection_model.gd","inspection_layout.gd","inspection_window.gd","inspection_test.gd","inspection_input_host.gd"]:
+	for source: String in ["study.gd","api_recording.gd","inspection_model.gd","inspection_layout.gd","inspection_window.gd","inspection_test.gd","inspection_input_host.gd","application_menu.gd","about_window.gd","settings_window.gd"]:
 		result.sources[source] = FileAccess.get_sha256("res://"+source)
 	result.vectorsSha256 = FileAccess.get_sha256(path)
 	result.tapeSha256 = FileAccess.get_sha256(ProjectSettings.globalize_path("res://../test-artifacts/api-inspection-"+("recording" if full else "sample")+".jsonl"))

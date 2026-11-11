@@ -20,6 +20,8 @@ not a live API or hosted service available today. See the [API direction](wiki/A
 ## Start here
 
 - [Project wiki](wiki/Home.md) — agreed direction, portrait reference, current progress and unfinished work.
+- [Application menu and About](wiki/Application-Menu.md) — hidden right-click
+  application actions, separate from display preferences in the native candidate.
 - [Design brief](design/BRIEF.md) — requirements, boundaries and open questions.
 - [Iteration plan](design/PLAN.md) — reviewable stages and acceptance questions.
 - [Decisions](design/DECISIONS.md) — agreed requirements versus proposals.

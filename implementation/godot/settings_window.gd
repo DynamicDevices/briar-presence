@@ -7,7 +7,6 @@ signal quit_requested
 var motion: CheckButton
 var above: CheckButton
 var done: Button
-var quit_button: Button
 var _panel: PanelContainer
 var ui_scale := 1.0
 
@@ -58,7 +57,7 @@ func _build_ui(scale: float) -> void:
 			DisplayServer.window_start_drag(get_window_id()))
 	column.add_child(heading)
 	var hint := Label.new()
-	hint.text = "Synthetic preview — not connected\nDrag the face to move; drag a corner to resize.\nF1: settings · M: reduced motion · T: stay above\nEscape: close settings · Ctrl+Q: quit"
+	hint.text = "Synthetic preview — not connected\nDrag the face to move; drag a corner to resize.\nF1: settings · M: reduced motion · T: stay above\nEscape: close settings · Right-click face: menu"
 	hint.add_theme_color_override("font_color",Color("354e61"))
 	hint.add_theme_font_size_override("font_size",roundi(13*scale))
 	column.add_child(hint)
@@ -82,10 +81,8 @@ func _build_ui(scale: float) -> void:
 	row.add_theme_constant_override("separation",roundi(12*scale))
 	column.add_child(row)
 	done = Button.new()
-	quit_button = Button.new()
 	done.text = "Done"
-	quit_button.text = "Quit Briar"
-	for button: Button in [done,quit_button]:
+	for button: Button in [done]:
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.custom_minimum_size.y = 40*scale
 		button.add_theme_font_size_override("font_size",roundi(16*scale))
@@ -98,7 +95,6 @@ func _build_ui(scale: float) -> void:
 			button.add_theme_stylebox_override(state,style)
 		row.add_child(button)
 	done.pressed.connect(hide)
-	quit_button.pressed.connect(func(): quit_requested.emit())
 
 func show_options(reduced_motion: bool, stay_above: bool, face: Window) -> void:
 	var area := DisplayServer.screen_get_usable_rect(face.current_screen)
