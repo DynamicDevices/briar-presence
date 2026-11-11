@@ -28,14 +28,19 @@ node scripts/multi-display-example.mjs
 ```
 
 The first command prints a bounded synthetic trace. The second generates the
-accepted face demonstration. The third generates the **proposed** work-inspection
-mock-up. Open the respective HTML files in `test-artifacts/`; no server is needed.
+accepted face demonstration. The third generates the work-inspection mock-up
+Alex accepted as the design direction. Open the respective HTML files in
+`test-artifacts/`; no server is needed.
 These examples use the existing test-only Python schema oracle in the Node host.
 They are not production validation, authentication or actual-platform acceptance.
 
 The fourth command exports an ignored local fidelity-test scene tape, with an
 opt-in Godot consumer described in [the host guide](../../wiki/Godot-API-Recording.md).
 It is not an MQTT/device wire representation; no visible launch is automatic.
+The opt-in [native inspection candidate](../../wiki/Godot-Work-Inspection.md)
+uses `--inspection` on the recording generator and Godot launcher to demonstrate
+that accepted design with three simultaneous synthetic tasks. It is read-only
+and uninstalled, not a live harness or reviewed stable API release.
 
 The fifth command demonstrates three independent presentation controllers fed
 from one accepted synthetic view: normal motion, reduced motion and attention

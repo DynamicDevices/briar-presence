@@ -36,7 +36,7 @@ from any firmware, broker or hardware execution.
 | Step | Deliverable and acceptance | Dependency / current boundary |
 | --- | --- | --- |
 | 1. API review | Alex records exact reviewed source, findings and verdict; demonstrated defects are corrected and retested | Review package exists; visual approval and green CI are not independent code review |
-| 2. Work inspection | Separate mock-up of clicking the face to find tasks, concerns and requests; Alex reviews clarity and unobtrusiveness | Proposed design, not accepted replacement interaction |
+| 2. Work inspection | Alex accepted the separate mock-up as the design direction; native read-only implementation is in the uninstalled candidate | Actual desktop behaviour and installed replacement remain separate acceptance gates |
 | 3. Harness connection design | Event mapping, source identity, privacy, freshness, disconnect/reconnect and bounded live-access proposal | Public/synthetic project material only; actual harness interface remains unverified |
 | 4. One live integration | Named producer on an approved host drives an uninstalled preview; accepted state and failure behaviour verified | Requires exact live source/data scope and verification; a simulator is not live acceptance |
 | 5. Overlay candidate | Separate uninstalled host preserves face drag, corner resize, fidelity, display sizing, smoothness and stay-on-top | Synthetic data/headless checks first; actual desktop acceptance and installed replacement are separate |
@@ -56,7 +56,12 @@ acceptance must retain real review, actual-platform and live-data boundaries.
 
 ## Current development evidence
 
-The separate [work-inspection proposal](../design/inspection/0.1-proposal/DESIGN.md)
+Alex subsequently accepted the work-inspection mock-up as the design direction
+and requested implementation while away. The separate
+[Godot inspection candidate](Godot-Work-Inspection.md) implements that direction
+with synthetic data; code review and actual desktop acceptance remain separate.
+
+The separate [work-inspection design](../design/inspection/0.1-proposal/DESIGN.md)
 and its self-contained mock-up generator now exist. Generate it with
 `node scripts/inspection-mockup.mjs` from `implementation/`; the output is
 `test-artifacts/inspection-mockup.html`. It is not an accepted UI replacement.

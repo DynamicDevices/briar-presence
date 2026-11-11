@@ -6,6 +6,8 @@ const ResizePolicy = preload("res://resize_policy.gd")
 const SettingsWindow = preload("res://settings_window.gd")
 const DisplaySizing = preload("res://display_sizing.gd")
 const ApiRecording = preload("res://api_recording.gd")
+const InspectionWindow = preload("res://inspection_window.gd")
+var _inspection: InspectionWindow
 var _api_recording: RefCounted
 var _model := Presence.new(0x5eed1234)
 var _visual := LightScene.new()
@@ -44,7 +46,7 @@ func _ready() -> void:
 	_reference_frame = _smoke and OS.get_cmdline_user_args().has("--reference-frame")
 	if OS.get_cmdline_user_args().has("--api-recording"):
 		_api_recording = ApiRecording.new()
-		if not _api_recording.open_recording():
+		if not _api_recording.open_recording(false,OS.get_cmdline_user_args().has("--inspection")):
 			print(JSON.stringify({"type":"godot-api-recording-error","passed":false,"reason":_api_recording.validation_error}))
 			_visual.free()
 			get_tree().quit(2)
@@ -121,6 +123,8 @@ func _process(_delta: float) -> void:
 		return
 	_last_sample_usec = now
 	_sync_display()
+	if is_instance_valid(_inspection):
+		_inspection.follow_face()
 	# Godot clamps frame deltas under load. Use real elapsed time so slow frames
 	# do not also slow the portable model's animation timeline.
 	_elapsed = float(Time.get_ticks_usec()-_smoke_started_usec)/1000000.0
@@ -180,6 +184,8 @@ func _process(_delta: float) -> void:
 
 func _show_settings() -> void:
 	_press_pending = false
+	if is_instance_valid(_inspection):
+		_inspection.hide()
 	if not is_instance_valid(_settings):
 		_settings = SettingsWindow.new()
 		_settings.visible = false
@@ -189,6 +195,21 @@ func _show_settings() -> void:
 		_settings.quit_requested.connect(func(): get_tree().quit())
 	_settings.show_options(_reduced_motion,_stay_above,get_window())
 
+func _show_inspection() -> void:
+	_press_pending = false
+	if _api_recording == null:
+		_show_settings()
+		return
+	if is_instance_valid(_inspection) and _inspection.visible:
+		_inspection.close_inspection()
+		return
+	if not is_instance_valid(_inspection):
+		_inspection = InspectionWindow.new()
+		_inspection.visible = false
+		add_child(_inspection)
+		_inspection.settings_requested.connect(_show_settings)
+	_inspection.show_inspection(_api_recording.current.get("semantic",{}),get_window())
+
 func _set_reduced_motion(value: bool) -> void:
 	_reduced_motion = value
 	var scene_time := REFERENCE_TIME if _reference_frame else _elapsed
@@ -196,19 +217,33 @@ func _set_reduced_motion(value: bool) -> void:
 
 func _scene_for_display(scene_time: float) -> Dictionary:
 	if _api_recording != null:
-		return _api_recording.sample(scene_time,_reduced_motion)
+		var scene: Dictionary = _api_recording.sample(scene_time,_reduced_motion)
+		if is_instance_valid(_inspection):
+			_inspection.set_semantic(_api_recording.current.get("semantic",{}))
+		return scene
 	return _model.sample({"time":scene_time,"state":"quiet","reducedMotion":_reduced_motion})
 
 func _set_stay_above(value: bool) -> void:
 	_stay_above = value
 	get_window().always_on_top = value
 
+func _begin_face_drag() -> void:
+	DisplayServer.window_start_drag()
+
+func _begin_corner_resize(edge: int) -> void:
+	DisplayServer.window_start_resize(edge)
+
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_ESCAPE and is_instance_valid(_inspection) and _inspection.visible:
+			_inspection.close_inspection()
+			return
 		if event.keycode == KEY_ESCAPE or (event.keycode == KEY_Q and event.ctrl_pressed):
 			get_tree().quit()
 		elif event.keycode == KEY_F1:
 			_show_settings()
+		elif event.keycode == KEY_ENTER or event.keycode == KEY_SPACE:
+			_show_inspection()
 		elif event.keycode == KEY_M:
 			_set_reduced_motion(not _reduced_motion)
 		elif event.keycode == KEY_T:
@@ -218,16 +253,16 @@ func _input(event: InputEvent) -> void:
 		Input.set_default_cursor_shape(ResizePolicy.cursor_for_edge(edge))
 		if _press_pending and event.position.distance_to(_press_position) >= 6.0:
 			_press_pending = false
-			DisplayServer.window_start_drag()
+			_begin_face_drag()
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			var edge := ResizePolicy.corner_edge(event.position,get_viewport_rect().size)
 			_press_pending = false
 			if edge != -1:
-				DisplayServer.window_start_resize(edge)
+				_begin_corner_resize(edge)
 			elif _backing_rect.has_point(event.position):
 				_press_pending = true
 				_press_position = event.position
 		elif _press_pending:
 			_press_pending = false
-			_show_settings()
+			_show_inspection()

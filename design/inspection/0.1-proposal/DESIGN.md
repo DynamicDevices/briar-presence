@@ -1,4 +1,11 @@
-# Work inspection — proposal, not accepted interaction
+# Work inspection — accepted design direction
+
+Alex reviewed the generated `inspection-mockup.html` on 11 November 2026,
+said it was excellent and wanted to base the work on these ideas, then confirmed
+that intention. This accepts the design direction below, not independent code
+review, native platform behaviour, live integration or installed replacement.
+The historical `0.1-proposal` path remains so existing references stay valid.
+Implementation belongs in the separate development candidate and its host guide.
 
 The accepted face remains the quiet default. This proposal answers: “Where
 should I look?” when several things are running and one needs attention.
@@ -10,7 +17,7 @@ Generate the self-contained proposal from `implementation/` with
 window automatically. Keep the accepted `embedded-api-preview.html` alongside
 it for comparison; neither generation changes the installed display.
 
-## Proposed interaction
+## Accepted interaction direction
 
 Click/tap or keyboard-activate the face to open a pale, rounded panel beside it,
 not a harsh window over it. Keep the face visible and moving. The panel closes

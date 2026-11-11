@@ -48,12 +48,14 @@ func valid_scene(value: Variant) -> bool:
 				return false
 	return true
 
-func open_recording(sample_fixture: bool = false) -> bool:
+func open_recording(sample_fixture: bool = false, inspection: bool = false) -> bool:
 	validation_error = ""
 	current = {}
 	_next = {}
 	var base := ProjectSettings.globalize_path("res://../test-artifacts/").simplify_path()
 	var filename := "api-overlay-sample.jsonl" if sample_fixture else "api-overlay-recording.jsonl"
+	if inspection:
+		filename = "api-inspection-sample.jsonl" if sample_fixture else "api-inspection-recording.jsonl"
 	var directory := DirAccess.open(base)
 	if directory == null or directory.is_link(filename):
 		return _fail("Recording directory missing or symlink target refused")

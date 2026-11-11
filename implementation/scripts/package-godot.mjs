@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {filesUnder,digestFile,writeManifest,MANIFEST} from './package-files.mjs';
 import {launchPlan,verifyEngine} from './launch-godot.mjs';
 const defaultRoot=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const APP_FILES=['project.godot','export_presets.cfg','study.tscn','study.gd','presence.gd','light_scene.gd','resize_policy.gd','display_sizing.gd','settings_window.gd','instanced_light_scene.gd','point_batch.gd','point_material.gdshader'];
+export const APP_FILES=Object.freeze(['project.godot','export_presets.cfg','study.tscn','study.gd','presence.gd','light_scene.gd','resize_policy.gd','display_sizing.gd','settings_window.gd','api_recording.gd','inspection_window.gd','inspection_model.gd','inspection_layout.gd','instanced_light_scene.gd','point_batch.gd','point_material.gdshader']);
 const BUILD_FILES=['package-godot.mjs','package-files.mjs','launch-godot.mjs','godot-package-launcher.sh'];
 const NOTICES={
  'LICENSE.txt':'b0435e3b3e4e55238f05f4b306f30524a1b2e20147810d436eaa554fa6855c80',
