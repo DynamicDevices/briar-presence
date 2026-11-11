@@ -37,6 +37,16 @@ Godot for ARM64/macOS universal exports. This does not edit the accepted source
 project. Completed verified platform ZIPs are uploaded even if a later platform
 fails; the job remains failed and missing platforms are not presented as built.
 
+The next macOS failure was identified from the actual generated archive member
+list, now retained before validation as `macos-archive-members.log`. Godot4.7.2
+derives the app/executable/PCK names from `application/config/name`, not the
+output ZIP filename. Six generated members were under
+`Briar Presence Godot Study.app/`, while validation required `BriarPresence.app/`.
+The staging copy now sets its application name to `BriarPresence`; the original
+source project and archive-path validation are unchanged. A regression first
+failed for the old staged name and passes for the correction. This is a build
+repair candidate until genuine CI verifies the exported bundle/artifacts.
+
 Each package carries the original GPLv3-or-later project source/build scripts,
 GPL text, Godot/upstream notices, exact source commit and per-file hashes.
 The downloaded engine, template and notice hashes are recorded. Exports are

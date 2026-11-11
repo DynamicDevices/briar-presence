@@ -129,9 +129,17 @@ export function stageDesktopProject(root,workspace){
   // ARM64/universal export requires this import format even with no textures.
   // Change only the staging copy; the accepted desktop project is untouched.
   const project=path.join(workspace,'project.godot'),source=fs.readFileSync(project,'utf8');
+  // The macOS exporter derives .app/executable/PCK names from this setting,
+  // not the output ZIP filename. Preserve the original source, fix staging.
+  const application=/(\[application\]\r?\n)([\s\S]*?)(?=\r?\n\[|$)/;
+  if(!application.test(source))throw new Error('Missing application settings');
+  const named=source.replace(application,(_match,header,body)=>{
+    if(!/^config\/name=.*$/m.test(body))throw new Error('Missing application name');
+    return header+body.replace(/^config\/name=.*$/m,'config/name="BriarPresence"');
+  });
   const section=/(\[rendering\]\r?\n)([\s\S]*?)(?=\r?\n\[|$)/;
-  if(!section.test(source))throw new Error('Missing rendering settings');
-  fs.writeFileSync(project,source.replace(section,(_match,header,body)=>{
+  if(!section.test(named))throw new Error('Missing rendering settings');
+  fs.writeFileSync(project,named.replace(section,(_match,header,body)=>{
     const key='textures/vram_compression/import_etc2_astc=true';
     const existing=/^textures\/vram_compression\/import_etc2_astc=.*$/m;
     return header+(existing.test(body)?body.replace(existing,key):key+'\n'+body);

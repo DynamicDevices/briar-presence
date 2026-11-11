@@ -110,6 +110,7 @@ test('staged cross-export project contains only declared inputs and generated pr
     for(const name of APP_FILES)assert.ok(fs.statSync(path.join(dir,name)).isFile());
     assert.equal(fs.readFileSync(path.join(dir,'export_presets.cfg'),'utf8'),desktopPresets());
     const project=fs.readFileSync(path.join(dir,'project.godot'),'utf8');
+    assert.match(project,/^config\/name="BriarPresence"$/m,'staged application name must match the validated macOS bundle root');
     assert.match(project,/\[rendering\]\s+textures\/vram_compression\/import_etc2_astc=true/,'macOS universal requires ARM texture imports');
     assert.equal(fs.readFileSync(new URL('../godot/project.godot',import.meta.url),'utf8'),original,'cross-export settings must not mutate the accepted source project');
     assert.ok(!fs.existsSync(path.join(dir,'inspection_test.gd')));
