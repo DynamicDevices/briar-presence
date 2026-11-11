@@ -119,6 +119,12 @@ security clearance or licence acceptance.
 
 ## Tracked review and implementation sequence
 
+An [offline ingress rehearsal](MQTT-OFFLINE-REHEARSAL.md) now exercises the real
+schema/accepted-state path for multiple producer namespaces and readers,
+duplicate/late/retained input, focus and freshness. It does **not** implement
+MQTT delivery/authentication. Its findings cover broker retention/session queues,
+per-display presentation and the still-unselected accepted-view wire contract.
+
 1. Review and implement this profile under dedicated issue #11, linked to API
    contract #5, first-integration #10 and the six-step baseline plan. Alex's request adds MQTT to the
    work; specific topic/owner/retention choices remain proposals.

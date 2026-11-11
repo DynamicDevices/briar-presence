@@ -4,6 +4,10 @@ MQTT is now an additional transport work item for multiple publishers and
 subscribers: see the [draft MQTT review/profile](../../design/api/0.1-draft/MQTT-TRANSPORT.md).
 No MQTT client, broker or network adapter is implemented/installed yet.
 
+The [offline MQTT rehearsal](../../design/api/0.1-draft/MQTT-OFFLINE-REHEARSAL.md)
+tests application semantics through the real API; it is not an authenticated
+network adapter or proof of multiple-display delivery.
+
 The [LVGL/ESP32 subscriber target](../../design/api/0.1-draft/LVGL-ESP32-DISPLAY.md)
 is a separate implementation work item, not firmware supplied by this module.
 

@@ -12,6 +12,11 @@ and subscribers. [The MQTT review/profile](../design/api/0.1-draft/MQTT-TRANSPOR
 is part of steps 3 and 6, linked to contract issue #5 and integration issue #10.
 It does not replace the embedded API or authorise a broker/network connection.
 
+The [offline MQTT rehearsal](../design/api/0.1-draft/MQTT-OFFLINE-REHEARSAL.md)
+now exercises multiple producer namespaces and shared accepted-state reads.
+It also identifies retained/session-queue and per-display-controller requirements;
+no broker interoperability or actual subscription delivery is claimed.
+
 Alex also requested an LVGL implementation for an ESP32-class MQTT-subscribing
 display, then asked for separate issues. These are now
 [MQTT transport #11](https://github.com/DynamicDevices/briar-presence/issues/11)
