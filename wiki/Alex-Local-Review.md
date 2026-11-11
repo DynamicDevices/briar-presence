@@ -10,10 +10,15 @@ package, not a record that the review has happened. No new worker is needed.
 11 November addition: also review the [embedded integration](Embedded-API-Preview.md),
 `implementation/api/embedded.mjs`, `implementation/api/presentation.mjs`,
 the embedded and playback tests, and `.github/workflows/offline-tests.yml`.
-Use the candidate commit on PR #2, recording its exact SHA. This extends the
-package below; the earlier state-only hashes do not approve the added adapter.
+The implemented and CI-tested source candidate is
+`3748f9303e8a34b317ce2c8a76f46e5d7584305f`.
+[CI run 42932532228](https://github.com/DynamicDevices/briar-presence/actions/runs/42932532228)
+passed all 73 tests without failures, skips or cancellations. Later documentation
+corrections do not change that source identity. Record the exact commit you
+actually review; earlier state-only hashes do not approve the added adapter.
 
-This review is limited to the offline state-handler milestone, not all of
+This review covers the offline state handler and synthetic embedded API-to-face
+integration, not all of
 [PR #2](https://github.com/DynamicDevices/briar-presence/pull/2), its Godot host
 or its installation. The original offline baseline is
 `834fb703245ba578d1a80e225b6d5d8265feed8e`.
@@ -51,12 +56,20 @@ the changed source rather than assuming this package approves it.
   choices? Are actors/workspaces/producers isolated at the model boundary?
 - Are trusted host contexts clearly assumptions, not authentication proof?
   Are deployment limits and conservative implementation proposals explicit?
+- Does acknowledgement suppress a queued or active attention cue while leaving
+  the unresolved concern visible? Does stronger motion expire without replay?
+- Are provisional impact, confirmed impact and source expiry understandable in
+  the preview, without relying on colour alone? Do reduced motion and brightness
+  preferences remain respected?
+- Does the workflow retain read-only access, exact-source checkout and no-secret
+  isolation, without claiming CI is independent application review?
 
 ## Run locally if useful
 
-The complete candidate passed **49 tests with none failed/skipped/cancelled**
+The embedded integration candidate passed **73 tests with none failed/skipped/cancelled**
 using Node `24.22.1`, Python with `jsonschema 4.19.2`, and the existing
-`@napi-rs/canvas 0.1.100`. No dependency was installed for this work.
+`@napi-rs/canvas 0.1.100`. No local dependency was installed for this work;
+the isolated CI job installs its locked test dependencies in ephemeral storage.
 
 From `implementation/`, run `npm test` with `BRIAR_CANVAS_MODULE` set to the
 absolute path of the existing Canvas module. Without that variable, the current
