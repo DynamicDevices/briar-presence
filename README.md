@@ -20,6 +20,8 @@ not a live API or hosted service available today. See the [API direction](wiki/A
 ## Start here
 
 - [Project wiki](wiki/Home.md) — agreed direction, portrait reference, current progress and unfinished work.
+- [Desktop build CI](wiki/Desktop-Build-CI.md) — unsigned Windows/Linux/macOS
+  cross-exports on DD's named self-hosted Linux runner; native testing is separate.
 - [Design brief](design/BRIEF.md) — requirements, boundaries and open questions.
 - [Iteration plan](design/PLAN.md) — reviewable stages and acceptance questions.
 - [Decisions](design/DECISIONS.md) — agreed requirements versus proposals.

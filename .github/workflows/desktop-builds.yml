@@ -1,0 +1,80 @@
+name: DD desktop cross-builds
+
+on:
+  push:
+    branches: [main, work/self-hosted-builds-20261111]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: briar-presence-dd-desktop-build
+  cancel-in-progress: false
+
+jobs:
+  desktop-build:
+    if: >-
+      github.repository == 'DynamicDevices/briar-presence' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/work/self-hosted-builds-20261111')
+    runs-on: [self-hosted, Linux, X64, dd-esl-proxmox]
+    timeout-minutes: 45
+    steps:
+      - name: Check the assigned DD runner before checkout
+        shell: bash
+        env:
+          ASSIGNED_RUNNER: ${{ runner.name }}
+          ASSIGNED_OS: ${{ runner.os }}
+          ASSIGNED_ARCH: ${{ runner.arch }}
+        run: |
+          set -euo pipefail
+          test "$ASSIGNED_RUNNER" = dd-esl-proxmox
+          test "$ASSIGNED_OS" = Linux
+          test "$ASSIGNED_ARCH" = X64
+          command -v unzip
+          command -v zip
+      - name: Check out the exact trusted source without stored credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, Node24
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Node24
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6, Node24
+        with:
+          node-version: '24.22.1'
+          package-manager-cache: false
+      - name: Cross-export and verify unsigned packages
+        id: export
+        run: node implementation/scripts/build-desktop-ci.mjs
+      - name: Upload Linux x64
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2, Node24
+        with:
+          name: BriarPresence-linux-x64-${{ github.sha }}
+          path: ${{ steps.export.outputs.artifacts }}/BriarPresence-linux-x64.zip
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+      - name: Upload Windows x64
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2, Node24
+        with:
+          name: BriarPresence-windows-x64-${{ github.sha }}
+          path: ${{ steps.export.outputs.artifacts }}/BriarPresence-windows-x64.zip
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+      - name: Upload macOS universal
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2, Node24
+        with:
+          name: BriarPresence-macos-universal-${{ github.sha }}
+          path: ${{ steps.export.outputs.artifacts }}/BriarPresence-macos-universal.zip
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+      - name: Upload package checksums
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2, Node24
+        with:
+          name: BriarPresence-checksums-${{ github.sha }}
+          path: ${{ steps.export.outputs.artifacts }}/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 7
