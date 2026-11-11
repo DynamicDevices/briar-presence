@@ -24,5 +24,10 @@ func _initialize() -> void:
 	check(Sizing.window_size(Vector2i(2256,1504)).y > 246,"larger on high-resolution laptop")
 	check(Sizing.window_size(Vector2i(3840,2160),0.45).y == 972,"manual relative size preserved")
 	check(Sizing.window_size(Vector2i.ZERO) == Vector2i(196,246),"missing display fallback")
+	check(Sizing.settings_scale(Vector2i(2256,1504),true) == 1.0,"Wayland logical laptop units use standard text scale")
+	check(Sizing.settings_scale(Vector2i(2256,1504),false) > 1.0,"existing X11 sizing remains unchanged")
+	for usable: Vector2i in cases:
+		var scale := Sizing.settings_scale(usable,true)
+		check(scale <= 1.0 and 400*scale <= usable.x and 380*scale <= usable.y,"Wayland logical dialog remains bounded "+str(usable))
 	print(JSON.stringify({"type":"godot-display-sizing","passed":failures.is_empty(),"failures":failures,"displays":cases.size(),"defaultHeightFraction":Sizing.DEFAULT_HEIGHT_FRACTION,"scope":"Sizing policy only; real monitor movement and perceived physical size still need checking."}))
 	quit(0 if failures.is_empty() else 1)

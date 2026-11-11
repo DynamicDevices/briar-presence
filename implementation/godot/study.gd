@@ -7,6 +7,10 @@ const SettingsWindow = preload("res://settings_window.gd")
 const DisplaySizing = preload("res://display_sizing.gd")
 const ApiRecording = preload("res://api_recording.gd")
 const InspectionWindow = preload("res://inspection_window.gd")
+const ApplicationMenu = preload("res://application_menu.gd")
+const AboutWindow = preload("res://about_window.gd")
+var _application_menu: ApplicationMenu
+var _about: AboutWindow
 var _inspection: InspectionWindow
 var _api_recording: RefCounted
 var _model := Presence.new(0x5eed1234)
@@ -25,6 +29,7 @@ var _last_sample_usec := 0
 var _smoke_phase := "starting"
 var _smoke_started_usec := 0
 var _backing := StyleBoxFlat.new()
+var _name_label := Label.new()
 var _face_rect := Rect2(8,8,180,230)
 var _backing_rect := Rect2(8,8,180,230)
 var _settings: SettingsWindow
@@ -40,7 +45,12 @@ var _applying_display_size := false
 func _ready() -> void:
 	# Window interaction must not inherit the intentionally quiet light-update rate.
 	Engine.max_fps = 60
-	get_viewport().transparent_bg = true
+	var opaque_resize_test := OS.get_cmdline_user_args().has("--opaque-resize-test")
+	get_window().transparent = not opaque_resize_test
+	get_viewport().transparent_bg = not opaque_resize_test
+	if opaque_resize_test:
+		# One-launch A/B diagnostic only; do not change the normal project settings.
+		RenderingServer.set_default_clear_color(Color(21.0/255.0,38.0/255.0,57.0/255.0,1.0))
 	get_viewport().gui_embed_subwindows = false
 	_smoke = OS.get_cmdline_user_args().has("--briar-smoke")
 	_reference_frame = _smoke and OS.get_cmdline_user_args().has("--reference-frame")
@@ -58,6 +68,8 @@ func _ready() -> void:
 		return
 	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
 	get_window().content_scale_factor = 1.0
+	if DisplayServer.get_name() == "Wayland":
+		_stay_above = false
 	get_window().always_on_top = _stay_above
 	_instanced = OS.get_cmdline_user_args().has("--instanced-study")
 	if _instanced:
@@ -72,12 +84,19 @@ func _ready() -> void:
 	_backing.shadow_color = Color(21.0/255.0,38.0/255.0,57.0/255.0,.2)
 	_backing.shadow_size = 6
 	add_child(_visual)
+	_name_label.text = "Briar"
+	_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_name_label.focus_mode = Control.FOCUS_NONE
+	_name_label.add_theme_color_override("font_color",Color(0.78,0.86,0.93,0.9))
+	add_child(_name_label)
 	get_viewport().size_changed.connect(_layout)
 	_sync_display()
 	_layout()
 	get_window().title = "Briar · synthetic API recording" if _api_recording != null else "Briar · corner-resize study"
+	if opaque_resize_test:
+		get_window().title += " · opaque resize test"
 	await RenderingServer.frame_post_draw
-	print(JSON.stringify({"type":"godot-study-ready","pid":OS.get_process_id(),"displayServer":DisplayServer.get_name(),"syntheticOnly":true,"studyOnly":true,"resizable":not get_window().unresizable,"visibleResizeControls":false,"alwaysOnTop":get_window().always_on_top,"screen":_display_id,"usableDisplaySize":[_display_area.size.x,_display_area.size.y],"windowSize":[get_window().size.x,get_window().size.y],"faceSize":[_face_rect.size.x,_face_rect.size.y],"relativeHeight":_display_height_fraction}))
+	print(JSON.stringify({"type":"godot-study-ready","pid":OS.get_process_id(),"displayServer":DisplayServer.get_name(),"syntheticOnly":true,"studyOnly":true,"opaqueResizeTest":opaque_resize_test,"transparentWindow":get_window().transparent,"transparentViewport":get_viewport().transparent_bg,"resizable":not get_window().unresizable,"visibleResizeControls":false,"alwaysOnTop":get_window().always_on_top,"screen":_display_id,"usableDisplaySize":[_display_area.size.x,_display_area.size.y],"windowSize":[get_window().size.x,get_window().size.y],"faceSize":[_face_rect.size.x,_face_rect.size.y],"relativeHeight":_display_height_fraction}))
 
 func _smoke_watchdog() -> void:
 	if _smoke_phase == "capture-complete":
@@ -99,7 +118,16 @@ func _layout() -> void:
 	if not _visual._scene.is_empty():
 		_visual.resize_scene(_face_rect.size)
 	_backing.set_corner_radius_all(int(minf(_backing_rect.size.x,_backing_rect.size.y)*.27))
+	_layout_name()
 	queue_redraw()
+
+func _layout_name() -> void:
+	# Centre the name inside the backing, below the curved top rather than a title bar.
+	# A passive label leaves the whole face available for click/drag/right-click.
+	var radius := minf(_backing_rect.size.x,_backing_rect.size.y)*.27
+	_name_label.add_theme_font_size_override("font_size",clampi(roundi(_face_rect.size.y*.029),12,28))
+	_name_label.reset_size()
+	_name_label.position = Vector2(_backing_rect.get_center().x-_name_label.size.x/2.0,_backing_rect.position.y+radius*.22)
 
 func _sync_display() -> void:
 	var display := get_window().current_screen
@@ -184,6 +212,8 @@ func _process(_delta: float) -> void:
 
 func _show_settings() -> void:
 	_press_pending = false
+	if is_instance_valid(_about):
+		_about.hide()
 	if is_instance_valid(_inspection):
 		_inspection.hide()
 	if not is_instance_valid(_settings):
@@ -197,6 +227,8 @@ func _show_settings() -> void:
 
 func _show_inspection() -> void:
 	_press_pending = false
+	if is_instance_valid(_about):
+		_about.hide()
 	if _api_recording == null:
 		_show_settings()
 		return
@@ -209,6 +241,29 @@ func _show_inspection() -> void:
 		add_child(_inspection)
 		_inspection.settings_requested.connect(_show_settings)
 	_inspection.show_inspection(_api_recording.current.get("semantic",{}),get_window())
+
+func _show_context_menu(point: Vector2i) -> void:
+	_press_pending = false
+	if not is_instance_valid(_application_menu):
+		_application_menu = ApplicationMenu.new()
+		_application_menu.visible = false
+		add_child(_application_menu)
+		_application_menu.settings_requested.connect(_show_settings)
+		_application_menu.about_requested.connect(_show_about)
+		_application_menu.quit_requested.connect(func(): get_tree().quit())
+	_application_menu.show_menu(point,get_window())
+
+func _show_about() -> void:
+	_press_pending = false
+	if is_instance_valid(_inspection):
+		_inspection.hide()
+	if is_instance_valid(_settings):
+		_settings.hide()
+	if not is_instance_valid(_about):
+		_about = AboutWindow.new()
+		_about.visible = false
+		add_child(_about)
+	_about.show_about(get_window())
 
 func _set_reduced_motion(value: bool) -> void:
 	_reduced_motion = value
@@ -224,6 +279,8 @@ func _scene_for_display(scene_time: float) -> Dictionary:
 	return _model.sample({"time":scene_time,"state":"quiet","reducedMotion":_reduced_motion})
 
 func _set_stay_above(value: bool) -> void:
+	if DisplayServer.get_name() == "Wayland":
+		return
 	_stay_above = value
 	get_window().always_on_top = value
 
@@ -235,6 +292,15 @@ func _begin_corner_resize(edge: int) -> void:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_MENU or (event.keycode == KEY_F10 and event.shift_pressed):
+			_show_context_menu(get_window().position+Vector2i(24,24))
+			return
+		if event.keycode == KEY_ESCAPE and is_instance_valid(_application_menu) and _application_menu.visible:
+			_application_menu.hide()
+			return
+		if event.keycode == KEY_ESCAPE and is_instance_valid(_about) and _about.visible:
+			_about.close_about()
+			return
 		if event.keycode == KEY_ESCAPE and is_instance_valid(_inspection) and _inspection.visible:
 			_inspection.close_inspection()
 			return
@@ -247,13 +313,20 @@ func _input(event: InputEvent) -> void:
 		elif event.keycode == KEY_M:
 			_set_reduced_motion(not _reduced_motion)
 		elif event.keycode == KEY_T:
-			_set_stay_above(not _stay_above)
+			if DisplayServer.get_name() == "Wayland":
+				_show_settings()
+			else:
+				_set_stay_above(not _stay_above)
 	if event is InputEventMouseMotion:
 		var edge := ResizePolicy.corner_edge(event.position,get_viewport_rect().size)
 		Input.set_default_cursor_shape(ResizePolicy.cursor_for_edge(edge))
 		if _press_pending and event.position.distance_to(_press_position) >= 6.0:
 			_press_pending = false
 			_begin_face_drag()
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT and _backing_rect.has_point(event.position):
+		_show_context_menu(get_window().position+Vector2i(event.position))
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			var edge := ResizePolicy.corner_edge(event.position,get_viewport_rect().size)

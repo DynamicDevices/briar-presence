@@ -37,6 +37,18 @@ This skill supplies project guidance, not execution or publication authority.
 
 ## Verify affected behaviour
 
+For Linux resize disappearance, see `wiki/Godot-Wayland-Resize.md`. Native
+Wayland avoided the symptom in Alex's desktop comparison; X11 still flashed
+with runtime transparency off and with a plain window. Do not mistake runtime
+transparency flags for disabling the startup per-pixel allowance. Use the
+explicit `--inspection-wayland` candidate option where appropriate. Alex selected
+preferring an available Wayland socket for interactive launches, otherwise X11
+with its resize warning; retain explicit `--inspection-x11` and never silently
+retry a failed Wayland launch through X11. Do not change the installed host or
+compositor settings. Diagnostic X11 comparisons must keep an explicit backend.
+Recheck placement, focus, dragging and actual stay-above on a changed backend;
+an engine property alone does not prove compositor behaviour.
+
 Use `implementation/godot/resize_redraw_test.gd` for retained-vector reuse,
 backing coverage, current geometry and native-size reset after a fresh scene.
 Use `retained_appearance_test.gd` for empty-scene clearing and captures against

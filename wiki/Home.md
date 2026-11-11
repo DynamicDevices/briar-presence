@@ -25,6 +25,7 @@ an opt-in uninstalled candidate, not a live connection or device payload.
 | [Design and interaction](Design.md) | Agreed visual direction, attention, gentle controls and portrait-reference limits |
 | [Current progress and preview](Progress.md) | What works, test evidence, unfinished work and how to try the existing preview |
 | [Platform capabilities](Platforms.md) | Desktop, Godot, browser, desk-device and VR strengths, constraints and evidence gaps |
+| [Native Wayland resizing](Godot-Wayland-Resize.md) | Alex's successful Linux resize comparison, centred name, explicit launcher and remaining native checks |
 | [API direction](API.md) | Proposed producer-neutral integration: Briar harness or other clients; not a running API |
 | [Visual-language API review and plan](Visual-Language-API.md) | Approved review, concurrent work/concerns, contract, extensibility, safeguards and staged acceptance |
 | [Vocabulary and scenarios](Visual-Language-Vocabulary.md) | Selected design decisions, proposed semantics, 21 synthetic scenarios and outstanding readability checks |
