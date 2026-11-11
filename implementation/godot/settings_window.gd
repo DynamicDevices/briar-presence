@@ -6,6 +6,8 @@ signal stay_above_changed(value: bool)
 signal quit_requested
 var motion: CheckButton
 var above: CheckButton
+var stacking_note: Label
+var shortcut_hint: Label
 var done: Button
 var _panel: PanelContainer
 var ui_scale := 1.0
@@ -56,11 +58,10 @@ func _build_ui(scale: float) -> void:
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			DisplayServer.window_start_drag(get_window_id()))
 	column.add_child(heading)
-	var hint := Label.new()
-	hint.text = "Synthetic preview — not connected\nDrag the face to move; drag a corner to resize.\nF1: settings · M: reduced motion · T: stay above\nEscape: close settings · Right-click face: menu"
-	hint.add_theme_color_override("font_color",Color("354e61"))
-	hint.add_theme_font_size_override("font_size",roundi(13*scale))
-	column.add_child(hint)
+	shortcut_hint = Label.new()
+	shortcut_hint.add_theme_color_override("font_color",Color("354e61"))
+	shortcut_hint.add_theme_font_size_override("font_size",roundi(13*scale))
+	column.add_child(shortcut_hint)
 	motion = CheckButton.new()
 	above = CheckButton.new()
 	motion.text = "Reduced motion"
@@ -77,6 +78,12 @@ func _build_ui(scale: float) -> void:
 		column.add_child(button)
 	motion.toggled.connect(func(value: bool): reduced_motion_changed.emit(value))
 	above.toggled.connect(func(value: bool): stay_above_changed.emit(value))
+	stacking_note = Label.new()
+	stacking_note.text = "Wayland: your desktop controls window stacking.\nBriar cannot enable stay-above here."
+	stacking_note.add_theme_color_override("font_color",Color("354e61"))
+	stacking_note.add_theme_font_size_override("font_size",roundi(13*scale))
+	column.add_child(stacking_note)
+	_configure_stacking(DisplayServer.get_name())
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation",roundi(12*scale))
 	column.add_child(row)
@@ -108,11 +115,23 @@ func show_options(reduced_motion: bool, stay_above: bool, face: Window) -> void:
 	# A transient follows its parent; X11 rejects combining that with an
 	# independent always-on-top flag on the child window.
 	motion.set_pressed_no_signal(reduced_motion)
-	above.set_pressed_no_signal(stay_above)
+	above.set_pressed_no_signal(stay_above and not above.disabled)
 	position = Sizing.settings_position(Rect2i(face.position,face.size),size,area,roundi(16*ui_scale))
 	show()
 	motion.grab_focus()
 	grab_focus()
+
+func _configure_stacking(backend: String) -> void:
+	var compositor_controlled := backend == "Wayland"
+	above.visible = not compositor_controlled
+	above.disabled = compositor_controlled
+	if compositor_controlled:
+		above.set_pressed_no_signal(false)
+	stacking_note.visible = compositor_controlled
+	shortcut_hint.text = "Synthetic preview — not connected\nDrag the face to move; drag a corner to resize.\nF1: settings · M: reduced motion"
+	if not compositor_controlled:
+		shortcut_hint.text += " · T: stay above"
+	shortcut_hint.text += "\nEscape: close settings · Right-click face: menu"
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:

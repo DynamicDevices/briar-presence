@@ -202,6 +202,19 @@ func _run() -> void:
 	root.add_child(settings)
 	settings._build_ui(1.0)
 	check(settings.done.get_parent().get_child_count() == 1,"display settings contains Done but no Quit button")
+	settings.above.set_pressed_no_signal(true)
+	settings._configure_stacking("Wayland")
+	check(not settings.above.visible and settings.above.disabled and not settings.above.button_pressed,"Wayland never presents an enabled stay-above switch")
+	check(settings.stacking_note.visible and settings.stacking_note.text.contains("cannot enable"),"Wayland explains the actual stay-above limitation")
+	check(not settings.shortcut_hint.text.contains("T: stay above"),"Wayland does not advertise an ineffective toggle shortcut")
+	for backend: String in ["X11","Windows","macOS"]:
+		settings._configure_stacking(backend)
+		check(settings.above.visible and not settings.above.disabled and not settings.stacking_note.visible,"existing stay-above request remains available on "+backend)
+		check(settings.shortcut_hint.text.contains("T: stay above"),"stay-above shortcut remains documented on "+backend)
+	for scale: float in [0.85,1.0,1.6,2340.0/1080.0]:
+		settings._build_ui(scale)
+		settings._configure_stacking("Wayland")
+		check(settings.stacking_note.visible and not settings.above.visible,"Wayland limitation survives display-scale rebuild "+str(scale))
 	settings.free()
 	var about := AboutWindow.new()
 	about.visible = false

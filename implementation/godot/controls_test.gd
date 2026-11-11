@@ -17,7 +17,8 @@ func _run() -> void:
 	root.add_child(host)
 	await RenderingServer.frame_post_draw
 	check(not is_instance_valid(host._settings),"no settings window at rest")
-	check(root.always_on_top and host._stay_above,"stay above defaults on")
+	var wayland := DisplayServer.get_name() == "Wayland"
+	check((not root.always_on_top and not host._stay_above) if wayland else (root.always_on_top and host._stay_above),"stay-above default reflects backend capability")
 	var key := InputEventKey.new()
 	key.pressed = true
 	key.keycode = KEY_F1
@@ -46,10 +47,15 @@ func _run() -> void:
 	if frozen_before != frozen_after:
 		print(JSON.stringify({"type":"reduced-motion-diagnostic","reducedMotion":host._reduced_motion,"firstBefore":lights[0],"firstAfter":host._visual._scene["lights"][0]}))
 	check(frozen_before == frozen_after,"reduced motion holds lights still")
-	settings.above.button_pressed = false
-	check(not root.always_on_top and not host._stay_above,"stay above can be disabled")
-	settings.above.button_pressed = true
-	check(root.always_on_top and host._stay_above,"stay above can be restored")
+	if wayland:
+		check(not settings.above.visible and settings.above.disabled and settings.stacking_note.visible,"Wayland explains unsupported stay-above instead of offering a switch")
+		host._set_stay_above(true)
+		check(not root.always_on_top and not host._stay_above,"Wayland cannot falsely enable stay-above")
+	else:
+		settings.above.button_pressed = false
+		check(not root.always_on_top and not host._stay_above,"stay above can be disabled")
+		settings.above.button_pressed = true
+		check(root.always_on_top and host._stay_above,"stay above can be restored")
 	var output := ProjectSettings.globalize_path("res://../test-artifacts/godot-settings-study.png")
 	check(settings.get_texture().get_image().save_png(output) == OK,"own settings capture")
 	key.keycode = KEY_ESCAPE

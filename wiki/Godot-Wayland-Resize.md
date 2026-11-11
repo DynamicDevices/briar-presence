@@ -28,6 +28,15 @@ establish Wayland compositor behaviour. No compositor/security change is propose
 as a proven fix. The accepted resize workaround must not be presented as a
 stay-above repair.
 
+Alex selected correcting the misleading Wayland control while keeping the
+stay-above defect open. The new candidate replaces that switch with a quiet
+explanation that the desktop controls stacking and Briar cannot enable it here.
+The ineffective T-toggle hint is omitted; pressing T on the face opens settings
+to explain the limitation instead. Wayland no longer starts with a true
+stay-above request. X11, Windows and macOS retain their existing request/toggle;
+availability is not a native stacking guarantee. No compositor or installed-app
+change is part of this correction. Actual visual acceptance remains separate.
+
 From `implementation/`, with the existing pinned Godot engine already present:
 
 ```sh

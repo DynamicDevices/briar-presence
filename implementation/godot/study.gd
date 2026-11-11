@@ -68,6 +68,8 @@ func _ready() -> void:
 		return
 	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
 	get_window().content_scale_factor = 1.0
+	if DisplayServer.get_name() == "Wayland":
+		_stay_above = false
 	get_window().always_on_top = _stay_above
 	_instanced = OS.get_cmdline_user_args().has("--instanced-study")
 	if _instanced:
@@ -277,6 +279,8 @@ func _scene_for_display(scene_time: float) -> Dictionary:
 	return _model.sample({"time":scene_time,"state":"quiet","reducedMotion":_reduced_motion})
 
 func _set_stay_above(value: bool) -> void:
+	if DisplayServer.get_name() == "Wayland":
+		return
 	_stay_above = value
 	get_window().always_on_top = value
 
@@ -309,7 +313,10 @@ func _input(event: InputEvent) -> void:
 		elif event.keycode == KEY_M:
 			_set_reduced_motion(not _reduced_motion)
 		elif event.keycode == KEY_T:
-			_set_stay_above(not _stay_above)
+			if DisplayServer.get_name() == "Wayland":
+				_show_settings()
+			else:
+				_set_stay_above(not _stay_above)
 	if event is InputEventMouseMotion:
 		var edge := ResizePolicy.corner_edge(event.position,get_viewport_rect().size)
 		Input.set_default_cursor_shape(ResizePolicy.cursor_for_edge(edge))

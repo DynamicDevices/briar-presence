@@ -31,6 +31,14 @@ Godot does not document its always-on-top flag as implemented on Wayland, and
 the readiness property proves intent only. No compositor or Codex setting was
 changed; no stacking fix is claimed.
 
+Alex selected correcting the misleading Wayland stay-above control while
+keeping the defect open. The candidate now explains the limitation instead of
+offering that switch; T opens settings to explain rather than toggling an
+unsupported flag. Other backends retain the existing toggle. Local checks pass:
+95 Node tests, 403 headless Godot checks/36 vectors, and native-controls script
+syntax validation. The revised explanation still needs native visual acceptance;
+this is not proof of supported stacking or independent review.
+
 Further native checks: Alex confirmed lights, backing and name stay sharp and
 proportioned while enlarging/shrinking, with no flashing. He tested another
 monitor and accepted face/panel sizing and placement there. Monitor identities

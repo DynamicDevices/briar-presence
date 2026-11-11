@@ -15,12 +15,28 @@ as a separate build change. Record each actual reviewed commit and its result;
 this checklist is not approval. The earlier state-only review scope below
 does not approve either addition.
 
+Current review identities:
+
+- Desktop PR14: review its current head including the Alex-selected Wayland
+  settings correction. Earlier head `aee07be39f9b480b170db18da1852ae133266d32`
+  predates that correction and cannot approve it. Record the actual reviewed SHA.
+- Separate build PR13 head: `46e8f26dce156e98e3ce0c07084c11e2433fe969`.
+  Its packages do not include PR14's later desktop changes.
+- Record findings and a separate verdict for each reviewed identity. Neither
+  human interaction checks nor build/test success substitutes for code review.
+
 - Desktop: `application_menu.gd`, `about_window.gd`, `settings_window.gd`,
   `study.gd`, input routing and inspection tests; verify hidden application
   actions, no quit-on-preference change, passive centred name and focus/close.
 - Launcher: `launch-godot.mjs` and `godot-launch.test.mjs`; check real socket
   detection, explicit backend options, honest X11 warning, no silent retry
   after Wayland failure, and unchanged finite smoke/check behaviour.
+- Wayland settings correction: check the compositor explanation replaces the
+  ineffective toggle, no T-toggle hint is advertised, T opens settings instead,
+  and unsupported startup/request state is not reported as enabled. X11,
+  Windows and macOS retain their existing request/toggle. This corrects a false
+  UI promise, not actual stacking. Inspect the backend/scale tests and keep
+  native visual acceptance distinct from programmatic checks.
 - Build: `.github/workflows/desktop-builds.yml`, `build-desktop-ci.mjs` and
   `desktop-build.test.mjs`; verify exact trusted DD runner/ref guards, no PR
   execution/secrets, pinned downloads, source/notices, generated app name,
@@ -28,10 +44,14 @@ does not approve either addition.
 - Both: trace scripts to export/package inventories, review failure handling,
   preserve synthetic-only data and distinguish native evidence from test counts.
 
-[Native findings](Godot-Wayland-Resize.md) include successful resize-flashing
-avoidance but failed stay-above and dialog sizing on Wayland. Do not approve a
-complete desktop replacement while those remain unresolved. Independent review
-can record findings; green CI and Alex's visual preference are not that verdict.
+[Native findings](Godot-Wayland-Resize.md) include accepted resize fidelity,
+motion, click/drag, task navigation, acknowledgement clarity, keyboard menu/work
+focus paths and another-monitor sizing/placement. Compact-dialog feedback was
+positive. Stay-above fails generally on the current reopened preview; earlier
+Files/manual-GNOME evidence is not proof for a new window. Expiry/unknown clarity
+remains unverified after a timed-out question. Do not approve a complete desktop
+replacement while these remain unresolved. Independent review can record
+findings; green CI and Alex's visual preference are not that verdict.
 
 ### Earlier API review scope
 
