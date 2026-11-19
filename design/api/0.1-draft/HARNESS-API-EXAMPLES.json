@@ -1,0 +1,31 @@
+{
+  "description": "Synthetic producer examples. Binding is host configuration, not snapshot payload or credentials.",
+  "producers": [
+    {
+      "binding": {"userId": "demo-user", "workspaceId": "demo-workspace", "producerId": "local-harness", "generation": 1},
+      "snapshot": {
+        "kind": "producer.snapshot",
+        "version": "0.1-draft",
+        "session": "demo-local-session-1",
+        "revision": 1,
+        "observedAt": "2026-11-19T12:00:00Z",
+        "work": [{"id": "work-1", "label": "Display driver", "observedAt": "2026-11-19T12:00:00Z", "lifecycle": "running", "activity": "Checking update scheduling"}],
+        "concerns": [],
+        "attentionItems": []
+      }
+    },
+    {
+      "binding": {"userId": "demo-user", "workspaceId": "demo-workspace", "producerId": "remote-harness", "generation": 1},
+      "snapshot": {
+        "kind": "producer.snapshot",
+        "version": "0.1-draft",
+        "session": "demo-remote-session-1",
+        "revision": 1,
+        "observedAt": "2026-11-19T12:00:00Z",
+        "work": [{"id": "work-1", "label": "API contract", "observedAt": "2026-11-19T11:59:55Z", "lifecycle": "waiting", "wait": {"party": "user", "reason": "Review the proposed data contract"}}],
+        "concerns": [{"id": "concern-1", "revision": 1, "observedAt": "2026-11-19T11:59:50Z", "workId": "work-1", "origin": "producer", "lifecycle": "open", "summary": "Cross-host clock policy has not been validated"}],
+        "attentionItems": [{"id": "request-1", "workId": "work-1", "concernId": "concern-1", "state": "open", "category": "needs-you", "summary": "Review the remote timing policy", "request": "Confirm the deployment clock policy before a live trial"}]
+      }
+    }
+  ]
+}

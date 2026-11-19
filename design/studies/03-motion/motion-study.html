@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Briar — clustered light motion study</title>
+<style>
+  :root{color-scheme:dark;font-family:system-ui,sans-serif;background:#060c14;color:#e6effa}
+  *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 35% 40%,#102539,#060c14 70%);min-height:100vh}
+  header{padding:24px 34px;border-bottom:1px solid #25374a;display:flex;justify-content:space-between;gap:20px;color:#93b7d0;font-size:11px;letter-spacing:2px}
+  main{max-width:1240px;margin:auto;padding:24px 34px;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:30px}
+  .stage{text-align:center}canvas{width:min(100%,650px);height:auto;display:block;margin:auto}
+  h1{font-size:24px;font-weight:500;letter-spacing:-.5px;margin:0 0 10px}p{color:#96adc4;line-height:1.7;font-size:13px}
+  .caption{min-height:96px;margin-top:-10px}.caption p{margin:4px 0}.eyebrow{font-size:10px;letter-spacing:2px;color:#86b8d6;text-transform:uppercase}
+  aside{padding-top:35px}h2{font-weight:500;font-size:23px;margin:10px 0}button,input{font:inherit}button{cursor:pointer}
+  button:focus-visible,input:focus-visible{outline:2px solid #b2e5ff;outline-offset:4px}
+  .chapter{display:block;width:100%;text-align:left;border:1px solid #2c4056;background:#10203166;border-radius:10px;padding:12px 14px;color:#bdd0e3;margin:8px 0;font-size:13px}
+  .chapter[aria-pressed="true"]{background:#193c52;border-color:#69b6e3;color:#fff}.chapter small{float:right;color:#859eb6}
+  .controls{border-top:1px solid #293d52;margin-top:22px;padding-top:19px}.transport{display:flex;gap:9px;align-items:center}
+  .transport button{border:1px solid #456780;border-radius:8px;background:#16344b;color:#e2f2ff;padding:10px 16px}
+  #time{margin-left:auto;color:#a4bad0;font-size:12px;font-variant-numeric:tabular-nums}input[type=range]{width:100%;accent-color:#8ed1ff;margin:20px 0 12px}
+  .options{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:#a8bed2}label{cursor:pointer}input[type=checkbox]{accent-color:#89ccf7}
+  .note{font-size:12px;color:#809bb3}footer{max-width:1240px;margin:auto;padding:20px 34px;border-top:1px solid #26384b;color:#708ca6;font-size:11px;line-height:1.7}
+  @media(max-width:820px){header{padding:20px;letter-spacing:1px;font-size:9px}main{grid-template-columns:1fr;padding:12px 20px;gap:0}aside{padding-top:14px;max-width:600px;margin:auto;width:100%}canvas{max-width:500px}footer{padding:20px}}
+</style>
+</head>
+<body>
+<header><span>BRIAR / MOTION STUDY 03</span><span>DESIGN ANIMATIC · ALL EVENTS SIMULATED</span></header>
+<main>
+  <section class="stage" aria-label="Animated concept preview">
+    <canvas id="face" width="1100" height="1100" role="img" aria-label="Simulated available state: spacious blue light clusters behind smoked glass"></canvas>
+    <div class="caption" aria-live="polite" aria-atomic="true"><div class="eyebrow" id="state">Available · simulated</div><h1 id="title">Space to be here.</h1><p id="detail">Blue light rests in loose, irregular groupings.</p></div>
+  </section>
+  <aside>
+    <div class="eyebrow">Cloudlets + fine granular light</div><h2>A face, briefly.</h2>
+    <p>Lights gather, suggest an abstract face, then loosen again. Explore this staged exchange—not a live view of Briar's work.</p>
+    <div role="group" aria-label="Study chapters">
+      <button class="chapter" data-time="0" aria-pressed="true">Available <small>00s</small></button>
+      <button class="chapter" data-time="4" aria-pressed="false">Attending <small>04s</small></button>
+      <button class="chapter" data-time="9" aria-pressed="false">Abstract face <small>09s</small></button>
+      <button class="chapter" data-time="14" aria-pressed="false">Focused work <small>14s</small></button>
+      <button class="chapter" data-time="20" aria-pressed="false">Holding a concern <small>20s</small></button>
+      <button class="chapter" data-time="25" aria-pressed="false">Waiting for a choice <small>25s</small></button>
+      <button class="chapter" data-time="30" aria-pressed="false">Correction / rethink <small>30s</small></button>
+      <button class="chapter" data-time="35" aria-pressed="false">Resolution <small>35s</small></button>
+      <button class="chapter" data-time="40" aria-pressed="false">Urgent · separate example <small>40s</small></button>
+      <button class="chapter" data-time="45" aria-pressed="false">Disconnected · separate example <small>45s</small></button>
+      <button class="chapter" data-time="51" aria-pressed="false">Rest <small>51s</small></button>
+    </div>
+    <div class="controls">
+      <div class="transport"><button id="play">Play study</button><button id="restart">Restart</button><output id="time" for="timeline">00 / 52s</output></div>
+      <input id="timeline" type="range" min="0" max="52" step="0.05" value="0" aria-label="Study timeline" aria-valuetext="0 seconds, Available, simulated">
+      <div class="options"><label><input id="reduced" type="checkbox"> Reduced motion</label><label><input id="slow" type="checkbox"> Half speed</label></div>
+      <p class="note" id="motionNote">Starts still. Play once or choose a chapter. No automatic loop.</p>
+    </div>
+    <p class="note">The face is a temporary suggestion, not a fixed mask. No camera, microphone, affect inference or live connection. Amber's meaning is a design proposal.</p>
+  </aside>
+</main>
+<footer>Original light-cluster design study · no drawn connecting lines · no real task status.<br>Urgency and disconnection are separate illustrative examples, not consequences of the earlier worry. Peripheral comfort, small-size clarity and recognition remain untested. Briar · 10 November 2026.</footer>
+<script>
+'use strict';
+const canvas=document.querySelector('#face');
+const ctx=canvas.getContext('2d');
+const timeline=document.querySelector('#timeline');
+const play=document.querySelector('#play');
+const reduced=document.querySelector('#reduced');
+const slow=document.querySelector('#slow');
+const chapters=[...document.querySelectorAll('.chapter')];
+const preference=matchMedia('(prefers-reduced-motion: reduce)');
+reduced.checked=preference.matches;
+const TAU=Math.PI*2;
+let seed=20261110;
+function random(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return(seed+.5)/4294967296;}
+function normal(){return Math.sqrt(-2*Math.log(random()))*Math.cos(TAU*random());}
+const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+const mix=(a,b,t)=>a+(b-a)*t;
+const smooth=v=>{v=clamp(v);return v*v*(3-2*v);};
+function windowed(t,a,b,c,d){return smooth((t-a)/(b-a))*(1-smooth((t-c)/(d-c)));}
+const cloud=[[-.43,-.59,.13,.16],[-.04,-.77,.13,.13],[.35,-.43,.12,.17],[-.19,-.17,.18,.16],[-.48,.17,.12,.17],[.12,.20,.15,.13],[-.13,.61,.14,.16],[.43,.61,.10,.14],[.03,.89,.09,.10]];
+const gather=[[-.26,-.48,.12,.14],[.03,-.59,.12,.13],[.29,-.36,.11,.15],[-.20,-.10,.14,.12],[-.31,.22,.12,.13],[.12,.13,.13,.13],[-.07,.45,.12,.13],[.28,.46,.10,.12],[.02,.71,.08,.10]];
+// Broken, asymmetric facial suggestions: no eyes/pupils or permanent mouth.
+const abstract=[[-.31,-.33,.19,.045],[.18,-.36,.15,.04],[.40,-.12,.07,.13],[-.04,-.03,.045,.13],[-.37,.17,.12,.11],[.27,.19,.11,.10],[-.17,.44,.12,.045],[.14,.43,.10,.04],[.01,.65,.11,.06]];
+const dots=[];
+for(let group=0;group<9;group++)for(let n=0;n<240;n++){
+  const fine=n>100;
+  dots.push({group,gx:normal(),gy:normal(),size:fine?.13+random()*.28:.32+random()*.68,
+    alpha:.18+random()*.65,phase:random()*TAU,depth:.65+random()*.45,white:random()>.85,fine});
+}
+const dust=Array.from({length:150},()=>{const a=random()*TAU,r=Math.sqrt(random());return{x:Math.cos(a)*r*166,y:Math.sin(a)*r*221,a:.08+random()*.22};});
+const text=[
+  ['Available','Space to be here.','Blue light rests in loose, irregular groupings.'],
+  ['Attending','Attention gathers.','The groupings draw towards a shared focus.'],
+  ['Abstract face','A suggestion of a face, then gone.','A broken brow and cheek-like lights emerge without becoming a fixed mask.'],
+  ['Focused work','The formations become purposeful.','The facial suggestion dissolves back into moving clusters.'],
+  ['Holding a concern','Something to examine together.','One region becomes amber; the rest remains calmly blue.'],
+  ['Waiting for a choice','Room for a response.','Motion settles. Waiting is not presented as ongoing work.'],
+  ['Correction / rethink','The formation makes room for a correction.','Groupings loosen and reorganise. Disagreement does not trigger anger or alarm.'],
+  ['Resolution','The concern releases.','A simulated resolution gradually returns the concerned grouping to blue.'],
+  ['Urgent — separate example','Immediate attention would be needed.','A separate fictional example: contracted red light, with an explicit label—not flashing.'],
+  ['Disconnected — separate example','No live information would be available.','A separate fictional example: dim grey light, stillness and an explicit disconnected label.'],
+  ['Rest','Space to be here.','The design study returns to quiet blue and stops. No connection has actually been made.']
+];
+let elapsed=0,running=false,request=0,last=0,currentChapter=-1;
+function chapterAt(t){return t>=49?10:t>=43?9:t>=38?8:t>=33?7:t>=28?6:t>=23?5:t>=17?4:t>=12?3:t>=7?2:t>=2?1:0;}
+function updateText(){
+  const c=chapterAt(elapsed);
+  timeline.value=elapsed;
+  document.querySelector('#time').value=`${Math.floor(elapsed).toString().padStart(2,'0')} / 52s`;
+  timeline.setAttribute('aria-valuetext',`${elapsed.toFixed(1)} seconds, ${text[c][0]}, simulated`);
+  if(c!==currentChapter){
+    currentChapter=c;
+    document.querySelector('#state').textContent=text[c][0]+' · simulated';
+    document.querySelector('#title').textContent=text[c][1];
+    document.querySelector('#detail').textContent=text[c][2];
+    canvas.setAttribute('aria-label',`Simulated ${text[c][0]}: ${text[c][2]}`);
+    chapters.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===c)));
+  }
+}
+function point(p,t,still){
+  const offline=windowed(t,42,44,47,49);
+  t=mix(t,44,offline);
+  const attention=windowed(t,1,4,10,14);
+  const facial=windowed(t,6,8.5,10,13)*.93;
+  const wait=windowed(t,22,24,27,29);
+  const work=windowed(t,12,15,21,24);
+  const correction=windowed(t,27,29,31,33);
+  const urgent=windowed(t,37,39,41,43);
+  const c=cloud[p.group],g=gather[p.group],f=abstract[p.group];
+  const center=c.map((v,i)=>mix(mix(v,g[i],attention),f[i],facial));
+  center[0]=(center[0]+Math.sin(p.group*1.7)*.10*correction)*(1-urgent*.22);
+  center[1]=(center[1]+Math.cos(p.group*2.1)*.08*correction)*(1-urgent*.18);
+  center[2]*=1+correction*.35-urgent*.20;
+  center[3]*=1+correction*.25-urgent*.20;
+  const wobble=still?0:(1-wait)*(1-offline)*(.75+.2*work)*(1-urgent*.75);
+  const x=center[0]+p.gx*center[2]*p.depth + Math.sin(t*.25+p.phase)*.018*wobble;
+  const y=center[1]+p.gy*center[3]*p.depth + Math.cos(t*.20+p.phase)*.019*wobble;
+  return {x:x*164,y:y*218,cx:center[0]*164,cy:center[1]*218,sx:center[2]*164,sy:center[3]*218};
+}
+function render(){
+  const t=elapsed;
+  const still=reduced.checked;
+  const concern=windowed(t,17,20,32,36);
+  const urgent=windowed(t,37,39,41,43);
+  const offline=windowed(t,42,44,47,49);
+  ctx.setTransform(canvas.width/660,0,0,canvas.height/660,0,0);
+  ctx.clearRect(0,0,660,660);ctx.save();ctx.translate(330,321);
+  const aura=ctx.createRadialGradient(0,0,100,0,0,285);aura.addColorStop(0,'#287cba10');aura.addColorStop(1,'#287cba00');ctx.fillStyle=aura;ctx.fillRect(-330,-321,660,660);
+  ctx.shadowColor='#0009';ctx.shadowBlur=24;ctx.shadowOffsetY=10;
+  const rim=ctx.createLinearGradient(-160,-210,165,220);rim.addColorStop(0,'#51677c');rim.addColorStop(.25,'#203146');rim.addColorStop(.65,'#0b1422');rim.addColorStop(1,'#3b536b');
+  ctx.beginPath();ctx.ellipse(0,0,179,235,0,0,TAU);ctx.fillStyle=rim;ctx.fill();ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+  ctx.beginPath();ctx.ellipse(0,0,173,229,0,0,TAU);ctx.fillStyle='#01050b';ctx.fill();
+  ctx.save();ctx.beginPath();ctx.ellipse(0,0,169,225,0,0,TAU);ctx.clip();
+  const glass=ctx.createRadialGradient(-45,-80,10,0,0,255);glass.addColorStop(0,'#0b1d2b');glass.addColorStop(.7,'#020912');glass.addColorStop(1,'#01040a');ctx.fillStyle=glass;ctx.fillRect(-180,-240,360,480);
+  for(const p of dust){ctx.beginPath();ctx.arc(p.x,p.y,.45,0,TAU);ctx.fillStyle=`rgba(125,178,211,${p.a})`;ctx.fill();}
+  for(let j=0;j<9;j++){
+    const p=point({group:j,gx:0,gy:0,depth:1,phase:0},t,still);
+    const amber=(j===5||j===7)*concern;
+    const blueAmber=[mix(64,245,amber),mix(165,167,amber),mix(240,67,amber)];
+    const urgentColor=blueAmber.map((v,i)=>mix(v,[245,61,83][i],urgent));
+    const color=urgentColor.map(v=>mix(v,91,offline));
+    ctx.save();ctx.translate(p.cx,p.cy);ctx.scale(Math.max(8,p.sx*3.7),Math.max(8,p.sy*3.7));
+    const glow=ctx.createRadialGradient(0,0,0,0,0,1);
+    glow.addColorStop(0,`rgba(${color},${mix(.22,.035,offline)})`);glow.addColorStop(.4,`rgba(${color},${mix(.08,.012,offline)})`);glow.addColorStop(1,`rgba(${color},0)`);
+    ctx.beginPath();ctx.arc(0,0,1,0,TAU);ctx.fillStyle=glow;ctx.fill();ctx.restore();
+  }
+  const release=windowed(t,33,34,35,37);
+  for(const p of dots){
+    const pos=point(p,t,still);
+    const amber=(p.group===5||p.group===7)*concern;
+    const white=p.white?.55:0;
+    const r=mix(mix(85,222,white),mix(232,255,white),amber);
+    const g=mix(mix(178,241,white),mix(159,227,white),amber);
+    const b=mix(mix(246,255,white),mix(65,171,white),amber);
+    const color=[r,g,b].map((v,i)=>mix(mix(v,[247,67,87][i],urgent),105,offline).toFixed(0)).join(',');
+    const alpha=p.alpha*(.85+release*.12)*(1-offline*.70);
+    if(!p.fine&&p.phase>5.5){ctx.beginPath();ctx.arc(pos.x,pos.y,p.size*5.2,0,TAU);ctx.fillStyle=`rgba(${color},${alpha*.045})`;ctx.fill();ctx.beginPath();ctx.arc(pos.x,pos.y,p.size*2.3,0,TAU);ctx.fillStyle=`rgba(${color},${alpha*.13})`;ctx.fill();}
+    ctx.beginPath();ctx.arc(pos.x,pos.y,p.size,0,TAU);ctx.fillStyle=`rgba(${color},${alpha})`;ctx.fill();
+  }
+  const sheen=ctx.createLinearGradient(-135,-200,20,100);sheen.addColorStop(0,'#d0ebff18');sheen.addColorStop(.5,'#abcde905');sheen.addColorStop(1,'#abcde900');
+  ctx.beginPath();ctx.ellipse(-72,-105,49,128,.47,0,TAU);ctx.fillStyle=sheen;ctx.fill();ctx.restore();
+  ctx.beginPath();ctx.ellipse(0,0,176,232,0,3.85,4.94);ctx.strokeStyle='#b5d5ec33';ctx.lineWidth=.6;ctx.stroke();ctx.restore();
+}
+function paint(){updateText();render();}
+function pause(){running=false;if(request)cancelAnimationFrame(request);request=0;play.textContent='Play study';}
+function frame(now){request=0;if(!running)return;const dt=Math.min((now-last)/1000,.08);last=now;elapsed=Math.min(52,elapsed+dt*(slow.checked?.5:1));paint();if(elapsed>=52){pause();return;}request=requestAnimationFrame(frame);}
+function syncReduced(){if(reduced.checked)pause();play.disabled=reduced.checked;document.querySelector('#motionNote').textContent=reduced.checked?'Reduced motion: choose a chapter or scrub manually. Playback is off.':'Starts still. Play once or choose a chapter. No automatic loop.';paint();}
+play.addEventListener('click',()=>{if(running){pause();return;}if(reduced.checked)return;if(elapsed>=52)elapsed=0;running=true;play.textContent='Pause study';last=performance.now();request=requestAnimationFrame(frame);});
+document.querySelector('#restart').addEventListener('click',()=>{pause();elapsed=0;paint();});
+timeline.addEventListener('input',()=>{pause();elapsed=Number(timeline.value);paint();});
+chapters.forEach(button=>button.addEventListener('click',()=>{pause();elapsed=Number(button.dataset.time);paint();}));
+reduced.addEventListener('change',syncReduced);
+preference.addEventListener('change',e=>{reduced.checked=e.matches;syncReduced();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
+syncReduced();
+</script>
+</body>
+</html>

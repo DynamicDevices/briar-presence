@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Briar · movable preview 6</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#141a21;color:#d7e6f5}*{box-sizing:border-box}body{margin:0;min-height:100vh}button,input,select{font:inherit}button,summary{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid #9dd5f5;outline-offset:4px}
+.presence{position:fixed;right:18px;bottom:15px;width:180px;max-width:calc(100vw - 36px);text-align:center}.face-button{display:block;width:100%;padding:0;border:0;background:transparent;color:inherit;border-radius:48%}.face-button canvas{width:100%;height:auto;display:block}.name{font-size:12px;letter-spacing:2px;margin-top:-9px;color:#b8cfe3}.status{font-size:9px;color:#849db2;margin:7px 0 0;line-height:1.5}.popup{position:fixed;right:218px;bottom:24px;width:290px;max-width:calc(100vw - 36px);padding:20px;background:#0d1824;border:1px solid #324b62;border-radius:14px;box-shadow:0 15px 50px #0005;text-align:left}.popup[hidden]{display:none}.popup h1{font-size:17px;font-weight:500;margin:0 25px 12px 0}.popup p{font-size:12px;line-height:1.8;color:#a9bfd3;margin:0 0 15px}.close{position:absolute;right:12px;top:10px;border:0;background:none;color:#abc4d8;padding:5px 8px;font-size:18px}.popup .disclosure{font-size:10px;color:#809bb2;border-top:1px solid #2b4052;padding-top:12px;margin-top:12px;margin-bottom:0}details{border-top:1px solid #2b4052;padding-top:12px}summary{font-size:11px;color:#a5c4dd}label{display:block;font-size:11px;margin-top:14px;color:#a8c1d7}select,input[type=range]{width:100%;margin-top:8px}select{background:#142737;border:1px solid #3b576d;color:#daeaf6;border-radius:7px;padding:7px}input{accent-color:#8dc8ef}.check{display:flex;gap:7px;align-items:center}.hint{position:fixed;left:20px;top:18px;font-size:10px;color:#687d8e;line-height:1.8;pointer-events:none}
+@media(max-width:540px){.popup{right:18px;bottom:310px}.hint{max-width:180px;font-size:9px}}@media(max-height:650px) and (max-width:540px){.popup{bottom:18px;max-height:calc(100vh - 36px);overflow:auto;z-index:2}}
+.name{display:inline-block;border:0;background:transparent;padding:8px;cursor:grab;touch-action:none;user-select:none}.name:active{cursor:grabbing}.small-button{margin-top:8px;background:transparent;border:1px solid #324b62;border-radius:6px;color:#a9bfd3;padding:4px 9px;font-size:10px}.compact .hint{display:none}.compact .presence{left:40px;top:10px;right:auto;bottom:auto}.compact .popup{inset:10px;width:auto;max-height:calc(100vh - 20px);overflow:auto;z-index:2}
+</style>
+</head>
+<body>
+<div class="hint">Local visual preview · not connected · v6<br>Drag the Briar name to move. Click the lights for controls.</div>
+<section class="presence" id="presence" aria-label="Briar visual presence">
+ <button class="face-button" id="faceButton" aria-label="Briar visual preview. Show explanation." aria-expanded="false" aria-controls="explanation"><canvas id="face" width="720" height="920" aria-hidden="true"></canvas></button>
+ <button class="name" id="dragHandle" aria-label="Move Briar. Drag, or use arrow keys when focused." title="Drag to move · arrow keys also work">⠿ Briar</button><p class="status" id="status">Visual preview · not connected</p>
+ <p class="status" id="motionInfo">Motion starting…</p>
+ <button id="restartMotion" style="margin-top:8px;background:transparent;border:1px solid #324b62;border-radius:6px;color:#a9bfd3;padding:4px 9px;font-size:10px">Restart motion</button>
+ <button class="small-button" id="smallWindow">Open small window</button>
+</section>
+<section class="popup" id="explanation" hidden aria-labelledby="heading">
+ <button class="close" id="close" aria-label="Close explanation">×</button>
+ <h1 id="heading">A quiet presence.</h1><p id="message">Soft blue lights gather and drift. Sometimes they briefly suggest an abstract face. This is the visual prototype, not a report of live work.</p>
+ <details><summary>Preview controls</summary>
+  <label for="expression">Try an expression<select id="expression"><option value="quiet">Quiet blue</option><option value="attending">Attention gathers</option><option value="working">Focused work</option><option value="concern">Amber concern</option><option value="urgent">Red urgency</option><option value="waiting">Waiting for a choice</option><option value="unknown">Unknown / disconnected</option></select></label>
+  <label for="brightness">Brightness<input id="brightness" type="range" min="35" max="100" value="85"></label>
+  <label class="check"><input id="still" type="checkbox">Still / reduced motion</label>
+  <p>Drag the Briar name to move within the page, or focus it and use arrow keys. Open small window gives you a separate browser window: move it around the screen by its title bar. This is not an always-on-top or transparent desktop widget. If no window appears, check Brave's popup blocker.</p>
+ </details>
+ <p class="disclosure">No live work, microphone, camera, notifications or background monitoring. Only a local visual animation.</p>
+</section>
+<script>
+'use strict';
+const canvas=document.querySelector('#face'),ctx=canvas.getContext('2d');
+const faceButton=document.querySelector('#faceButton'),popup=document.querySelector('#explanation');
+const presence=document.querySelector('#presence'),dragHandle=document.querySelector('#dragHandle');
+let drag=null;
+function placePresence(x,y){
+ const view=document.defaultView,rect=presence.getBoundingClientRect();
+ const left=Math.max(0,Math.min(x,Math.max(0,view.innerWidth-rect.width)));
+ const top=Math.max(0,Math.min(y,Math.max(0,view.innerHeight-rect.height)));
+ Object.assign(presence.style,{left:`${left}px`,top:`${top}px`,right:'auto',bottom:'auto'});
+}
+dragHandle.addEventListener('pointerdown',e=>{if(e.button!==0)return;const rect=presence.getBoundingClientRect();drag={id:e.pointerId,x:e.clientX,y:e.clientY,left:rect.left,top:rect.top};dragHandle.setPointerCapture(e.pointerId);e.preventDefault();dragHandle.focus();});
+dragHandle.addEventListener('pointermove',e=>{if(drag&&e.pointerId===drag.id)placePresence(drag.left+e.clientX-drag.x,drag.top+e.clientY-drag.y);});
+function endDrag(e){if(drag&&e.pointerId===drag.id){drag=null;if(dragHandle.hasPointerCapture(e.pointerId))dragHandle.releasePointerCapture(e.pointerId);}}
+dragHandle.addEventListener('pointerup',endDrag);dragHandle.addEventListener('pointercancel',endDrag);dragHandle.addEventListener('lostpointercapture',()=>{drag=null;});
+dragHandle.addEventListener('keydown',e=>{const directions={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]},d=directions[e.key];if(!d)return;e.preventDefault();const r=presence.getBoundingClientRect(),step=e.shiftKey?30:10;placePresence(r.left+d[0]*step,r.top+d[1]*step);});
+if(document.defaultView){
+ const view=document.defaultView;
+ if(view.location.hash==='#floating')document.body.classList.add('compact');
+ view.addEventListener('resize',()=>{const r=presence.getBoundingClientRect();placePresence(r.left,r.top);});
+ document.querySelector('#smallWindow').addEventListener('click',()=>{const target=new URL(view.location.href);target.hash='floating';view.open(target.href,'_blank','popup=yes,width=260,height=460,noopener');});
+}
+const expression=document.querySelector('#expression'),still=document.querySelector('#still');
+const preference=matchMedia('(prefers-reduced-motion: reduce)');still.checked=preference.matches;
+const TAU=Math.PI*2,lerp=(a,b,t)=>a+(b-a)*t,clamp=v=>Math.max(0,Math.min(1,v));
+const ease=v=>{v=clamp(v);return v*v*(3-2*v);};
+const envelope=(t,a,b,c,d)=>ease((t-a)/(b-a))*(1-ease((t-c)/(d-c)));
+let seed=Math.floor(Math.random()*4294967296);function random(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return(seed+.5)/4294967296;}function normal(){return Math.sqrt(-2*Math.log(random()))*Math.cos(TAU*random());}
+const clouds=[[-.43,-.59,.13,.16],[-.04,-.77,.13,.13],[.35,-.43,.12,.17],[-.19,-.17,.18,.16],[-.48,.17,.12,.17],[.12,.20,.15,.13],[-.13,.61,.14,.16],[.43,.61,.10,.14],[.03,.89,.09,.10]];
+const abstract=[[-.31,-.33,.19,.045],[.18,-.36,.15,.04],[.40,-.12,.07,.13],[-.04,-.03,.045,.13],[-.37,.17,.12,.11],[.27,.19,.11,.10],[-.17,.44,.12,.045],[.14,.43,.10,.04],[.01,.65,.11,.06]];
+const points=[];for(let group=0;group<9;group++)for(let n=0;n<130;n++)points.push({group,x:normal(),y:normal(),r:.35+random()*.85,a:.25+random()*.65,phase:random()*TAU,white:random()>.88,key:random()*10000,speed:.35+random()*.55,travel:.65+random()*.75});
+// Smooth random waypoints: each light follows its own path, without frame noise.
+function wander(t,key){
+ const cell=Math.floor(t),u=ease(t-cell);
+ const value=n=>{const v=Math.sin(n*127.1+key*311.7)*43758.5453;return(v-Math.floor(v))*2-1;};
+ return lerp(value(cell),value(cell+1),u);
+}
+function particlePosition(p,c,t,move,face){
+ const freedom=move*(1-face*.65),q=t*p.speed;
+ const dx=(wander(q,p.key)*.075+wander(q*.47,p.key+17)*.055)*p.travel*freedom;
+ const dy=(wander(q*.83,p.key+41)*.075+wander(q*.39,p.key+73)*.055)*p.travel*freedom;
+ return[(c[0]+p.x*c[2]+dx)*120,(c[1]+p.y*c[3]+dy)*165];
+}
+const motion=clouds.map(()=>({phase:random()*TAU,speed:.55+random()*.35,spread:.11+random()*.04}));
+let gathering={start:1.5,duration:8+random()*3,strength:.8+random()*.15};
+function faceBlend(t){
+ while(t>gathering.start+gathering.duration){gathering={start:gathering.start+gathering.duration+4+random()*7,duration:7+random()*5,strength:.7+random()*.25};}
+ const u=(t-gathering.start)/gathering.duration;
+ return envelope(u,0,.32,.58,1)*gathering.strength;
+}
+const words={
+ quiet:['A quiet presence.','Soft blue lights gather and drift. Sometimes they briefly suggest an abstract face. This is the visual prototype, not a report of live work.','Visual preview · not connected'],
+ attending:['Attention gathers.','This previews how Briar could acknowledge the conversation. No microphone or listening channel is active.','Attention · preview'],
+ working:['Focused work.','A preview of more purposeful groupings. No real work is running or being measured here.','Focused work · preview'],
+ concern:['Something to discuss.','A local amber grouping suggests a concern, not anger or an emergency. When connected, a short explanation should identify the affected work and next step. No real concern has been detected here.','Concern · preview'],
+ urgent:['Something would need attention.','This previews a stronger red expression for an urgent issue, with a clear explanation. There is no real alert or affected project behind this preview.','Urgency · preview'],
+ waiting:['Room for a response.','The light settles rather than pretending to work while waiting. This is an expression preview, not an actual pending decision.','Waiting · preview'],
+ unknown:['No current information.','Dim, still light makes missing information distinct from ordinary blue activity. This preview has no live connection to lose.','Unknown / disconnected · preview']
+};
+let state='quiet',time=0,last=0,drawn=-Infinity,frameId=0;
+function openExplanation(){popup.hidden=false;faceButton.setAttribute('aria-expanded','true');document.querySelector('#close').focus();}
+function closeExplanation(){popup.hidden=true;faceButton.setAttribute('aria-expanded','false');faceButton.focus();}
+faceButton.addEventListener('click',()=>popup.hidden?openExplanation():closeExplanation());
+document.querySelector('#close').addEventListener('click',closeExplanation);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!popup.hidden)closeExplanation();});
+function frozen(){return still.checked||state==='unknown'||state==='waiting';}
+function layout(group,t,face=0){
+ const c=clouds[group].map((v,i)=>lerp(v,abstract[group][i],face));
+ if(!frozen()){
+  const m=motion[group],p=t*m.speed+m.phase;
+  c[0]+=m.spread*(Math.sin(p)+.35*Math.sin(p*.71+m.phase));
+  c[1]+=m.spread*(Math.cos(p*.83)+.3*Math.sin(p*1.17));
+  c[0]+=.035*wander(t*.31,m.phase+100);
+  c[1]+=.035*wander(t*.27,m.phase+200);
+  c[2]*=1+.18*wander(t*.3,m.phase+300);c[3]*=1+.15*wander(t*.37,m.phase+400);
+ }
+ if(state==='attending'){c[0]*=.78;c[1]*=.86;}
+ if(state==='urgent'){c[0]*=.80;c[1]*=.82;c[2]*=.8;c[3]*=.8;}
+ if(state==='working'){c[0]+=.04*Math.sin(t*.19+group);c[1]+=.025*Math.cos(t*.15+group);}
+ return c;
+}
+function tint(group,white=false){
+ let rgb=white?[203,236,255]:[87,181,250];
+ if(state==='concern'&&(group===5||group===7))rgb=white?[255,230,177]:[240,174,78];
+ if(state==='urgent')rgb=white?[255,179,190]:[245,84,110];
+ if(state==='unknown')rgb=[105,113,123];
+ return rgb.join(',');
+}
+function render(){
+ const t=frozen()?0:time,face=frozen()?0:faceBlend(t);
+ const positions=clouds.map((_,group)=>layout(group,t,face));
+ ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,360,460);ctx.save();ctx.translate(180,224);
+ const dim=state==='unknown'?.25:1;
+ for(let group=0;group<9;group++){
+  const c=positions[group];ctx.save();ctx.translate(c[0]*120,c[1]*165);ctx.scale(c[2]*120*3.5,c[3]*165*3.5);
+  const glow=ctx.createRadialGradient(0,0,0,0,0,1);glow.addColorStop(0,`rgba(${tint(group)},${.24*dim})`);glow.addColorStop(.4,`rgba(${tint(group)},${.08*dim})`);glow.addColorStop(1,`rgba(${tint(group)},0)`);ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,0,1,0,TAU);ctx.fill();ctx.restore();
+ }
+ for(const p of points){
+  const c=positions[p.group],move=frozen()?0:1;
+  const [x,y]=particlePosition(p,c,t,move,face);
+  const fade=clamp((172-Math.abs(x))/35)*clamp((210-Math.abs(y))/35);
+  if(p.phase>5.9){ctx.beginPath();ctx.arc(x,y,p.r*4,0,TAU);ctx.fillStyle=`rgba(${tint(p.group,p.white)},${p.a*.06*dim*fade})`;ctx.fill();}
+  ctx.beginPath();ctx.arc(x,y,p.r,0,TAU);ctx.fillStyle=`rgba(${tint(p.group,p.white)},${p.a*dim*fade})`;ctx.fill();
+ }
+ ctx.restore();
+}
+function stop(){if(frameId)cancelAnimationFrame(frameId);frameId=0;}
+function motionStatus(){document.querySelector('#motionInfo').textContent=document.hidden?'Motion paused · tab hidden':still.checked?'Motion paused · reduced motion':state==='waiting'?'Motion paused · waiting':state==='unknown'?'Motion paused · disconnected':`Motion running · ${Math.floor(time)}s`;}
+function motionError(error){stop();document.querySelector('#motionInfo').textContent=`Motion error: ${error.message}. Try Restart motion.`;}
+function frame(now){
+ frameId=0;if(document.hidden||frozen()){motionStatus();return;}
+ // Follow elapsed foreground time even if the browser delivers fewer frames.
+ // The former 0.1s cap made a throttled tab appear almost stationary.
+ const dt=Math.max(0,(now-last)/1000);last=now;time+=dt;
+ try{if(now-drawn>=80){render();motionStatus();drawn=now;}frameId=requestAnimationFrame(frame);}catch(error){motionError(error);}
+}
+function start(){stop();try{render();motionStatus();if(!document.hidden&&!frozen()){last=performance.now();frameId=requestAnimationFrame(frame);}}catch(error){motionError(error);}}
+function chooseExpression(){state=Object.hasOwn(words,expression.value)?expression.value:'quiet';const w=words[state];document.querySelector('#heading').textContent=w[0];document.querySelector('#message').textContent=w[1];document.querySelector('#status').textContent=w[2];faceButton.setAttribute('aria-label',`Briar, ${w[2]}. Show explanation.`);start();}
+expression.addEventListener('change',chooseExpression);
+document.querySelector('#restartMotion').addEventListener('click',()=>{still.checked=false;expression.value='quiet';chooseExpression();});
+document.querySelector('#brightness').addEventListener('input',e=>{canvas.style.opacity=Number(e.target.value)/100;});
+still.addEventListener('change',start);preference.addEventListener('change',e=>{still.checked=e.matches;start();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){stop();motionStatus();}else start();});
+canvas.style.opacity=.85;start();
+</script>
+</body>
+</html>

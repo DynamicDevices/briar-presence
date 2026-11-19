@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Briar — work inspection proposal</title>
+<style>
+:root{font:16px system-ui;color:#243b49;background:#dbe3e6}*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(at 15% 20%,#f1e9df,transparent 60%),linear-gradient(130deg,#dce6e8,#b6c7cd)}
+header{padding:1.2rem 2rem;color:#405c6b;font-size:.88rem}main{padding:1rem 3vw;display:flex;align-items:flex-start;justify-content:center;gap:2rem;min-height:80vh}
+button{font:inherit;color:inherit;cursor:pointer;border:1px solid #9eb4bf;border-radius:1rem;background:#f1f6f6;padding:.6rem .85rem}
+button:focus-visible,summary:focus-visible{outline:3px solid #285d7b;outline-offset:4px}#face{width:min(38vw,360px);padding:0;border:0;border-radius:38%;background:radial-gradient(ellipse,#20334399,#20334300 72%)}
+canvas{width:100%;height:auto;display:block}#panel{width:min(480px,52vw);padding:1.3rem;border:1px solid #ffffff99;border-radius:2rem;background:#eff5f3ef;box-shadow:0 14px 50px #304e611a;max-height:82vh;overflow:auto}
+[hidden]{display:none!important}.heading{display:flex;justify-content:space-between;align-items:center;gap:1rem}h1{font-size:1.2rem;margin:.3rem 0}h2{font-size:1rem}p{line-height:1.5}.muted,small{color:#49616f;font-size:.86rem}.note{padding:.7rem 1rem;background:#e1e9ec;border-radius:1rem}
+.work{display:block;text-align:left;width:100%;margin:.6rem 0;background:#ffffffa8;border-color:#bcced3;border-radius:1.2rem}.work[aria-pressed=true]{border:2px solid #386780}.work strong,.work span{display:block}.work span{font-size:.86rem;line-height:1.5;margin-top:.2rem}
+article{padding:.7rem 1rem;margin:.7rem 0;border-radius:1rem;border-left:4px solid #a68a59;background:#fffaf1}article.resolved{border-color:#6d9a98;background:#e4efeb}article.request{border-color:#6493a7;background:#e7f0f5}article p{margin:.35rem 0}details{margin:1rem 0}summary{cursor:pointer}.examples{display:flex;gap:.4rem;flex-wrap:wrap}.examples button{font-size:.8rem}
+@media(max-width:700px){main{flex-direction:column;align-items:center}#face{width:min(64vw,330px)}#panel{width:min(94vw,480px);max-height:none}header{text-align:center}}
+</style>
+<header>Design proposal · synthetic recorded states · not the installed overlay</header>
+<main><button id="face" aria-label="Inspect Briar’s work" aria-controls="panel" aria-expanded="false"><canvas width="720" height="920" aria-hidden="true"></canvas></button>
+<section id="panel" hidden aria-labelledby="heading"><div class="heading"><h1 id="heading">What we’re working on</h1><button id="close" aria-label="Close work inspection">Close</button></div>
+<p id="status" class="note" role="status"></p><p id="counts"></p><div id="tasks"></div><div id="detail"></div><div id="unassigned"></div>
+<p class="muted">Choosing a task here only inspects it. Shared focus does not change.</p>
+<details><summary>Recorded examples — design testing only</summary><p class="muted">These switch between states accepted by the synthetic API host. They do not perform live actions.</p><div class="examples"><button data-state="initial">Initial concerns</button><button data-state="acknowledged">Seen, still open</button><button data-state="resolved">Explicitly resolved</button><button data-state="expired">Source expired</button></div></details>
+<small>Proposed interaction for Alex’s review. No live tasks, harness connection or task links.</small></section></main>
+<script type="module">
+/* PRESENTATION_BUNDLE */
+/* INSPECTION_MODEL */
+const recording = /* ACCEPTED_RECORDING */;
+let selected=null,current='initial',controller=createPresentation(recording.policy),origin=null;
+const q=s=>document.querySelector(s),panel=q('#panel'),face=q('#face'),canvas=q('canvas'),ctx=canvas.getContext('2d');
+const motion=matchMedia('(prefers-reduced-motion: reduce)'),preferences={brightness:.85,reducedMotion:motion.matches,attentionEnabled:true};
+function element(tag,text,className=''){const e=document.createElement(tag);e.textContent=text;e.className=className;return e}
+function semantic(){return projectAcceptedView(recording.states[current])}
+function concernCard(c){const card=element('article','',c.lifecycle==='resolved'?'resolved':'');
+ card.append(element('strong',c.lifecycle==='resolved'?'Resolved':c.severity?.assessment==='provisional'?`Possible ${c.severity.level} impact — not confirmed`:`${c.severity?.level??'Unassessed'} impact`),element('p',c.summary));
+ if(c.severity)card.append(element('p',c.severity.impact),element('p',`Evidence: ${c.severity.evidence}`));
+ card.append(element('small',`${c.lifecycle==='resolved'?'Explicitly resolved':c.acknowledged?'Acknowledged — this does not resolve it':'Not acknowledged at this revision'} · ${c.freshness}${c.sourceOmitted?' · source omitted this concern':''}`));return card}
+function requestCard(r){const card=element('article','','request');card.append(element('strong',r.category==='time-sensitive'?'Time-sensitive request':'Needs your response'),element('p',r.summary),element('p',r.request??''));if(r.timing)card.append(element('small',`Timing: ${r.timing.basis}. Delay: ${r.timing.consequenceOfDelay}.`));return card}
+function render(){const s=semantic(),m=inspectionModel(s,selected);if(!m.selected)selected=null;
+ q('#status').textContent=m.unknown?'Source unavailable — status unknown. Retained concerns still need review.':'Synthetic source active — demonstration, not live work.';
+ q('#counts').textContent=`${m.counts.work} tasks · ${m.counts.concerns} unresolved concerns · ${m.counts.requests} response requests`;
+ const tasks=q('#tasks');tasks.replaceChildren();for(const w of m.tasks){const b=element('button','','work');b.dataset.key=w.key;b.setAttribute('aria-pressed',String(w.key===selected));b.append(element('strong',w.label),element('span',`${w.producerId} · ${w.lifecycle} · ${w.concerns.length} concerns · ${w.requests.length} requests · ${w.freshness}`));b.addEventListener('click',()=>{selected=w.key;render();for(const child of tasks.children)if(child.dataset.key===selected)child.focus()});tasks.append(b)}
+ const d=q('#detail');d.replaceChildren();if(m.selected){d.append(element('h2',m.selected.label));for(const c of m.details.concerns)d.append(concernCard(c));for(const r of m.details.requests)d.append(requestCard(r));if(!m.details.concerns.length&&!m.details.requests.length)d.append(element('p','No concern or response request recorded for this task.'))}
+ const u=q('#unassigned');u.replaceChildren();if(m.unassignedConcerns.length||m.unassignedRequests.length){u.append(element('h2','Not linked to a task'));for(const c of m.unassignedConcerns)u.append(concernCard(c));for(const r of m.unassignedRequests)u.append(requestCard(r))}}
+function open(){panel.hidden=false;face.setAttribute('aria-expanded','true');render();q('#close').focus()}
+function close(){panel.hidden=true;face.setAttribute('aria-expanded','false');face.focus()}
+face.addEventListener('click',()=>panel.hidden?open():close());q('#close').addEventListener('click',close);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden)close()});
+for(const b of document.querySelectorAll('[data-state]'))b.addEventListener('click',()=>{current=b.dataset.state;controller=createPresentation(recording.policy);origin=null;render()});
+function tick(stamp){origin??=stamp;preferences.reducedMotion=motion.matches;const now=(stamp-origin);const f=controller.frame(recording.states[current],[],now,preferences);const w=Math.round(canvas.clientWidth*(devicePixelRatio||1)),h=Math.round(w*460/360);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}drawCanvas(ctx,f.scene,{contrast:true});requestAnimationFrame(tick)}requestAnimationFrame(tick);
+</script></html>

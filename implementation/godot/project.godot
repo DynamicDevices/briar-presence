@@ -1,0 +1,23 @@
+; Godot feasibility study. Separate from the accepted Electron desktop preview.
+config_version=5
+
+[application]
+config/name="Briar Presence Godot Study"
+run/main_scene="res://study.tscn"
+
+[display]
+window/size/viewport_width=196
+window/size/viewport_height=246
+window/size/window_width_override=196
+window/size/window_height_override=246
+window/size/min_width=128
+window/size/min_height=164
+window/size/resizable=true
+window/size/borderless=true
+window/size/transparent=true
+window/per_pixel_transparency/allowed=true
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0, 0, 0, 0)

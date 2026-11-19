@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+ <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'none'; img-src 'self'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'">
+ <title>Briar · Display settings</title><link rel="stylesheet" href="settings.css"><script type="module" src="settings.mjs"></script>
+</head>
+<body><main>
+ <h1>Make yourself comfortable</h1><p class="intro">These settings only change how Briar appears. The lights remain a visual demo, not live work status.</p>
+ <p class="move-note">While this panel is open, drag the Briar image to move it. The image stays visible separately.</p>
+ <label for="brightness">Brightness<input id="brightness" type="range" min="35" max="100" value="100"></label>
+ <label for="scale">Size<input id="scale" type="range" min="70" max="120" value="100"></label>
+ <label class="check"><input id="desktopContrast" type="checkbox" checked>Soft backdrop</label>
+ <label class="check"><input id="still" type="checkbox">Still / reduced motion</label>
+ <label class="check"><input id="stayAbove" type="checkbox">Keep Briar above other windows, if supported</label>
+ <p id="platformNote">Your desktop decides how windows are placed. This panel is non-modal; you can move it aside or close it at any time.</p>
+ <details><summary>Try a visual expression</summary><label for="state">Demo state<select id="state"><option value="quiet">Quiet blue</option><option value="attending">Attention</option><option value="working">Focused work</option><option value="concern">Concern</option><option value="urgent">Urgency</option><option value="waiting">Waiting</option><option value="unknown">Unknown / disconnected</option></select></label><p id="explanation"></p><button id="restart">Return to gentle motion</button></details>
+ <p id="error" role="status"></p>
+ <footer><button id="quit" class="quiet">Quit Briar</button><button id="done">Done</button></footer>
+ <p class="fine">Soft edges are an overlay, not a blur of other applications. No automatic startup, notifications or live harness connection.</p>
+</main></body></html>
