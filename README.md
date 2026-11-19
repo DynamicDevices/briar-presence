@@ -24,6 +24,8 @@ not a live API or hosted service available today. See the [API direction](wiki/A
   application actions, separate from display preferences in the native candidate.
 - [Native Wayland resizing](wiki/Godot-Wayland-Resize.md) — the verified laptop
   workaround, explicit launch command, centred name and remaining desktop checks.
+- [Desktop build CI](wiki/Desktop-Build-CI.md) — unsigned Windows/Linux/macOS
+  cross-exports on DD's named self-hosted Linux runner; native testing is separate.
 - [Design brief](design/BRIEF.md) — requirements, boundaries and open questions.
 - [Iteration plan](design/PLAN.md) — reviewable stages and acceptance questions.
 - [Decisions](design/DECISIONS.md) — agreed requirements versus proposals.
