@@ -11,8 +11,7 @@ import {digestFile, filesUnder, writeManifest, MANIFEST} from './package-files.m
 export const VERSION='4.7.2-stable';
 export const TARGETS=Object.freeze([
   {id:'linux-x64',preset:'Linux desktop',platform:'Linux',output:'BriarPresence',architecture:'x86_64',template:'linux_release.x86_64'},
-  {id:'windows-x64',preset:'Windows desktop',platform:'Windows Desktop',output:'BriarPresence.exe',architecture:'x86_64',template:'windows_release_x86_64.exe'},
-  {id:'macos-universal',preset:'macOS desktop',platform:'macOS',output:'BriarPresence.zip',architecture:'universal',template:'macos.zip'}
+  {id:'windows-x64',preset:'Windows desktop',platform:'Windows Desktop',output:'BriarPresence.exe',architecture:'x86_64',template:'windows_release_x86_64.exe'}
 ]);
 const release=`https://github.com/godotengine/godot/releases/download/${VERSION}/`;
 export const DOWNLOADS=Object.freeze({
@@ -52,7 +51,7 @@ script_export_mode=0
 [preset.${i}.options]
 binary_format/architecture="${target.architecture}"
 binary_format/embed_pck=false
-${target.platform==='Windows Desktop'?'application/modify_resources=false\n':''}${target.platform==='macOS'?'application/bundle_identifier="org.dynamicdevices.briarpresence"\ncodesign/codesign=0\nnotarization/notarization=0\n':''}`).join('\n');
+${target.platform==='Windows Desktop'?'application/modify_resources=false\n':''}`).join('\n');
 }
 
 export function safeArchiveMembers(list,root){
@@ -92,7 +91,7 @@ export function assertBinary(file,kind){
   const fd=fs.openSync(file,'r'),header=Buffer.alloc(4);
   try{if(fs.readSync(fd,header,0,4,0)!==4)throw new Error('Truncated export');}finally{fs.closeSync(fd);}
   const hex=header.toString('hex');
-  if(kind==='linux-x64'&&hex!=='7f454c46'||kind==='windows-x64'&&header.subarray(0,2).toString()!=='MZ'||kind==='macos-universal'&&!['cafebabe','cafebabf'].includes(hex))throw new Error('Wrong exported binary format: '+kind);
+  if(kind==='linux-x64'&&hex!=='7f454c46'||kind==='windows-x64'&&header.subarray(0,2).toString()!=='MZ')throw new Error('Wrong exported binary format: '+kind);
 }
 
 export async function verifyDesktopArtifact(directory){
@@ -102,15 +101,9 @@ export async function verifyDesktopArtifact(directory){
   if(JSON.stringify(actual.sort())!==JSON.stringify(Object.keys(manifest.files).sort()))throw new Error('Artifact inventory mismatch');
   const requiredSources=[...APP_FILES.map(name=>'SOURCE/implementation/godot/'+name),...BUILD_FILES.map(name=>'SOURCE/implementation/scripts/'+name),'SOURCE/.github/workflows/desktop-builds.yml'];
   for(const required of ['COPYING','SOURCE/LICENSE',...requiredSources,'GODOT-LICENSE.txt','GODOT-COPYRIGHT.txt','GODOT-AUTHORS.md','BUILDING.md'])if(!actual.includes(required))throw new Error('Missing source/notice: '+required);
-  if(manifest.target==='macos-universal'){
-    const binaries=actual.filter(name=>name.startsWith('BriarPresence.app/Contents/MacOS/'));
-    if(binaries.length!==1)throw new Error('Missing macOS executable');
-    assertBinary(path.join(directory,binaries[0]),manifest.target);
-  }else{
-    const target=TARGETS.find(target=>target.id===manifest.target);
-    if(!actual.includes(target.output)||!actual.includes('BriarPresence.pck'))throw new Error('Missing exported executable/pack');
-    assertBinary(path.join(directory,target.output),target.id);
-  }
+  const target=TARGETS.find(target=>target.id===manifest.target);
+  if(!actual.includes(target.output)||!actual.includes('BriarPresence.pck'))throw new Error('Missing exported executable/pack');
+  assertBinary(path.join(directory,target.output),target.id);
   for(const name of actual){
     const stat=fs.statSync(path.join(directory,name)),record=manifest.files[name];
     if(stat.size!==record.size||Boolean(stat.mode&0o111)!==record.executable||await digestFile(path.join(directory,name))!==record.sha256)throw new Error('Artifact content mismatch: '+name);
@@ -174,7 +167,7 @@ export async function buildDesktopArtifacts({root,work,sourceCommit,env=process.
   const isolatedEnv={...env,XDG_DATA_HOME:path.join(work,'data'),XDG_CONFIG_HOME:path.join(work,'config'),XDG_CACHE_HOME:path.join(work,'cache'),XDG_RUNTIME_DIR:path.join(work,'runtime'),TMPDIR:path.join(work,'tmp')};
   for(const directory of [isolatedEnv.XDG_DATA_HOME,isolatedEnv.XDG_CONFIG_HOME,isolatedEnv.XDG_CACHE_HOME,isolatedEnv.XDG_RUNTIME_DIR,isolatedEnv.TMPDIR])fs.mkdirSync(directory,{recursive:true,mode:0o700});
   const templateDirectory=path.join(isolatedEnv.XDG_DATA_HOME,'godot','export_templates','4.7.2.stable');
-  for(const target of TARGETS)extractMember(downloaded.templates,'templates/'+target.template,path.join(templateDirectory,target.template),target.id!=='macos-universal');
+  for(const target of TARGETS)extractMember(downloaded.templates,'templates/'+target.template,path.join(templateDirectory,target.template),true);
   stageDesktopProject(root,workspace);
   const godot=(args,logName)=>runGodotStep({engine,workspace,env:isolatedEnv,work},args,logName);
   godot(['--editor','--import'],'import.log');
@@ -182,13 +175,7 @@ export async function buildDesktopArtifacts({root,work,sourceCommit,env=process.
     const bundle=path.join(artifacts,target.id);fs.mkdirSync(bundle);
     const output=path.join(bundle,target.output);
     godot(['--export-release',target.preset,output],target.id+'.log');
-    if(target.id==='macos-universal'){
-      inspectMacArchive(output,work);
-      execFileSync('unzip',['-q',output,'-d',bundle],{timeout:120000});fs.unlinkSync(output);
-      const binaries=filesUnder(bundle).filter(name=>name.startsWith('BriarPresence.app/Contents/MacOS/'));
-      if(binaries.length!==1)throw new Error('Unexpected macOS executable layout');
-      assertBinary(path.join(bundle,binaries[0]),target.id);
-    }else assertBinary(output,target.id);
+    assertBinary(output,target.id);
     fs.copyFileSync(path.join(root,'../LICENSE'),path.join(bundle,'COPYING'));
     for(const key of ['licence','copyright','authors'])fs.copyFileSync(downloaded[key],path.join(bundle,DOWNLOADS[key].name));
     const inputs=['../LICENSE',...APP_FILES.map(name=>'godot/'+name),...BUILD_FILES.map(name=>'scripts/'+name)];

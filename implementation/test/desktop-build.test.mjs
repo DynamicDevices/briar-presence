@@ -14,15 +14,21 @@ test('cross-build entry rejects other runners, repositories, PRs and refs',()=>{
   assert.doesNotThrow(()=>assertCiContext({...ci,GITHUB_EVENT_NAME:'workflow_dispatch',GITHUB_REF:'refs/heads/main'}));
   for(const changes of [{RUNNER_NAME:'other'},{RUNNER_OS:'Windows'},{RUNNER_ARCH:'ARM64'},{GITHUB_REPOSITORY:'other/repo'},{GITHUB_REPOSITORY_ID:'1'},{GITHUB_EVENT_NAME:'pull_request'},{GITHUB_EVENT_NAME:'pull_request_target'},{GITHUB_REF:'refs/heads/untrusted'},{GITHUB_SHA:'main'},{RUNNER_TEMP:'relative'},{GITHUB_OUTPUT:''}])assert.throws(()=>assertCiContext({...ci,...changes}));
 });
-test('three export presets retain every runtime dependency and disable signing',()=>{
+test('only Linux and Windows are exported, retaining every runtime dependency',()=>{
   const presets=desktopPresets();
-  assert.equal(TARGETS.length,3);
+  assert.deepEqual(TARGETS.map(target=>target.id),['linux-x64','windows-x64']);
   for(const target of TARGETS){assert.ok(presets.includes(`platform="${target.platform}"`));assert.ok(presets.includes(`name="${target.preset}"`));}
-  for(const name of APP_FILES.filter(n=>/\.(gd|gdshader|tscn)$/.test(n)))assert.equal(presets.split(`"res://${name}"`).length-1,3);
-  assert.equal(presets.split('include_filter=""').length-1,3,'Godot requires include_filter even when empty');
-  assert.ok(presets.includes('codesign/codesign=0'));assert.ok(presets.includes('notarization/notarization=0'));
+  for(const name of APP_FILES.filter(n=>/\.(gd|gdshader|tscn)$/.test(n)))assert.equal(presets.split(`"res://${name}"`).length-1,2);
+  assert.equal(presets.split('include_filter=""').length-1,2,'Godot requires include_filter even when empty');
+  assert.doesNotMatch(presets,/macOS|macos/);
   assert.ok(presets.includes('application/modify_resources=false'));
   assert.equal(DOWNLOADS.templates.sha256,'f298490b8d44d934be425a5a65a51bf15f422428b229a06a6e11d9ffea248011');
+});
+test('desktop CI uploads Linux and Windows but no macOS package',()=>{
+  const workflow=fs.readFileSync(new URL('../../.github/workflows/desktop-builds.yml',import.meta.url),'utf8');
+  assert.match(workflow,/name: Upload Linux x64/);
+  assert.match(workflow,/name: Upload Windows x64/);
+  assert.doesNotMatch(workflow,/macOS|macos/);
 });
 test('export archive names cannot escape the app directory',()=>{
   assert.deepEqual(safeArchiveMembers('BriarPresence.app/\nBriarPresence.app/Contents/Info.plist\n','BriarPresence.app/'),['BriarPresence.app/','BriarPresence.app/Contents/Info.plist']);
@@ -48,7 +54,8 @@ test('binary and source-bearing manifests reject corruption, omissions and links
   try{
     const binary=path.join(dir,'BriarPresence');fs.writeFileSync(binary,Buffer.from('7f454c4602010100','hex'),{mode:0o755});
     assertBinary(binary,'linux-x64');assert.throws(()=>assertBinary(binary,'windows-x64'));assert.throws(()=>assertBinary(binary,'macos-universal'));
-    for(const [kind,hex] of [['windows-x64','4d5a0000'],['macos-universal','cafebabe']]){fs.writeFileSync(binary,Buffer.from(hex,'hex'));assertBinary(binary,kind);}
+    fs.writeFileSync(binary,Buffer.from('4d5a0000','hex'));assertBinary(binary,'windows-x64');
+    fs.writeFileSync(binary,Buffer.from('cafebabe','hex'));assert.throws(()=>assertBinary(binary,'macos-universal'),/Unknown binary target/);
     fs.writeFileSync(binary,Buffer.from('7f454c4602010100','hex'));
     const names=['BriarPresence.pck','COPYING','SOURCE/LICENSE',...APP_FILES.map(n=>'SOURCE/implementation/godot/'+n),...['package-godot.mjs','package-files.mjs','launch-godot.mjs','godot-package-launcher.sh','build-desktop-ci.mjs'].map(n=>'SOURCE/implementation/scripts/'+n),'SOURCE/.github/workflows/desktop-builds.yml','GODOT-LICENSE.txt','GODOT-COPYRIGHT.txt','GODOT-AUTHORS.md','BUILDING.md'];
     for(const name of names){fs.mkdirSync(path.dirname(path.join(dir,name)),{recursive:true});fs.writeFileSync(path.join(dir,name),name);}
