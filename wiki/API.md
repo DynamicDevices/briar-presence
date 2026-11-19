@@ -9,6 +9,11 @@ endpoints, a frozen protocol or authority to start a service.
 
 ## What the API should do
 
+The [visual-language API review and work plan](Visual-Language-API.md) records
+Alex's approved comprehensive direction: concurrent work, interaction, concerns,
+snapshots, extensibility, safeguards, standards and staged acceptance. This page
+remains the short overview; neither page describes a deployed service.
+
 Accept bounded descriptions of observable work and attention needs. A producer
 could be the Briar harness, another assistant, a build system or a user's own
 application. The visualisation should not require access to their editor,

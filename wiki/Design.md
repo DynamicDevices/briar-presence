@@ -6,6 +6,38 @@ Supportive and unobtrusive throughout. Keep design intentions separate from impl
 
 ## Agreed direction
 
+Alex's [visual-language MCQ decisions](Visual-Language-Vocabulary.md#selected-design-decisions--10-november-2026)
+select attention-first presentation, distinct “Needs you”/“Concern”, steady visible
+acknowledged concerns, face gatherings as identity rather than status, requests
+then changes on inspection, focused work with a background summary, and brief
+stronger attention followed by a steady cue. These are accepted design choices,
+not a claim that the prototype implements them. Two subsequent MCQs select
+retaining omitted open concerns with a source warning while accepting otherwise
+valid updates, and briefly reannouncing changed impact/response needs for an
+acknowledged concern. Neither repeated updates nor cosmetic edits reannounce.
+
+Alex subsequently selected severity labels **minor, significant, critical** and
+separate attention categories **For awareness, Needs you, Time-sensitive**. New
+time-sensitive requests and significant/critical concerns get a brief stronger
+cue, then settle; ordinary requests/minor concerns get a quieter indication.
+Explain impact/evidence and timing, showing a deadline when known. Severity is
+not a demand for a response or permission to act. User motion/brightness limits
+still apply. Classification boundaries and exact visual treatments need design.
+
+The next guided decisions select consequences/recoverability as severity's basis,
+provisional severity for credible unconfirmed impact, and consequence-of-delay
+plus a timing basis for time-sensitive requests. Nearby qualifying arrivals share
+one brief combined cue then a steady summary; inspection retains each item's
+facts, and focus is not stolen. Exact visual timing remains to be tested.
+
+Further example review selects a fresh cue when acknowledged provisional critical
+impact becomes confirmed, even with unchanged impact level/request. User-raised
+concerns stay open until the user explicitly resolves them after evidence. Focus
+and concern-revision acknowledgement are shared in real time across that user's
+authorised displays in the same workspace. Reconnect joins current accepted focus;
+superseded choices are not replayed or offered for reconciliation. These are
+requirements, not deployed synchronisation or an instantaneous-delivery promise.
+
 - Irregular cloudlets and fine light detail, not connecting lines or a fixed mask.
 - Continuous varied movement, not a sequence that visibly moves once and settles
   into an apparently static image. Lights should wander independently rather than
@@ -17,6 +49,35 @@ Supportive and unobtrusive throughout. Keep design intentions separate from impl
   should distinguish the area against the desktop without becoming a harsh card.
 - Controls appear on request after clicking the image. They must not replace the
   face with a black panel. Moving the image should be easy from that interaction.
+  Settings text, switches and spacing must scale for the display too. Alex
+  explicitly requested no native title bar: use a rounded borderless panel,
+  retain Done/Escape/keyboard access, and allow movement by dragging its heading.
+  Keep focused labels readable against the pale backing.
+- Resize by dragging a corner directly. No resize button, visible grip, panel
+  or persistent control. The ordinary diagonal cursor may appear on corner
+  hover. Preserve the face's proportions as the display changes size. This is
+  Alex's explicit clarification; it is not permission to switch the desktop host.
+- Initial size must suit the display, not stay at a fixed small pixel size.
+  The Godot candidate starts at 30% of the current usable display height and
+  preserves the face proportions and proportional rounded backing. A manual
+  corner resize is retained as a relative face size when changing display;
+  fit limits keep the window within the destination display. Do not multiply
+  display scaling/DPI again on top of usable desktop coordinates.
+- Alex requested stay-on-top as the default for the Godot candidate. Keep the
+  settings/keyboard toggle so the user can turn it off. This is an ordinary
+  application-window request, not permission to bypass compositor security or
+  appear over system dialogs/full-screen surfaces.
+- Enlarging must retain fidelity: redraw the vector lights into a framebuffer
+  matching the window and scale the glow's source resolution with its drawn
+  extent. Do not stretch a fixed small render target. Retain the existing
+  light layout and motion; subjective quality and compositor scaling still
+  need checking on the user's display.
+- Resizing must remain visually steady. Window redraws must not wait for the
+  slower, quiet animation-sampling cadence. Alex accepted the Godot retained-vector
+  resize direction on 10 November 2026: scale existing vector commands during
+  a drag, then rebuild at native dimensions on the next scene update. Do not
+  substitute a low-resolution screenshot. Real compositor corner-drag comfort
+  needs checking as well as rendered-frame tests on future platforms.
 - Stronger need for attention should be expressed through faster movement and
   stronger colour. Red transitions are a direction to investigate, not a final
   alarm system or permission to escalate automatically.

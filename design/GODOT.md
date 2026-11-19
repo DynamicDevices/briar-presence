@@ -40,8 +40,10 @@ The host should animate locally. Future harness input stays separately scoped.
    the friendly backing, quiet resting view, gentle separate controls and an
    obvious quit/recovery route. Test the real GNOME/Wayland session, continued
    unfocused animation, reduced motion, keyboard access and monitor scaling.
-   Cap rendering deliberately; do not run a 60 Hz game loop by default for a
-   quiet presence. Measure the complete process and GPU cost before choosing it.
+   Cap presentation deliberately and keep behaviour sampling separate. The current
+   candidate caps presentation at 60 Hz for responsive resizing and samples
+   behaviour at approximately 12 Hz maximum; these are not achieved-frame-rate
+   claims. Measure the complete process and GPU cost before final host acceptance.
 4. **Compare before switching:** compare Godot with the existing Electron
    candidate on visual quality, interaction, resources and packaging. Preserve
    the working launcher until the replacement is accepted. Godot may become a
@@ -87,6 +89,25 @@ reuse the behaviour specification and suitable light representations, not the
 Godot window layer. Other users must not inherit Alex's private work context.
 
 ## Evidence and limits
+
+### Accepted resize direction
+
+On 10 November 2026 Alex accepted the smoother resize iteration and requested
+that it be locked into the repo, wiki and skills. `light_scene.gd` retains the
+original circle/texture commands in an owned child canvas item. Size changes
+transform those commands immediately; the next normal scene update rebuilds at
+native dimensions and resets scale. Godot invokes Node2D draw callbacks during
+viewport resize, so relying only on Node2D caching did not avoid reconstruction.
+The owned RID is freed on destruction, and empty scenes clear old commands.
+
+The isolated native test passes 16 resize steps with zero vector-command rebuilds,
+current geometry, backing coverage and a correct fresh-scene reset. Captures at
+400 × 520 and 960 × 1240 are byte-identical to the original direct renderer for
+the sampled quiet frame. Empty-scene clearing also passes. This is not proof
+of all states or intermediate compositor buffers. The existing standalone bundle
+predates this change; the installed Electron launcher remains unchanged. See
+[progress](../wiki/Progress.md) for evidence pointers and the
+[project skill](../.agents/skills/briar-presence/SKILL.md) for maintenance guidance.
 
 Godot **4.7.2-stable**, standard Linux x86_64, is installed only under
 `implementation/.tools/godot-4.7.2/`. The official release archive SHA-256 is

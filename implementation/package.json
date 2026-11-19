@@ -8,6 +8,8 @@
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "start": "electron .",
+    "start:godot": "node scripts/launch-godot.mjs",
+    "test:godot-desktop": "node scripts/launch-godot.mjs --smoke",
     "test:desktop": "electron . --self-test",
     "install:preview": "node scripts/install-preview.mjs --install",
     "remove:preview": "node scripts/install-preview.mjs --remove",

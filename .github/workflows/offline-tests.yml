@@ -1,0 +1,84 @@
+name: Offline state and rendering tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    runs-on: ubuntu-24.04
+    # Proposed initial setup+test guard, not a verified runner performance claim.
+    timeout-minutes: 10
+    env:
+      BRIAR_CANVAS_MODULE: ${{ github.workspace }}/design/api/0.1-draft/ci/canvas/node_modules/@napi-rs/canvas
+    steps:
+      - name: Check out the exact candidate without persisting credentials
+        id: source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, Node24
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6, Node24
+        with:
+          node-version: '24.22.1'
+          package-manager-cache: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6, Node24
+        with:
+          python-version: '3.12'
+      - name: Verify the dependency-lock platform
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS" = Linux
+          test "$RUNNER_ARCH" = X64
+          python3 -c 'import sys; assert sys.version_info[:2] == (3, 12)'
+      - name: Prepare job-local test dependencies from locks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/briar-test-python"
+          "$RUNNER_TEMP/briar-test-python/bin/python3" -m pip install \
+            --disable-pip-version-check --no-input --only-binary=:all: \
+            --require-hashes -r design/api/0.1-draft/ci/requirements-linux-cp312.lock
+          printf '%s\n' "$RUNNER_TEMP/briar-test-python/bin" >> "$GITHUB_PATH"
+          npm ci --ignore-scripts --no-audit --no-fund \
+            --prefix design/api/0.1-draft/ci/canvas
+      - name: Fail if schema or rendering checks would be unavailable
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -c 'from jsonschema import Draft202012Validator, FormatChecker'
+          node -e 'const {createCanvas}=require(process.env.BRIAR_CANVAS_MODULE);const c=createCanvas(2,2);if(!c.getContext("2d"))throw Error("Canvas unavailable")'
+      - name: Run the full offline suite with no skipped checks
+        shell: bash
+        working-directory: implementation
+        run: |
+          set -euo pipefail
+          if node --test --test-reporter=tap test/*.test.mjs > "$RUNNER_TEMP/briar-tests.tap" 2>&1; then
+            tail -n 10 "$RUNNER_TEMP/briar-tests.tap"
+          else
+            tail -n 60 "$RUNNER_TEMP/briar-tests.tap"
+            exit 1
+          fi
+          grep -qFx '# skipped 0' "$RUNNER_TEMP/briar-tests.tap"
+          grep -qFx '# cancelled 0' "$RUNNER_TEMP/briar-tests.tap"
+      - name: Record tested source and reduced test result
+        shell: bash
+        env:
+          TESTED_COMMIT: ${{ steps.source.outputs.commit }}
+        run: |
+          set -euo pipefail
+          test -n "$TESTED_COMMIT"
+          {
+            printf 'Tested commit: `%s`\n\n' "$TESTED_COMMIT"
+            printf 'Runtime: `%s`\n\n' "$(node --version)"
+            printf '```text\n'
+            sha256sum implementation/core/state.mjs implementation/test/state.test.mjs
+            tail -n 10 "$RUNNER_TEMP/briar-tests.tap"
+            printf '```\n'
+          } >> "$GITHUB_STEP_SUMMARY"

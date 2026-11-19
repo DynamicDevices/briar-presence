@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Briar visual-language messages — 0.1 design draft",
+  "description": "Static proposal, not an implemented protocol. Authenticated identity, scope, ordering, references and attention policy require separate semantic validation.",
+  "oneOf": [
+    {"$ref": "#/$defs/snapshot"},
+    {"$ref": "#/$defs/focus"},
+    {"$ref": "#/$defs/acknowledge"}
+  ],
+  "$defs": {
+    "text": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1, "maximum": 9007199254740991},
+    "viewRevision": {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+    "timestamp": {
+      "type": "string", "format": "date-time",
+      "description": "Proposed profile: timezone-qualified Gregorian years 0001-9999, seconds 00-59; no leap-second notation. Calendar validity still requires format assertion.",
+      "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])[Tt](?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](?:\\.[0-9]+)?(?:[Zz]|[+-](?:[01][0-9]|2[0-3]):[0-5][0-9])$"
+    },
+    "result": {
+      "type": "object", "additionalProperties": false,
+      "required": ["outcome", "summary"],
+      "properties": {
+        "outcome": {"enum": ["succeeded", "failed", "cancelled", "unknown"]},
+        "summary": {"$ref": "#/$defs/text"}
+      }
+    },
+    "wait": {
+      "type": "object", "additionalProperties": false,
+      "required": ["party", "reason"],
+      "properties": {
+        "party": {"enum": ["user", "person", "dependency", "external", "unknown"]},
+        "reason": {"$ref": "#/$defs/text"}
+      }
+    },
+    "progress": {
+      "type": "object", "additionalProperties": false,
+      "required": ["completed", "total", "unit", "basis"],
+      "properties": {
+        "completed": {"type": "number", "minimum": 0},
+        "total": {"type": "number", "exclusiveMinimum": 0},
+        "unit": {"$ref": "#/$defs/text"},
+        "basis": {"$ref": "#/$defs/text"}
+      }
+    },
+    "work": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "label", "observedAt", "lifecycle"],
+      "properties": {
+        "id": {"$ref": "#/$defs/text"},
+        "label": {"$ref": "#/$defs/text"},
+        "observedAt": {"$ref": "#/$defs/timestamp"},
+        "lifecycle": {"enum": ["queued", "running", "waiting", "finished"]},
+        "activity": {"$ref": "#/$defs/text"},
+        "parentId": {"$ref": "#/$defs/text"},
+        "groupId": {"$ref": "#/$defs/text"},
+        "wait": {"$ref": "#/$defs/wait"},
+        "result": {"$ref": "#/$defs/result"},
+        "progress": {"$ref": "#/$defs/progress"}
+      },
+      "allOf": [
+        {"if": {"properties": {"lifecycle": {"const": "waiting"}}},
+         "then": {"required": ["wait"]}, "else": {"not": {"required": ["wait"]}}},
+        {"if": {"properties": {"lifecycle": {"const": "finished"}}},
+         "then": {"required": ["result"]}, "else": {"not": {"required": ["result"]}}}
+      ]
+    },
+    "severity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["level", "assessment", "impact", "evidence"],
+      "properties": {
+        "level": {"enum": ["minor", "significant", "critical"]},
+        "assessment": {"enum": ["provisional", "established"]},
+        "impact": {"$ref": "#/$defs/text"},
+        "evidence": {"$ref": "#/$defs/text"}
+      }
+    },
+    "resolution": {
+      "type": "object", "additionalProperties": false,
+      "required": ["reason"],
+      "properties": {"reason": {"$ref": "#/$defs/text"}, "evidence": {"$ref": "#/$defs/text"}}
+    },
+    "concern": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "revision", "observedAt", "origin", "lifecycle", "summary"],
+      "properties": {
+        "id": {"$ref": "#/$defs/text"},
+        "revision": {"$ref": "#/$defs/revision"},
+        "observedAt": {"$ref": "#/$defs/timestamp"},
+        "workId": {"$ref": "#/$defs/text"},
+        "origin": {"enum": ["user", "producer", "investigation"]},
+        "lifecycle": {"enum": ["open", "resolved"]},
+        "summary": {"$ref": "#/$defs/text"},
+        "severity": {"$ref": "#/$defs/severity"},
+        "resolution": {"$ref": "#/$defs/resolution"}
+      },
+      "allOf": [
+        {"if": {"properties": {"lifecycle": {"const": "resolved"}}},
+         "then": {"required": ["resolution"]}, "else": {"not": {"required": ["resolution"]}}}
+      ]
+    },
+    "timing": {
+      "type": "object", "additionalProperties": false,
+      "required": ["basis", "consequenceOfDelay"],
+      "properties": {
+        "basis": {"$ref": "#/$defs/text"},
+        "consequenceOfDelay": {"$ref": "#/$defs/text"},
+        "deadline": {"$ref": "#/$defs/timestamp"}
+      }
+    },
+    "attentionItem": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "state", "category", "summary"],
+      "properties": {
+        "id": {"$ref": "#/$defs/text"},
+        "workId": {"$ref": "#/$defs/text"},
+        "concernId": {"$ref": "#/$defs/text"},
+        "state": {"enum": ["open", "answered", "withdrawn"]},
+        "category": {"enum": ["for-awareness", "needs-you", "time-sensitive"]},
+        "summary": {"$ref": "#/$defs/text"},
+        "request": {"$ref": "#/$defs/text"},
+        "timing": {"$ref": "#/$defs/timing"}
+      },
+      "allOf": [
+        {"if": {"properties": {"category": {"const": "time-sensitive"}}}, "then": {"required": ["timing"]}},
+        {"if": {"properties": {"category": {"enum": ["needs-you", "time-sensitive"]}}}, "then": {"required": ["request"]}}
+      ]
+    },
+    "extensions": {
+      "type": "object",
+      "propertyNames": {"pattern": "^[a-z][a-z0-9.-]*/[A-Za-z][A-Za-z0-9._-]*$"},
+      "additionalProperties": {"type": "object"}
+    },
+    "snapshot": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "version", "session", "revision", "observedAt", "work", "concerns", "attentionItems"],
+      "properties": {
+        "kind": {"const": "producer.snapshot"},
+        "version": {"const": "0.1-draft"},
+        "session": {"$ref": "#/$defs/text"},
+        "revision": {"$ref": "#/$defs/revision"},
+        "observedAt": {"$ref": "#/$defs/timestamp"},
+        "work": {"type": "array", "items": {"$ref": "#/$defs/work"}},
+        "concerns": {"type": "array", "items": {"$ref": "#/$defs/concern"}},
+        "attentionItems": {"type": "array", "items": {"$ref": "#/$defs/attentionItem"}},
+        "requiredFeatures": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/text"}},
+        "extensions": {"$ref": "#/$defs/extensions"}
+      }
+    },
+    "target": {
+      "type": "object", "additionalProperties": false,
+      "required": ["producerId", "kind", "id"],
+      "properties": {
+        "producerId": {"$ref": "#/$defs/text"},
+        "kind": {"enum": ["work", "concern"]},
+        "id": {"$ref": "#/$defs/text"}
+      }
+    },
+    "focus": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "version", "requestId", "expectedViewRevision", "target"],
+      "properties": {
+        "kind": {"const": "user.focus"},
+        "version": {"const": "0.1-draft"},
+        "requestId": {"$ref": "#/$defs/text"},
+        "expectedViewRevision": {"$ref": "#/$defs/viewRevision"},
+        "target": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/target"}]}
+      }
+    },
+    "acknowledge": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "version", "requestId", "expectedViewRevision", "concern", "concernRevision"],
+      "properties": {
+        "kind": {"const": "user.acknowledge"},
+        "version": {"const": "0.1-draft"},
+        "requestId": {"$ref": "#/$defs/text"},
+        "expectedViewRevision": {"$ref": "#/$defs/viewRevision"},
+        "concern": {"allOf": [{"$ref": "#/$defs/target"}, {"properties": {"kind": {"const": "concern"}}}]},
+        "concernRevision": {"$ref": "#/$defs/revision"}
+      }
+    }
+  }
+}
