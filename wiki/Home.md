@@ -27,6 +27,7 @@ an opt-in uninstalled candidate, not a live connection or device payload.
 | [Platform capabilities](Platforms.md) | Desktop, Godot, browser, desk-device and VR strengths, constraints and evidence gaps |
 | [Native Wayland resizing](Godot-Wayland-Resize.md) | Alex's successful Linux resize comparison, centred name, explicit launcher and remaining native checks |
 | [API direction](API.md) | Proposed producer-neutral integration: Briar harness or other clients; not a running API |
+| [TURMO protocol notes](TURMO-Protocol.md) | Attributed Rev-A-compatible wire format, hardware-identification caveats, brightness and verified readback limits |
 | [Visual-language API review and plan](Visual-Language-API.md) | Approved review, concurrent work/concerns, contract, extensibility, safeguards and staged acceptance |
 | [Vocabulary and scenarios](Visual-Language-Vocabulary.md) | Selected design decisions, proposed semantics, 21 synthetic scenarios and outstanding readability checks |
 | [Input contract — draft](API-Contract-Draft.md) | Proposed records, snapshot/session rules, user interactions, examples and open decisions; no implemented API |

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Briar — synthetic portrait light study</title>
+  <style>body{margin:0;padding:16px;background:#071018} @media(max-width:580px){body{padding:8px}}</style>
+</head>
+<body>
+<div id="briar-portrait-study">
+  <style>
+    #briar-portrait-study{color-scheme:dark;font-family:system-ui,sans-serif;color:#e5eff8;--ink:#e5eff8;--quiet:#a6b9ca;--blue:#70caff;--amber:#ffbf70;--red:#ff7d8c}
+    #briar-portrait-study *{box-sizing:border-box}
+    #briar-portrait-study .bp-stage{display:grid;grid-template-columns:minmax(0,320px) minmax(220px,1fr);gap:28px;align-items:center;max-width:736px;margin:auto;padding:16px 0}
+    #briar-portrait-study .bp-screen{width:100%;aspect-ratio:2/3;position:relative;overflow:hidden;background:#030912;border-radius:12px;box-shadow:inset 0 0 0 1px #254054}
+    #briar-portrait-study canvas{display:block;width:100%;height:100%}
+    #briar-portrait-study .bp-top{position:absolute;inset:20px 20px auto;display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:12px;color:var(--quiet)}
+    #briar-portrait-study .bp-top strong{font-size:20px;font-weight:500;letter-spacing:2px;color:var(--ink)}
+    #briar-portrait-study .bp-caption{position:absolute;inset:auto 20px 20px}
+    #briar-portrait-study .bp-caption h2{font-size:18px;font-weight:500;margin:0 0 8px}
+    #briar-portrait-study .bp-caption p{margin:5px 0;font-size:12px;line-height:1.5;color:var(--quiet)}
+    #briar-portrait-study .bp-concern{display:block;color:var(--amber);font-size:12px;line-height:1.5;margin-top:8px}
+    #briar-portrait-study .bp-controls{background:#0b1521;padding:20px;border-radius:12px;min-width:0}
+    #briar-portrait-study .bp-controls h3{font-size:16px;font-weight:500;margin:0 0 16px}
+    #briar-portrait-study label{display:block;font-size:13px;color:var(--quiet);margin:12px 0 6px}
+    #briar-portrait-study select,#briar-portrait-study button{font:inherit;font-size:13px;color:var(--ink);background:#172b3b;border:1px solid #35566a;border-radius:7px;padding:10px 12px;max-width:100%}
+    #briar-portrait-study select{width:100%}
+    #briar-portrait-study button{cursor:pointer}
+    #briar-portrait-study button:disabled{opacity:.5;cursor:default}
+    #briar-portrait-study button:focus-visible,#briar-portrait-study select:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+    #briar-portrait-study .bp-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+    #briar-portrait-study .bp-note{font-size:12px;line-height:1.6;color:var(--quiet);margin:14px 0 0}
+    #briar-portrait-study .bp-detail{font-size:13px;line-height:1.6;margin-top:16px}
+    #briar-portrait-study .bp-detail p{margin:6px 0}
+    @media(max-width:580px){#briar-portrait-study .bp-stage{grid-template-columns:minmax(0,1fr);gap:16px}#briar-portrait-study .bp-screen{max-width:320px;margin:auto}}
+    @media(pointer:coarse){#briar-portrait-study button,#briar-portrait-study select{min-height:44px}}
+  </style>
+  <div class="bp-stage">
+    <section class="bp-screen" aria-label="Briar portrait display proposal, 320 by 480">
+      <canvas width="640" height="960" role="img" aria-label="Synthetic cloudlet face, ready state"></canvas>
+      <div class="bp-top"><strong>Briar</strong><span>SYNTHETIC DEMO</span></div>
+      <div class="bp-caption" aria-live="polite" aria-atomic="true">
+        <h2 data-bp="title">Ready</h2>
+        <p data-bp="summary">No work reported in this fixture.</p>
+        <p data-bp="freshness">Fixture sources fresh · not connected</p>
+        <span class="bp-concern" data-bp="concern"></span>
+      </div>
+    </section>
+    <section class="bp-controls" aria-label="Synthetic demonstration controls">
+      <h3>Portrait light study</h3>
+      <label for="bp-scenario">Demo scene</label>
+      <select id="bp-scenario">
+        <option value="ready">Ready</option>
+        <option value="attending">Abstract face</option>
+        <option value="work">Two work streams</option>
+        <option value="concern">Concern within work</option>
+        <option value="stale">One source goes quiet</option>
+        <option value="unknown">Bridge lease expires</option>
+        <option value="urgent">Urgent concern</option>
+      </select>
+      <div class="bp-actions">
+        <button type="button" data-bp="play">Play once · 18 seconds</button>
+        <button type="button" data-bp="pause" disabled>Pause</button>
+      </div>
+      <div class="bp-detail" aria-live="polite" data-bp="detail"></div>
+      <div class="bp-actions">
+        <button type="button" data-bp="ack" disabled>Acknowledge concern</button>
+        <button type="button" data-bp="resolve" disabled>Simulate resolution</button>
+      </div>
+      <p class="bp-note">320 × 480 proposal. Blue, amber and red meanings are provisional. Labels and grouping carry meaning too. No live data, microphone, MQTT or USB access.</p>
+      <p class="bp-note" data-bp="motion">Starts still. Playback stops after one sequence.</p>
+    </section>
+  </div>
+  <script>
+  (() => {
+    'use strict';
+    const root = document.getElementById('briar-portrait-study');
+    const find = name => root.querySelector('[data-bp="'+name+'"]');
+    const canvas = root.querySelector('canvas'), ctx = canvas.getContext('2d');
+    const select = root.querySelector('select');
+    const media = matchMedia('(prefers-reduced-motion: reduce)');
+    // Adapted from the accepted motion study's seeded cloudlet material.
+    // This model is a manual fictional fixture, not a harness state adapter.
+    const clouds = [[-.43,-.59,.13,.16],[-.04,-.77,.13,.13],[.35,-.43,.12,.17],[-.19,-.17,.18,.16],[-.48,.17,.12,.17],[.12,.20,.15,.13],[-.13,.61,.14,.16],[.43,.61,.10,.14],[.03,.89,.09,.10]];
+    const face = [[-.36,-.22,.12,.065],[-.25,-.23,.10,.06],[.34,-.22,.12,.065],[0,.04,.10,.13],[-.44,.1,.09,.16],[.44,.1,.09,.16],[-.24,.46,.13,.06],[.24,.46,.13,.06],[0,.5,.14,.05]];
+    let seed=20261110;
+    function random(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return(seed+.5)/4294967296;}
+    function normal(){return Math.sqrt(-2*Math.log(random()))*Math.cos(Math.PI*2*random());}
+    const particles=Array.from({length:1152},(_,i)=>({g:i%9,x:normal(),y:normal(),r:.28+random()*.6,a:.25+random()*.65,p:random()*Math.PI*2}));
+    const scenes={
+      ready:['Ready','No work reported in this fixture.'],
+      attending:['A moment of recognition','An abstract face gathers from the lights.'],
+      work:['Two work streams','Orchard and Beacon · synthetic work'],
+      concern:['One open concern','Beacon needs a decision. Orchard continues.'],
+      stale:['One source is stale','Orchard reported working. Beacon is unknown.'],
+      unknown:['Current activity unknown','Bridge lease expired. No activity inferred.'],
+      urgent:['Urgent concern','Beacon reports a blocked release.']
+    };
+    const sequence=['ready','attending','work','concern','stale','unknown'];
+    let state={scene:'ready',concern:null}, running=false, request=0, started=0, elapsed=0;
+    function reduce(current, action){
+      const next={scene:current.scene,concern:current.concern?{...current.concern}:null};
+      if(action.type==='scene'){
+        if(!Object.hasOwn(scenes,action.scene))return next;
+        next.scene=action.scene;
+        if(action.scene==='concern'&&!next.concern)next.concern={urgent:false,ack:false};
+        if(action.scene==='urgent')next.concern={urgent:true,ack:false};
+      } else if(action.type==='ack'&&next.concern)next.concern.ack=true;
+      else if(action.type==='resolve')next.concern=null;
+      return next;
+    }
+    function dispatch(action){
+      state=reduce(state,action);update();draw(elapsed);
+      if(window.openai?.setWidgetState)window.openai.setWidgetState({modelContent:{synthetic:true,scene:state.scene,concern:state.concern},privateContent:null}).catch(()=>{});
+    }
+    function update(){
+      const s=state.scene,c=state.concern;
+      select.value=s;
+      find('title').textContent=(s==='concern'||s==='urgent')&&!c?'Concern resolved in demo':scenes[s][0];
+      find('summary').textContent=(s==='concern'||s==='urgent')&&!c?'Orchard and Beacon · synthetic work':scenes[s][1];
+      find('freshness').textContent=s==='unknown'?'Bridge lease expired · no live connection':s==='stale'?'Beacon source lease expired · demo clock':'Fixture sources fresh · not connected';
+      find('concern').textContent=c?(c.urgent?'! Urgent':'! Open')+' · Beacon: '+(c.urgent?'release blocked':'decision needed')+(c.ack?' · acknowledged':''):'No open concerns in this fixture';
+      find('concern').style.color=c?.urgent?'var(--red)':c?'var(--amber)':'var(--quiet)';
+      find('detail').replaceChildren();
+      for(const line of [
+        s==='ready'||s==='attending'?'Orchard · no work reported':s==='unknown'?'Orchard · unknown':'Orchard · working (synthetic)',
+        s==='ready'||s==='attending'?'Beacon · no work reported':s==='unknown'||s==='stale'?'Beacon · unknown': 'Beacon · '+(c?(c.urgent?'release blocked':'needs a decision'):'working (synthetic)'),
+        c?'Concern stays open until explicitly resolved.':'No inferred activity or progress.'
+      ]){const p=document.createElement('p');p.textContent=line;find('detail').append(p);}
+      find('ack').disabled=!c||c.ack;
+      find('resolve').disabled=!c;
+      find('play').disabled=running||media.matches;
+      find('pause').disabled=!running;
+      find('motion').textContent=media.matches?'Reduced motion: manual scenes only.':running?'Playing a finite synthetic sequence.':'Still preview. Play once or choose a scene.';
+      canvas.setAttribute('aria-label','Synthetic '+scenes[s][0]+'. '+(c?'Beacon has an open concern. ':'')+(s==='unknown'?'All activity unknown.':s==='stale'?'Beacon activity unknown.':'No real activity shown.'));
+    }
+    const mix=(a,b,t)=>a+(b-a)*t;
+    function draw(t){
+      const s=state.scene,unknown=s==='unknown',stale=s==='stale',c=state.concern;
+      ctx.setTransform(2,0,0,2,0,0);ctx.clearRect(0,0,320,480);
+      const bg=ctx.createRadialGradient(150,205,10,160,240,260);
+      bg.addColorStop(0,'#0c2230');bg.addColorStop(1,'#030912');ctx.fillStyle=bg;ctx.fillRect(0,0,320,480);
+      // Reserve the lower portion for readable status, even on narrow screens.
+      ctx.save();ctx.beginPath();ctx.rect(0,70,320,258);ctx.clip();ctx.translate(160,200);
+      const mask=s==='attending'?1:0;
+      // No motion for stale/unknown groups, regardless of playback clock.
+      for(let g=0;g<9;g++){
+        const groupUnknown=unknown||(stale&&g>=5);
+        const anchor=clouds[g].map((v,i)=>mix(v,face[g][i],mask));
+        const work=(s==='work'||s==='concern'||s==='stale')?(g<5?-.10:.10):0;
+        const cx=(anchor[0]+work)*160,cy=anchor[1]*132;
+        const color=groupUnknown?[103,123,137]:[65,161,221];
+        ctx.save();ctx.translate(cx,cy);ctx.scale(anchor[2]*320,anchor[3]*280);
+        const halo=ctx.createRadialGradient(0,0,0,0,0,1);
+        halo.addColorStop(0,'rgba('+color+','+(groupUnknown?.06:.23)+')');
+        halo.addColorStop(1,'rgba('+color+',0)');ctx.fillStyle=halo;ctx.beginPath();ctx.arc(0,0,1,0,Math.PI*2);ctx.fill();ctx.restore();
+      }
+      for(const p of particles){
+        const groupUnknown=unknown||(stale&&p.g>=5);
+        const a=clouds[p.g].map((v,i)=>mix(v,face[p.g][i],mask));
+        const offset=(s==='work'||s==='concern'||s==='stale')?(p.g<5?-.10:.10):0;
+        const motion=groupUnknown?0:t;
+        const x=(a[0]+offset+p.x*a[2]+(groupUnknown?0:Math.sin(motion*.35+p.p)*.012))*160;
+        const y=(a[1]+p.y*a[3]+(groupUnknown?0:Math.cos(motion*.3+p.p)*.012))*132;
+        const color=groupUnknown?[110,130,145]:[114,207,255];
+        const fade=Math.max(0,Math.min(1,(128-y)/24,(y+130)/24));
+        ctx.fillStyle='rgba('+color+','+(p.a*(groupUnknown?.25:.82)*fade)+')';
+        ctx.beginPath();ctx.arc(x,y,p.r,0,Math.PI*2);ctx.fill();
+      }
+      // Concerns are a separate persistent layer, never dimmed by source silence.
+      if(c){
+        const color=c.urgent?'255,125,140':'255,191,112';
+        for(let i=0;i<70;i++){
+          const angle=i*2.399963,r=5+Math.sqrt(i)*1.9;
+          const x=49+Math.cos(angle)*r,y=49+Math.sin(angle)*r*.8;
+          ctx.fillStyle='rgba('+color+','+(.35+(i%5)*.13)+')';
+          ctx.beginPath();ctx.arc(x,y,i%3===0?1.1:.65,0,Math.PI*2);ctx.fill();
+        }
+        ctx.strokeStyle='rgba('+color+',.7)';ctx.lineWidth=1;
+        ctx.beginPath();ctx.moveTo(73,38);ctx.lineTo(80,38);ctx.lineTo(80,61);ctx.lineTo(73,61);ctx.stroke();
+      }
+      ctx.restore();
+    }
+    function pause(){running=false;if(request)cancelAnimationFrame(request);request=0;update();}
+    function frame(now){
+      if(!running)return;
+      elapsed=Math.min(18,(now-started)/1000);
+      const scene=sequence[Math.min(5,Math.floor(elapsed/3))];
+      if(state.scene!==scene){state=reduce(state,{type:'scene',scene});update();}
+      draw(elapsed);
+      if(elapsed>=18){pause();return;}
+      request=requestAnimationFrame(frame);
+    }
+    select.addEventListener('change',()=>{const scene=select.value;pause();elapsed=0;dispatch({type:'scene',scene});});
+    find('ack').addEventListener('click',()=>dispatch({type:'ack'}));
+    find('resolve').addEventListener('click',()=>dispatch({type:'resolve'}));
+    find('pause').addEventListener('click',pause);
+    find('play').addEventListener('click',()=>{
+      if(media.matches)return;
+      pause();elapsed=0;dispatch({type:'scene',scene:'ready'});
+      running=true;started=performance.now();update();request=requestAnimationFrame(frame);
+    });
+    media.addEventListener('change',()=>{pause();draw(0);});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
+    function restore(saved){
+      const value=saved?.modelContent;
+      if(!value||value.synthetic!==true||!Object.hasOwn(scenes,value.scene))return;
+      pause();state={scene:value.scene,concern:value.concern?{urgent:value.concern.urgent===true,ack:value.concern.ack===true}:null};
+      update();draw(0);
+    }
+    update();draw(0);restore(window.openai?.widgetState);
+    window.addEventListener('openai:set_globals',event=>restore(event.detail?.globals?.widgetState));
+    // Pure reducer exposed only to offline checks; not a producer interface.
+    root.briarStudy={reduce,scenes,getState:()=>structuredClone(state),sample:time=>draw(Math.max(0,Math.min(18,Number(time)||0)))};
+  })();
+  </script>
+</div>
+</body>
+</html>
