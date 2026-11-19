@@ -5,6 +5,10 @@ const Inspection = preload("res://inspection_window.gd")
 const InputHost = preload("res://inspection_input_host.gd")
 const ApiRecording = preload("res://api_recording.gd")
 const Sizing = preload("res://display_sizing.gd")
+const ApplicationMenu = preload("res://application_menu.gd")
+const AboutWindow = preload("res://about_window.gd")
+const SettingsWindow = preload("res://settings_window.gd")
+const Study = preload("res://study.gd")
 var failures: Array[String] = []
 var checks := 0
 
@@ -50,6 +54,8 @@ func _run() -> void:
 		if placement.ok:
 			check(area.encloses(placement.rect) and not face.intersects(placement.rect),"panel on screen and beside/below face "+str(area))
 	check(not Layout.plan(Rect2i(0,0,360,640),Rect2i(0,0,360,640),1.0).ok,"no-space never overlaps face")
+	check(Sizing.settings_scale(Vector2i(2256,1504),true) == 1.0,"Wayland logical dialog scale is standard")
+	check(Sizing.settings_scale(Vector2i(2256,1504),false) > 1.0,"X11 physical-height sizing is retained")
 	var tape := ApiRecording.new()
 	var full := OS.get_cmdline_user_args().has("--full-inspection")
 	check(tape.open_recording(not full,true),"native inspection tape opens")
@@ -155,12 +161,95 @@ func _run() -> void:
 	enter.keycode = KEY_ENTER
 	host._input(enter)
 	check(host.inspections == 2,"keyboard activation opens inspection")
+	press.position = Vector2(70,70)
+	host._input(press)
+	var right := press.duplicate() as InputEventMouseButton
+	right.button_index = MOUSE_BUTTON_RIGHT
+	host._input(right)
+	host._input(release)
+	check(host.menus == 1 and host.inspections == 2 and host.drags == 1,"right-click opens menu and consumes pending left click")
+	var menu_key := InputEventKey.new()
+	menu_key.pressed = true
+	menu_key.keycode = KEY_MENU
+	host._input(menu_key)
+	menu_key.keycode = KEY_F10
+	menu_key.shift_pressed = true
+	host._input(menu_key)
+	check(host.menus == 3,"Menu key and Shift+F10 open application menu")
 	host.free()
+	var menu := ApplicationMenu.new()
+	menu.visible = false
+	root.add_child(menu)
+	check(menu.borderless and menu.transient and not menu.visible,"application menu is borderless and hidden until requested")
+	check(menu.item_count == 4 and menu.get_item_text(0) == "Display settings" and menu.get_item_text(1) == "About Briar" and menu.get_item_text(3) == "Quit Briar","application actions have a separate explicit menu")
+	var actions := {"about":0,"quit":0,"settings":0}
+	menu.about_requested.connect(func(): actions.about += 1)
+	menu.quit_requested.connect(func(): actions.quit += 1)
+	menu.settings_requested.connect(func(): actions.settings += 1)
+	menu._activate(ApplicationMenu.ABOUT)
+	check(actions.about == 1 and actions.quit == 0,"About never requests quit")
+	menu._activate(ApplicationMenu.SETTINGS)
+	check(actions.settings == 1 and actions.quit == 0,"display settings never requests quit")
+	menu._activate(ApplicationMenu.QUIT)
+	check(actions.quit == 1,"only explicit Quit menu action requests quit")
+	for scale: float in [0.85,1.0,1.6,2340.0/1080.0]:
+		menu.configure(scale)
+		check(menu.get_theme_font_size("font_size") == roundi(15*scale),"menu text follows display scale "+str(scale))
+		check(menu.get_contents_minimum_size().x > 0,"menu has natural caption width "+str(scale))
+	menu.free()
+	var settings := SettingsWindow.new()
+	settings.visible = false
+	root.add_child(settings)
+	settings._build_ui(1.0)
+	check(settings.done.get_parent().get_child_count() == 1,"display settings contains Done but no Quit button")
+	settings.above.set_pressed_no_signal(true)
+	settings._configure_stacking("Wayland")
+	check(not settings.above.visible and settings.above.disabled and not settings.above.button_pressed,"Wayland never presents an enabled stay-above switch")
+	check(settings.stacking_note.visible and settings.stacking_note.text.contains("cannot enable"),"Wayland explains the actual stay-above limitation")
+	check(not settings.shortcut_hint.text.contains("T: stay above"),"Wayland does not advertise an ineffective toggle shortcut")
+	for backend: String in ["X11","Windows","macOS"]:
+		settings._configure_stacking(backend)
+		check(settings.above.visible and not settings.above.disabled and not settings.stacking_note.visible,"existing stay-above request remains available on "+backend)
+		check(settings.shortcut_hint.text.contains("T: stay above"),"stay-above shortcut remains documented on "+backend)
+	for scale: float in [0.85,1.0,1.6,2340.0/1080.0]:
+		settings._build_ui(scale)
+		settings._configure_stacking("Wayland")
+		check(settings.stacking_note.visible and not settings.above.visible,"Wayland limitation survives display-scale rebuild "+str(scale))
+	settings.free()
+	var about := AboutWindow.new()
+	about.visible = false
+	root.add_child(about)
+	check(about.borderless and about.transient and not about.exclusive,"About is a borderless non-modal companion panel")
+	for scale: float in [0.85,1.0,1.6,2340.0/1080.0]:
+		about.build(scale)
+		about.size = Vector2i(roundi(440*scale),roundi(420*scale))
+		about.show()
+		await process_frame
+		await process_frame
+		check(about._panel.get_combined_minimum_size().y <= about.size.y,"About content fits display scale "+str(scale))
+		check(about.close_button.size.x >= 100*scale-1,"About close caption has space "+str(scale))
+	about.close_button.pressed.emit()
+	check(not about.visible,"About close hides the panel without exiting the host")
+	about.free()
+	# Check passive name placement without starting the visible study runtime.
+	var study := Study.new()
+	study.add_child(study._visual)
+	study.add_child(study._name_label)
+	study._name_label.text = "Briar"
+	study._name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for dimensions: Vector2 in [Vector2(196,246),Vector2(554,702),Vector2(1108,1404),Vector2(900,300)]:
+		study._backing_rect = Study.ResizePolicy.backing_rect(dimensions)
+		study._face_rect = Study.ResizePolicy.face_rect(dimensions)
+		study._layout_name()
+		check(study._backing_rect.encloses(study._name_label.get_rect()),"Briar name stays inside backing "+str(dimensions))
+		check(absf(study._name_label.get_rect().get_center().x-study._backing_rect.get_center().x) < 1 and study._name_label.position.y < dimensions.y/2,"Briar name stays top-centre "+str(dimensions))
+	check(study._name_label.mouse_filter == Control.MOUSE_FILTER_IGNORE,"name does not capture face input")
+	study.free()
 	var result := {"type":"godot-inspection-headless","passed":failures.is_empty(),"checks":checks,"failures":failures,"vectors":data.vectors.size(),"scope":"Accepted-state projection, geometry and programmatic widget/keyboard checks only; not native pointer, rendered pixels, compositor or screen-reader acceptance."}
 	result.fullRecording = full
 	result.layoutMetrics = layout_metrics
 	result.sources = {}
-	for source: String in ["study.gd","api_recording.gd","inspection_model.gd","inspection_layout.gd","inspection_window.gd","inspection_test.gd","inspection_input_host.gd"]:
+	for source: String in ["study.gd","api_recording.gd","inspection_model.gd","inspection_layout.gd","inspection_window.gd","inspection_test.gd","inspection_input_host.gd","application_menu.gd","about_window.gd","settings_window.gd","display_sizing.gd"]:
 		result.sources[source] = FileAccess.get_sha256("res://"+source)
 	result.vectorsSha256 = FileAccess.get_sha256(path)
 	result.tapeSha256 = FileAccess.get_sha256(ProjectSettings.globalize_path("res://../test-artifacts/api-inspection-"+("recording" if full else "sample")+".jsonl"))

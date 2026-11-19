@@ -3,6 +3,7 @@ extends "res://study.gd"
 var inspections := 0
 var drags := 0
 var resizes := 0
+var menus := 0
 
 func _ready() -> void:
 	set_process(false)
@@ -10,6 +11,10 @@ func _ready() -> void:
 
 func _show_inspection() -> void:
 	inspections += 1
+
+func _show_context_menu(_point: Vector2i) -> void:
+	_press_pending = false
+	menus += 1
 
 func _begin_face_drag() -> void:
 	drags += 1

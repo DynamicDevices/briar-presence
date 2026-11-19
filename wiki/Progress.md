@@ -4,6 +4,66 @@
 
 ## Where the work stands
 
+11 November native resize result: Alex reports “that worked” with the face
+preview running through native Wayland, with transparency restored. X11 face and
+plain-window comparisons both flashed. The opt-in launch command, centred Briar
+name, upstream issue and limits are recorded in [Native Wayland resizing](Godot-Wayland-Resize.md).
+The installed app remains unchanged. Alex subsequently selected preferring
+native Wayland when its socket is available, with an X11 resize warning when
+not; explicit backend options remain. Other native interaction
+checks and independent review are still open; earlier evidence below identifies
+its original candidate/backend rather than superseding this observation.
+
+Follow-up: Alex selected standard logical dialog sizing on Wayland and later
+said “I think that worked well”. This is positive compact-dialog feedback, not
+acceptance of every panel or focus path. On the current Wayland preview Alex
+also confirmed continued gentle motion, click/drag separation, Shift+F10 menu
+opening and Escape closing without quitting, clear task selection/details/return,
+and acknowledgement meaning seen rather than resolved. These are native user
+observations, separate from headless tests.
+
+Stay-above fails on the current reopened preview: Alex corrected the earlier
+comparison with “No it doesn't stay at the front of anything”. Do not treat
+this as a Codex-only defect. Earlier GNOME manual Always on Top checked state
+and success against normal Files predate relaunch; neither proves the current
+window's state. Whether that manual setting survives a new window is unverified.
+Godot does not document its always-on-top flag as implemented on Wayland, and
+the readiness property proves intent only. No compositor or Codex setting was
+changed; no stacking fix is claimed.
+
+Alex selected correcting the misleading Wayland stay-above control while
+keeping the defect open. The candidate now explains the limitation instead of
+offering that switch; T opens settings to explain rather than toggling an
+unsupported flag. Other backends retain the existing toggle. Local checks pass:
+95 Node tests, 403 headless Godot checks/36 vectors, and native-controls script
+syntax validation. The revised explanation still needs native visual acceptance;
+this is not proof of supported stacking or independent review.
+
+Further native checks: Alex confirmed lights, backing and name stay sharp and
+proportioned while enlarging/shrinking, with no flashing. He tested another
+monitor and accepted face/panel sizing and placement there. Monitor identities
+and scale factors were not measured; no universal monitor-matrix pass inferred.
+He also confirmed Tab/Shift+Tab navigation, keyboard task activation, Escape
+work-panel close and subsequent Shift+F10 face-menu reopening. This accepts
+that focus path, not an exhaustive accessibility review.
+
+The expiry/unknown question timed out, so interpretation remains unverified.
+The current-window GNOME setting question lost its tool connection; no answer
+was recovered and no setting state is inferred. Stay-above and Alex's source-bound
+independent local review remain open. No complete desktop, replacement or
+installation acceptance is claimed.
+
+Separate cross-build repair: signed build source
+`46e8f26dce156e98e3ce0c07084c11e2433fe969` in
+[PR #13](https://github.com/DynamicDevices/briar-presence/pull/13) passed
+[DD-runner CI43036127144](https://github.com/DynamicDevices/briar-presence/actions/runs/43036127144).
+Linux x64, Windows x64 and macOS universal source-bearing unsigned artifacts and
+checksums were uploaded. The macOS mismatch was a generated application name;
+only staged project naming changed, not strict archive validation. This build
+branch is separate from PR #14: its packages do not include the latest desktop
+menu/backend/dialog changes. Native Windows/macOS testing and independent review
+are still open. A cross-export is not a native platform acceptance test.
+
 An [opt-in API-recording adapter for the Godot candidate](Godot-API-Recording.md)
 now exists. It uses canonical accepted scenes and leaves the default/installed
 display alone. Its expiry regression exposed and corrected a synthetic demo
