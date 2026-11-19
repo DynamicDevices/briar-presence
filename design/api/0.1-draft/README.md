@@ -1,5 +1,11 @@
 # Static API schema proposal — 0.1-draft
 
+19 November: Alex accepted [Multi-harness API specification, revision 1](HARNESS-API.md). It brings together
+the existing input schema, embedded facade and accepted-view/MQTT contracts,
+with the agreed TURMO mapping and schema-checked local/remote producer examples.
+This is design work before live chat integration, not another API version or
+an alteration to the accepted TURMO alpha release.
+
 11 November implementation note: the schema remains a draft, but the isolated
 handler, embedded facade, synthetic producer example and presentation now exist.
 Use [the API module guide](../../../implementation/api/README.md) for current

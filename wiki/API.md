@@ -1,5 +1,13 @@
 # API direction
 
+19 November: Alex accepted [Multi-harness API specification, revision 1](../design/api/0.1-draft/HARNESS-API.md).
+The specification
+consolidates the existing producer/accepted-view contracts and MQTT work, and
+specifies their mapping to the accepted TURMO visualisation. It covers
+local/remote producers without creating another wire vocabulary or connecting
+live chats. The historical transport discussion below is not a claim that no
+embedded implementation or MQTT trial work now exists.
+
 [Wiki home](Home.md) · [Platform capabilities](Platforms.md) · [Architecture](../implementation/ARCHITECTURE.md)
 
 Alex's direction, 10 November 2026: enable people to use Briar Presence through
