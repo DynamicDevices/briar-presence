@@ -27,7 +27,8 @@ export function syntheticSnapshot(role, revision, wallNow) {
     attentionItems:[]};
 }
 export function createSyntheticOwner({config, epochMs, ownerEpoch, validateInput, validateView, validateSync}) {
-  const api = createEmbeddedPresence({...syntheticScope,validate:validateInput,
+  if (!config.capacity || !config.ingressRate) throw new TypeError('Explicit trial capacity and per-route rate required');
+  const api = createEmbeddedPresence({...syntheticScope,validate:validateInput,capacity:config.capacity,
     policy:{epochMs,observationTtlMs:config.observationTtlMs,futureSkewMs:config.futureSkewMs,groupWindowMs:config.groupWindowMs},
     presentation:{seed:0x5eed1234,cueDurationMs:1000,cueSpeedMultiplier:1.6}});
   const producerBindings = syntheticProducers.map(producerId => {
@@ -38,7 +39,7 @@ export function createSyntheticOwner({config, epochMs, ownerEpoch, validateInput
   const bridge = createAcceptedBridge({api,
     workspaceToken:syntheticScope.workspaceId,userToken:syntheticScope.userId,producerBindings,
     displayTokens:syntheticDisplays,validateView,validateSync,ownerEpoch,
-    ownerLeaseMs:config.ownerLeaseMs,maxPayloadBytes:config.maxPayloadBytes});
+    ownerLeaseMs:config.ownerLeaseMs,maxPayloadBytes:config.maxPayloadBytes,ingressRate:config.ingressRate});
   return Object.freeze({api,bridge});
 }
 

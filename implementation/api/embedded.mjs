@@ -2,8 +2,8 @@
 import {createStateHandler, jsonData} from '../core/state.mjs';
 import {createPresentation} from './presentation.mjs';
 
-export function createEmbeddedPresence({userId, workspaceId, validate, policy, presentation}) {
-  const handler = createStateHandler({userId, workspaceId, validate, policy});
+export function createEmbeddedPresence({userId, workspaceId, validate, policy, presentation, capacity}) {
+  const handler = createStateHandler({userId, workspaceId, validate, policy, capacity});
   const display = createPresentation(presentation);
   const user = Object.freeze({kind: 'user', userId, workspaceId});
   function wrongKind(message, expected) {
@@ -15,7 +15,8 @@ export function createEmbeddedPresence({userId, workspaceId, validate, policy, p
   return Object.freeze({
     capabilities: () => ({version: '0.1-draft', transport: 'embedded', syntheticOnly: true,
       messageKinds: ['producer.snapshot', 'user.focus', 'user.acknowledge'], requiredFeatures: [],
-      persistence: false, liveAuthentication: false, multiDisplayDelivery: false, subscriptions: false}),
+      persistence: false, liveAuthentication: false, multiDisplayDelivery: false, subscriptions: false,
+      capacityConfigured: capacity !== undefined}),
     admitProducer({producerId, session, generation, leaseMs, userRaisedConcernIds = []}, now) {
       if (!Array.isArray(userRaisedConcernIds) || !userRaisedConcernIds.every(x => typeof x === 'string' && x.trim())) return {ok: false, code: 'USER_PROVENANCE'};
       const admitted = handler.admitProducer({producerId, session, generation, leaseMs}, now);

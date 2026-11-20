@@ -12,7 +12,8 @@ sinks. The trusted host supplies `config`:
 - `syntheticOnly:true`, `role` (`bridge`, `producer-a` or `producer-b`),
   absolute `deadlineUnixMs`, `tickMs`, `maxPayloadBytes`, `maxInFlight`.
 - For the bridge: `ownerLeaseMs`, `sourceLeaseMs`, `observationTtlMs`,
-  `futureSkewMs`, `groupWindowMs`; plus separate `epochMs` and `ownerEpoch`.
+  `futureSkewMs`, `groupWindowMs`, complete `capacity` and per-route `ingressRate`;
+  plus separate `epochMs` and `ownerEpoch`. See [capacity/retention](../../api/CAPACITY.md).
 
 Configure capacity and cadence for the named host; these parameters are not a
 capability grant, credential validator or deployment-readiness claim. The actor

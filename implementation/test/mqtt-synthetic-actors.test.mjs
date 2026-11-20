@@ -35,7 +35,10 @@ function fixture(t) {
   function actor(role, overrides={}) {
     const client=new Client(bus), input=new PassThrough(), statuses=[], stopped=[];
     const config={...common,role,...(role === 'bridge' ? {ownerLeaseMs:5000,sourceLeaseMs:1000,
-      observationTtlMs:1000,futureSkewMs:5,groupWindowMs:10} : {}),...overrides};
+      observationTtlMs:1000,futureSkewMs:5,groupWindowMs:10,
+      capacity:{maxProducers:2,maxWorkPerProducer:10,maxConcernsPerProducer:20,maxAttentionPerProducer:20,
+        maxMessageBytes:maxPayloadBytes,maxRetainedBytes:maxPayloadBytes*10},
+      ingressRate:{maxMessages:20,windowMs:1000}} : {}),...overrides};
     const runtime=runSyntheticActor({client,config,epochMs,ownerEpoch:'owner-a',clock:()=>now,wallNow:()=>epochMs+now,
       validateInput:validate,validateView,validateSync,input,onStatus:s=>statuses.push(s.code),onStop:s=>stopped.push(s.code)});
     controllers.push(runtime);
