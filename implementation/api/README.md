@@ -15,6 +15,10 @@ This is a source-module development API, not a published stable SDK or a live
 Briar harness connector. The accepted visual baseline remains identifiable;
 new inspection interactions live separately under `design/inspection/`.
 
+The [TURMO accepted-state candidate](TURMO.md) adds a live semantic scene and
+320×480 Canvas renderer. It is separate from the alpha player and does not yet
+connect MQTT or the physical display scheduler.
+
 ## Run the examples without installing anything
 
 From `implementation/` with the existing Python `jsonschema` environment:
