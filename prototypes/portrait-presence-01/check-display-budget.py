@@ -53,12 +53,22 @@ for region in plan:
     tour.apply_region(shadow,region)
 assert shadow == target
 
+# Nonuniform pixels expose incorrect strides when a rectangle splits sideways.
+pattern = bytes(range(256))*(len(blank)//256)
+shadow = bytearray(blank)
+for region in tour.bounded_regions([((0,0,tour.WIDTH,tour.HEIGHT),pattern)],tile=4):
+    tour.apply_region(shadow,region)
+assert shadow == pattern, 'Horizontal and vertical splits preserve exact pixels'
+
 # An overloaded all-pixel change must yield, while completing all rim patches.
 transport = Transport()
 shadow,sent,rim_done = tour.transmit_regions(transport,plan,blank,.125,budget,transport.clock)
 assert 0 < len(sent) < len(plan)
 assert rim_done is not None
 assert shadow != target, 'Partial delivery must not pretend the entire frame arrived'
+assert budget.dirty_since, 'Deferred work retains its waiting age'
+for (x,y,right,bottom),_ in sent:
+    assert all((left//4,top//4) not in budget.dirty_since for top in range(y,bottom,4) for left in range(x,right,4)), 'Delivered tiles reset their waiting age'
 for region in plan:
     if tour.rim_tile(region[0][0],region[0][1]):
         assert region in sent
@@ -82,7 +92,39 @@ for tick in range(80):
         break
     shadow,_,_ = tour.transmit_regions(transport,plan,shadow,transport.now+.125,budget,transport.clock)
 assert shadow == target, 'Deferred face changes must not starve'
+
+# A moving face must get fair service too, not just an unchanging target.
+budget = tour.DisplayBudget()
+transport = Transport()
+shadow = bytearray(blank)
+seen = set()
+expected = {(x,y) for y in range(128,320,4) for x in range(112,208,4)}
+for tick in range(24):
+    moving = bytearray(blank)
+    for y in range(128,320):
+        moving[(y*tour.WIDTH+112)*2:(y*tour.WIDTH+208)*2] = bytes([tick+1])*192
+    plan = budget.plan(shadow,moving,None,tick)
+    shadow,sent,_ = tour.transmit_regions(transport,plan,shadow,transport.now+.04,budget,transport.clock)
+    for (x,y,right,bottom),_ in sent:
+        seen.update((left,top) for top in range(y,bottom,4) for left in range(x,right,4))
+assert expected <= seen, 'Continuously changing face tiles must not starve'
+
+# Neither narrow columns nor broad rows may become long visible sweeps.
+for box in ((0,0,4,480),(0,0,320,4),(0,0,320,480)):
+    x,y,right,bottom = box
+    chunks = tour.bounded_regions([(box,bytes((right-x)*(bottom-y)*2))],tile=4)
+    assert all(r-x<=32 and b-y<=32 and len(p)<=5120 for (x,y,r,b),p in chunks), 'Bound both patch dimensions'
+    assert sum(len(p) for _,p in chunks) == (right-x)*(bottom-y)*2
+
+# Equal-age background patches should not march down a scanline frontier.
+budget = tour.DisplayBudget()
+moving = bytearray(blank)
+for y in range(128,320):
+    moving[(y*tour.WIDTH+112)*2:(y*tour.WIDTH+208)*2] = bytes([85])*192
+plan = budget.plan(blank,moving,None,0)
+assert max(box[1] for box,_ in plan[:4])-min(box[1] for box,_ in plan[:4])>=64, 'Disperse equal-age face patches'
 print('PASS: rim coverage/order; bounded atomic patches; overload yields; actual-frame shadow; newest-target replanning; eventual background delivery.')
+print('PASS: continuously animated face fairness; two-dimensional patch bounds; spatially dispersed updates.')
 
 if len(sys.argv)>1:
     frames,fps,clusters,angles = tour.load_frames(Path(sys.argv[1]),True,True)

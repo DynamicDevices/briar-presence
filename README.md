@@ -20,6 +20,8 @@ not a live API or hosted service available today. See the [API direction](wiki/A
 ## Start here
 
 - [Project wiki](wiki/Home.md) — agreed direction, portrait reference, current progress and unfinished work.
+- [Development workflow](wiki/Development-Workflow.md) — automatic Preloop review,
+  Briar-owned repairs and merging behind required review and CI checks.
 - [Application menu and About](wiki/Application-Menu.md) — hidden right-click
   application actions, separate from display preferences in the native candidate.
 - [Native Wayland resizing](wiki/Godot-Wayland-Resize.md) — the verified laptop
@@ -61,8 +63,9 @@ not a source of copied graphics, footage or assets. These studies are original.
 Original project source is licensed under **GNU GPL version 3 or, at your option,
 any later version** (`GPL-3.0-or-later`); see [LICENSE](LICENSE). Third-party
 dependencies retain their own licences and notices. There is no warranty.
-The repository is public. New source/wiki work is reviewed on development
-branches and Alex merges it manually; `main` may lag those studies. No public
-binary release or production readiness is claimed.
+The repository is public. New source/wiki work uses development pull requests.
+Briar handles review findings, tests and pushes corrections; merging waits for
+the genuine Preloop review and required CI. See the [development workflow](wiki/Development-Workflow.md).
+No production readiness is claimed here.
 
 Assisted-by: Briar

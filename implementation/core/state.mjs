@@ -34,14 +34,36 @@ function requestSignature(items, concernId) {
   })).sort((a,b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
 
-export function createStateHandler({userId, workspaceId, validate, policy}) {
+export function createStateHandler({userId, workspaceId, validate, policy, capacity}) {
   if (!text(userId) || !text(workspaceId) || typeof validate !== 'function') throw new TypeError('Explicit scope and schema validator required');
   if (!policy || !Number.isFinite(policy.epochMs) || !Number.isFinite(policy.observationTtlMs) || policy.observationTtlMs <= 0 ||
       !Number.isFinite(policy.futureSkewMs) || policy.futureSkewMs < 0 || !Number.isFinite(policy.groupWindowMs) || policy.groupWindowMs < 0) {
     throw new TypeError('Explicit synthetic clock/freshness/grouping policy required');
   }
   policy = copy(policy);
+  if (capacity !== undefined) {
+    const keys = ['maxProducers','maxWorkPerProducer','maxConcernsPerProducer','maxAttentionPerProducer','maxMessageBytes','maxRetainedBytes'];
+    if (!jsonData(capacity) || !capacity || Object.keys(capacity).length !== keys.length ||
+        !keys.every(k => Object.hasOwn(capacity,k) && integer(capacity[k])))
+      throw new TypeError('Complete positive integer capacity policy required');
+    capacity = copy(capacity);
+  }
   let state = {now: 0, producers: [], focus: null, viewRevision: 0, acknowledgements: [], closures: [], receipts: [], pending: null, announcements: []};
+  const byteLength = value => new TextEncoder().encode(JSON.stringify(value)).length;
+  function capacityFailure(s) {
+    if (!capacity) return null;
+    if (s.producers.length > capacity.maxProducers) return 'CAPACITY_PRODUCERS';
+    for (const p of s.producers) {
+      if (p.work.length + p.retainedWork.length > capacity.maxWorkPerProducer) return 'CAPACITY_WORK';
+      if (p.concerns.length > capacity.maxConcernsPerProducer) return 'CAPACITY_CONCERNS';
+      if (p.attentionItems.length > capacity.maxAttentionPerProducer) return 'CAPACITY_ATTENTION';
+    }
+    // Include histories, session fences, receipts and cues. Never evict safety
+    // records to make room. The single logical-clock scalar is not retention.
+    const {now, ...retained} = s;
+    return byteLength(retained) > capacity.maxRetainedBytes ? 'CAPACITY_RETENTION' : null;
+  }
+  if (capacityFailure(state)) throw new TypeError('Capacity cannot hold empty retained state');
   const producer = (s, id) => s.producers.find(p => p.id === id);
   const acknowledged = (s, producerId, id, revision) => s.acknowledgements.some(a => a.producerId === producerId && a.id === id && a.revision === revision);
   // Cue eligibility remembers that the user has seen this concern. The view
@@ -60,6 +82,8 @@ export function createStateHandler({userId, workspaceId, validate, policy}) {
     const draft = copy(state);
     const result = operation(draft);
     if (!result.ok) return result;
+    const overload = capacityFailure(draft);
+    if (overload) return error(overload);
     state = draft;
     return copy(result);
   }
@@ -214,6 +238,20 @@ export function createStateHandler({userId, workspaceId, validate, policy}) {
     return {ageMs, freshness: p.leaseUntil !== null && now < p.leaseUntil && ageMs < policy.observationTtlMs ? 'current' : 'stale'};
   }
   return Object.freeze({
+    // Scoped transport metadata. Reads do not renew a producer's lease.
+    exportTiming(context, now) {
+      if (!userContext(context)) return error('SCOPE_OR_ACTOR');
+      const representable = at => at === null || (Number.isFinite(at) && Math.abs(policy.epochMs + at) <= 8640000000000000);
+      // A finite JS clock can still be outside the ISO date range. Refuse
+      // before advancing the clock or calling toISOString(), never throw.
+      if (!Number.isFinite(now) || !representable(now) ||
+          state.producers.some(p => !representable(p.receivedAt) || !representable(p.leaseUntil))) return error('CLOCK');
+      if (!clock(now)) return error('CLOCK');
+      const stamp = at => at === null ? null : new Date(policy.epochMs + at).toISOString();
+      return {ok: true, generatedAt: stamp(now), observationTtlMs: policy.observationTtlMs,
+        sources: state.producers.map(p => ({producerId: p.id, generation: p.generation,
+          revision: p.revision, lastReceivedAt: stamp(p.receivedAt), leaseValidUntil: stamp(p.leaseUntil)}))};
+    },
     // Trusted host admission, not a producer-accessible wire operation.
     admitProducer({producerId, session, generation, leaseMs}, now) {
       if (!text(producerId) || !text(session) || !integer(generation) || !Number.isFinite(leaseMs) || leaseMs <= 0) return error('ADMISSION');
@@ -229,6 +267,7 @@ export function createStateHandler({userId, workspaceId, validate, policy}) {
     receive(message, context, now) {
       try {
         if (!jsonData(message) || !jsonData(context)) return error('JSON_DATA');
+        if (capacity && byteLength(message) > capacity.maxMessageBytes) return error('INPUT_PAYLOAD_LIMIT');
         message = copy(message); context = copy(context);
       } catch { return error('JSON_DATA'); }
       let result;

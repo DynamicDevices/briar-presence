@@ -2,7 +2,13 @@
 
 MQTT is now an additional transport work item for multiple publishers and
 subscribers: see the [draft MQTT review/profile](../../design/api/0.1-draft/MQTT-TRANSPORT.md).
-No MQTT client, broker or network adapter is implemented/installed yet.
+The [MQTT callback/accepted-view candidate](../transports/mqtt/README.md) now
+implements scoped bridge/display attachments around an injected MQTT5 client.
+No client library or broker is installed or connected by these modules. Callback
+test doubles do not establish live authentication, ACLs or remote interoperability.
+The [producer receipt/recovery contract](../transports/mqtt/PRODUCER.md) separates
+transport delivery from exact-snapshot application acceptance and documents the
+in-memory retry/re-admission policy. It is not durable receipt storage.
 
 The [offline MQTT rehearsal](../../design/api/0.1-draft/MQTT-OFFLINE-REHEARSAL.md)
 tests application semantics through the real API; it is not an authenticated
@@ -14,6 +20,11 @@ is a separate implementation work item, not firmware supplied by this module.
 This is a source-module development API, not a published stable SDK or a live
 Briar harness connector. The accepted visual baseline remains identifiable;
 new inspection interactions live separately under `design/inspection/`.
+
+The [TURMO accepted-state candidate](TURMO.md) adds a live semantic scene and
+320×480 Canvas renderer. It is separate from the alpha player and does not yet
+connect the physical display scheduler. `turmo-received.mjs` and the MQTT TURMO
+host now connect its local animation to the validated accepted-view receiver.
 
 ## Run the examples without installing anything
 

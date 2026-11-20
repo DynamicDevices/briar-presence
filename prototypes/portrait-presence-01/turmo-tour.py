@@ -55,16 +55,17 @@ def frame_index(elapsed, stay=False, cycle_frames=20, fps=2):
     return None if elapsed >= 60 else min(119, max(0, int(elapsed * 2)))
 
 
-def rim_tile(x, y, tile=4, angles=None):
+def rim_tile(x, y, tile=4, angles=None, geometry=(160, 229, 139, 183)):
     """Conservative tile/ellipse intersection, including antialiased bar edges."""
-    left, right = (x-160)/139, (min(x+tile, WIDTH)-160)/139
-    top, bottom = (y-229)/183, (min(y+tile, HEIGHT)-229)/183
+    cx, cy, rx, ry = geometry
+    left, right = (x-cx)/rx, (min(x+tile, WIDTH)-cx)/rx
+    top, bottom = (y-cy)/ry, (min(y+tile, HEIGHT)-cy)/ry
     near_x = 0 if left <= 0 <= right else min(abs(left), abs(right))
     near_y = 0 if top <= 0 <= bottom else min(abs(top), abs(bottom))
     intersects = near_x**2+near_y**2 <= 1.02**2 and max(left**2,right**2)+max(top**2,bottom**2) >= .98**2
     if not intersects or angles is None:
         return intersects
-    theta = math.atan2((y+tile/2-229)/183,(x+tile/2-160)/139)
+    theta = math.atan2((y+tile/2-cy)/ry,(x+tile/2-cx)/rx)
     return any((angle-theta)%(2*math.pi)<=.78 or (theta-angle)%(2*math.pi)<=.08 for angle in angles)
 
 
@@ -76,31 +77,50 @@ def apply_region(shadow, region):
         shadow[(row*WIDTH+x)*2:(row*WIDTH+right)*2] = payload[offset:offset+stride]
 
 
-def bounded_regions(regions, maximum=5120, tile=8):
-    """Protocol rectangles are atomic; bound each before allowing preemption."""
+def bounded_regions(regions, maximum=5120, tile=8, extent=32):
+    """Bound atomic transfers in bytes AND dimensions to avoid long sweeps."""
+    if extent < tile or maximum < tile*tile*2:
+        raise ValueError('Patch limits must accommodate at least one tile')
+    columns = min(extent//tile*tile, maximum//(tile*2)//tile*tile)
     result = []
     for (x, y, right, bottom), payload in regions:
         stride = (right-x)*2
-        rows = max(tile, (maximum//stride)//tile*tile)
-        for top in range(y, bottom, rows):
-            end = min(top+rows,bottom)
-            result.append(((x,top,right,end),payload[(top-y)*stride:(end-y)*stride]))
+        for left in range(x,right,columns):
+            edge = min(left+columns,right)
+            rows = min(extent//tile*tile, maximum//((edge-left)*2)//tile*tile)
+            for top in range(y,bottom,rows):
+                end = min(top+rows,bottom)
+                patch = b''.join(payload[(row-y)*stride+(left-x)*2:(row-y)*stride+(edge-x)*2] for row in range(top,end))
+                result.append(((left,top,edge,end),patch))
     return result
+
+
+def spatial_rank(x,y):
+    """Reversed Morton order spreads ties across the screen, not down rows."""
+    x,y = x//32,y//32
+    rank = 0
+    for bit in range(4):
+        rank = (rank<<1) | ((x>>bit)&1)
+        rank = (rank<<1) | ((y>>bit)&1)
+    return rank
 
 
 class DisplayBudget:
     """Rim first, status next, oldest dirty face tiles next. No frame backlog."""
-    def __init__(self):
+    def __init__(self, geometry=(160, 229, 139, 183), status_top=416):
         self.dirty_since = {}
         self.bytes_per_second = 160000
         self.angles = None
+        self.geometry = geometry
+        self.status_top = status_top
 
     def is_rim(self,x,y):
-        return rim_tile(x,y,angles=self.angles)
+        return rim_tile(x,y,angles=self.angles,geometry=self.geometry)
 
-    def plan(self, previous, current, clusters, tick, angles=None):
+    def plan(self, previous, current, clusters, tick, angles=None, unknown_tiles=None):
         self.angles = angles
-        regions = bounded_regions(update_regions(previous,current,tile=4,clusters=clusters,priority_rim=True,priority_arcs=angles),tile=4)
+        regions = bounded_regions(update_regions(previous,current,tile=4,clusters=clusters,priority_rim=True,priority_arcs=angles,
+            rim_geometry=self.geometry,status_top=self.status_top,force_tiles=unknown_tiles),tile=4)
         dirty = set()
         for (x,y,right,bottom), _ in regions:
             for top in range(y,bottom,4):
@@ -114,8 +134,15 @@ class DisplayBudget:
             if self.is_rim(x,y):
                 return (0,0,y,x)
             age = min(self.dirty_since[(left//4,top//4)] for top in range(y,bottom,4) for left in range(x,right,4))
-            return (1 if y>=416 else 2,age,y,x)
+            return (1 if y>=self.status_top else 2,age,spatial_rank(x,y),y,x)
         return sorted(regions,key=rank)
+
+    def delivered(self,region):
+        """Only completed patches lose their age; unsent work keeps its turn."""
+        (x,y,right,bottom),_ = region
+        for top in range(y,bottom,4):
+            for left in range(x,right,4):
+                self.dirty_since.pop((left//4,top//4),None)
 
     def fits(self, region, remaining):
         return (len(region[1])+6)/self.bytes_per_second + .003 <= remaining
@@ -143,6 +170,7 @@ def transmit_regions(screen, regions, previous, deadline, budget=None, clock=tim
             screen.flush()
             budget.observe(len(payload)+6,clock()-patch_start)
             apply_region(shadow,region)
+            budget.delivered(region)
         delivered.append(region)
         if is_rim:
             rim_completed = clock()
@@ -152,21 +180,22 @@ def transmit_regions(screen, regions, previous, deadline, budget=None, clock=tim
     return shadow,delivered,rim_completed
 
 
-def update_regions(previous, current, tile=8, clusters=None, priority_rim=False, priority_arcs=None):
+def update_regions(previous, current, tile=8, clusters=None, priority_rim=False, priority_arcs=None,
+                   rim_geometry=(160, 229, 139, 183), status_top=416, force_tiles=None):
     """Coalesce changed RGB565 tiles; unchanged pixels require no USB traffic."""
     full = [((0, 0, WIDTH, HEIGHT), current)]
     if previous is None:
         return full
-    if previous == current:
+    if previous == current and not force_tiles:
         return []
     before = Image.frombytes('RGB', (WIDTH, HEIGHT), bytes(previous), 'raw', 'BGR;16')
     after = Image.frombytes('RGB', (WIDTH, HEIGHT), bytes(current), 'raw', 'BGR;16')
     difference = ImageChops.difference(before, after)
     def group_at(x, y):
         if priority_rim:
-            if rim_tile(int(x//tile)*tile,int(y//tile)*tile,tile,priority_arcs):
+            if rim_tile(int(x//tile)*tile,int(y//tile)*tile,tile,priority_arcs,geometry=rim_geometry):
                 return -2
-            if y >= 416:
+            if y >= status_top:
                 return -1
         if not clusters:
             return 0
@@ -177,7 +206,8 @@ def update_regions(previous, current, tile=8, clusters=None, priority_rim=False,
     for y in range(0, HEIGHT, tile):
         runs, start, run_group = [], None, None
         for x in range(0, WIDTH + tile, tile):
-            changed = x < WIDTH and difference.crop((x, y, min(x + tile, WIDTH), min(y + tile, HEIGHT))).getbbox() is not None
+            changed = x < WIDTH and ((force_tiles and (x//tile,y//tile) in force_tiles) or
+                difference.crop((x, y, min(x + tile, WIDTH), min(y + tile, HEIGHT))).getbbox() is not None)
             group = group_at(x+tile/2, y+tile/2) if changed else None
             if start is not None and (not changed or group != run_group):
                 runs.append((run_group, start, min(x, WIDTH)))
@@ -284,9 +314,12 @@ def main():
                                          start_new_session=True, pass_fds=(write_fd,))
             os.close(write_fd)
             write_fd = None
+            # Cue playback decodes 480 RGB565 targets before its six-second
+            # live cadence check; 30s can expire during a healthy cold start.
+            startup_timeout = 60 if args.cues else 30
             with selectors.DefaultSelector() as events:
                 events.register(read_fd, selectors.EVENT_READ)
-                if not events.select(30) or os.read(read_fd, 128) != b'FIRST_FRAME_SENT':
+                if not events.select(startup_timeout) or os.read(read_fd, 128) != b'FIRST_FRAME_SENT':
                     child.terminate()
                     child.wait(timeout=30)
                     raise RuntimeError('Persistent face did not start; see ' + str(output_path))
