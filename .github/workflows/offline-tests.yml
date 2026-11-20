@@ -54,6 +54,8 @@ jobs:
           set -euo pipefail
           python3 -c 'from jsonschema import Draft202012Validator, FormatChecker'
           node -e 'const {createCanvas}=require(process.env.BRIAR_CANVAS_MODULE);const c=createCanvas(2,2);if(!c.getContext("2d"))throw Error("Canvas unavailable")'
+      - name: Check physical display scheduling without opening hardware
+        run: python3 prototypes/portrait-presence-01/check-display-budget.py
       - name: Run the full offline suite with no skipped checks
         shell: bash
         working-directory: implementation

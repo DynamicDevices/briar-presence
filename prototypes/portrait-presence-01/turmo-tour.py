@@ -76,16 +76,32 @@ def apply_region(shadow, region):
         shadow[(row*WIDTH+x)*2:(row*WIDTH+right)*2] = payload[offset:offset+stride]
 
 
-def bounded_regions(regions, maximum=5120, tile=8):
-    """Protocol rectangles are atomic; bound each before allowing preemption."""
+def bounded_regions(regions, maximum=5120, tile=8, extent=32):
+    """Bound atomic transfers in bytes AND dimensions to avoid long sweeps."""
+    if extent < tile or maximum < tile*tile*2:
+        raise ValueError('Patch limits must accommodate at least one tile')
+    columns = min(extent//tile*tile, maximum//(tile*2)//tile*tile)
     result = []
     for (x, y, right, bottom), payload in regions:
         stride = (right-x)*2
-        rows = max(tile, (maximum//stride)//tile*tile)
-        for top in range(y, bottom, rows):
-            end = min(top+rows,bottom)
-            result.append(((x,top,right,end),payload[(top-y)*stride:(end-y)*stride]))
+        for left in range(x,right,columns):
+            edge = min(left+columns,right)
+            rows = min(extent//tile*tile, maximum//((edge-left)*2)//tile*tile)
+            for top in range(y,bottom,rows):
+                end = min(top+rows,bottom)
+                patch = b''.join(payload[(row-y)*stride+(left-x)*2:(row-y)*stride+(edge-x)*2] for row in range(top,end))
+                result.append(((left,top,edge,end),patch))
     return result
+
+
+def spatial_rank(x,y):
+    """Reversed Morton order spreads ties across the screen, not down rows."""
+    x,y = x//32,y//32
+    rank = 0
+    for bit in range(4):
+        rank = (rank<<1) | ((x>>bit)&1)
+        rank = (rank<<1) | ((y>>bit)&1)
+    return rank
 
 
 class DisplayBudget:
@@ -114,8 +130,15 @@ class DisplayBudget:
             if self.is_rim(x,y):
                 return (0,0,y,x)
             age = min(self.dirty_since[(left//4,top//4)] for top in range(y,bottom,4) for left in range(x,right,4))
-            return (1 if y>=416 else 2,age,y,x)
+            return (1 if y>=416 else 2,age,spatial_rank(x,y),y,x)
         return sorted(regions,key=rank)
+
+    def delivered(self,region):
+        """Only completed patches lose their age; unsent work keeps its turn."""
+        (x,y,right,bottom),_ = region
+        for top in range(y,bottom,4):
+            for left in range(x,right,4):
+                self.dirty_since.pop((left//4,top//4),None)
 
     def fits(self, region, remaining):
         return (len(region[1])+6)/self.bytes_per_second + .003 <= remaining
@@ -143,6 +166,7 @@ def transmit_regions(screen, regions, previous, deadline, budget=None, clock=tim
             screen.flush()
             budget.observe(len(payload)+6,clock()-patch_start)
             apply_region(shadow,region)
+            budget.delivered(region)
         delivered.append(region)
         if is_rim:
             rim_completed = clock()
@@ -284,9 +308,12 @@ def main():
                                          start_new_session=True, pass_fds=(write_fd,))
             os.close(write_fd)
             write_fd = None
+            # Cue playback decodes 480 RGB565 targets before its six-second
+            # live cadence check; 30s can expire during a healthy cold start.
+            startup_timeout = 60 if args.cues else 30
             with selectors.DefaultSelector() as events:
                 events.register(read_fd, selectors.EVENT_READ)
-                if not events.select(30) or os.read(read_fd, 128) != b'FIRST_FRAME_SENT':
+                if not events.select(startup_timeout) or os.read(read_fd, 128) != b'FIRST_FRAME_SENT':
                     child.terminate()
                     child.wait(timeout=30)
                     raise RuntimeError('Persistent face did not start; see ' + str(output_path))

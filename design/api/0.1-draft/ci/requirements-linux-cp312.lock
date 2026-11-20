@@ -8,3 +8,6 @@ jsonschema-specifications==2023.12.1 --hash=sha256:87e4fdf3a94858b8a2ba2778d9ba5
 referencing==0.36.2 --hash=sha256:e8699adbbf8b5c7de96d8ffa0eb5c158b3beafce084968e2ea8bb08c6794dcd0
 rpds-py==0.27.1 --hash=sha256:466bfe65bd932da36ff279ddd92de56b042f2266d752719beb97b08526268ec5
 typing-extensions==4.15.0 --hash=sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548
+# Display scheduler tests; Pillow hash is its cp312 manylinux x86_64 wheel.
+Pillow==12.1.1 --hash=sha256:7aac39bcf8d4770d089588a2e1dd111cbaa42df5a94be3114222057d68336bd0
+pyserial==3.5 --hash=sha256:c4451db6ba391ca6ca299fb3ec7bae67a5c55dde170964c7a14ceefec02f2cf0

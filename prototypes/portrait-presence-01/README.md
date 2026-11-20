@@ -72,22 +72,36 @@ the entire circumference. Face patches use the remaining time before the next 8H
 deadline, with a small margin and measured transfer-rate estimate. This is
 best-effort scheduling, not a guaranteed frame rate or hardware vsync.
 
-Each atomic rectangle is bounded to 5120 payload bytes, preserving 4px tile
-boundaries. The sender never interrupts an unfinished protocol rectangle.
+Each atomic rectangle is bounded to 32 pixels in both dimensions and at most
+5120 payload bytes, preserving 4px tile boundaries. With the default dimensions
+the maximum payload is 2048 bytes; a narrow rectangle can no longer stretch the
+height of the screen. The sender never interrupts an unfinished protocol rectangle.
 Only completed transfers update the host's shadow framebuffer. Each tick
 replans against that shadow and the newest target; deferred work is not a queue
 of stale animation frames. Dirty-age ordering prevents persistent face changes
-from losing out indefinitely to newer face changes. Initial display setup still
+from losing out indefinitely to newer face changes. A completed patch resets
+its tiles' age even if those tiles animate again at the next sample. Unsent tiles
+keep their age. Equal-age status/face patches use spatially dispersed ordering
+instead of a top-to-bottom sweep. This reduces a sender-generated update front;
+the protocol provides no known vsync or framebuffer flip, so it cannot guarantee
+tear-free panel scanout. Initial display setup still
 requires a full frame; the preceding exporters retain their original path.
 
 `check-display-budget.py` tests rim coverage and ordering, bounded patches,
 overload yielding, actual-frame shadow reconstruction, newest-target replanning
-and eventual background delivery. Its optional fixture argument exercises the
+and eventual background delivery, including continuously changing face tiles,
+two-dimensional patch bounds, nonuniform pixel reconstruction and dispersed
+equal-age updates. The deterministic checker also runs in offline CI using
+hash-locked Pillow and pyserial dependencies, without opening a device.
+Its optional fixture argument exercises the
 full animation with a deterministic simulated serial link; simulated timing is
 not physical display measurement. Real serial stalls can still interrupt motion,
 and brightness remains the requested 100% without temperature readback.
+The detached cue launcher allows 60 seconds for decoding its 480 frames and
+the six-second live cadence gate (30 seconds for the smaller face-only fixture).
+Failure still terminates the child and restores the existing dashboard.
 
-Current live checkpoint: priority-scheduled playback is running as PID 1601399,
+19 November baseline: priority-scheduled playback was running as PID 1601399,
 superseding PID 1549530 after graceful replacement. Log:
 `motion-chat-carousel/persistent-face-1795107068378325571.log` in the owning
 chat's visualization directory. Full and partial startup transfers passed.
@@ -103,6 +117,18 @@ real planning time). Arc coverage, old-trail coverage, shadow reconstruction,
 latest-target replanning and eventual background delivery tests passed. The
 existing 479 adjacent RGB565 reconstruction checks also passed. No fixture
 artwork, accepted archive, service configuration or real chat access was changed.
+
+20 November update: bounded/dispersed playback passed the same 480-target
+simulation with the same 129.41ms maximum simulated rim interval. The moving-face
+fairness regression fails on the preceding sender and passes on this revision.
+The revised live sender is PID 3301688 at requested 100% brightness; startup log
+`motion-chat-carousel/persistent-face-1795169645521643231.log` in the same owning
+visualization directory. Its six-second window recorded 49 partial updates
+(8.09/second), 23.52ms first-partial planning, 41.17ms write/flush and a 163.84ms
+maximum rim interval. This is not a demonstrated cadence improvement over the
+baseline; the change addresses patch shape, distribution and starvation.
+The first relaunch hit the old 30-second startup limit and restored the dashboard;
+the corrected bounded startup allowance passed. Visual acceptance remains Alex's.
 
 Assisted-by: Briar
 
