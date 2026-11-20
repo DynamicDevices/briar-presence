@@ -1,5 +1,6 @@
 // Live semantic 320x480 candidate. Never opens the display or consumes a tape.
 import {drawCanvas} from './canvas.mjs';
+import layout from './turmo-layout.json' with {type: 'json'};
 
 export function drawTurmo(ctx, frame) {
   if (frame?.ok !== true || ctx.canvas.width !== 320 || ctx.canvas.height !== 480) throw new TypeError('TURMO frame and 320x480 canvas required');
@@ -18,14 +19,14 @@ export function drawTurmo(ctx, frame) {
     ctx.strokeStyle = `rgb(${frame.ring.color.join(',')})`;
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.ellipse(160, 211, 148, 181, 0, frame.ring.angle, frame.ring.angle + Math.PI / 3);
+    ctx.ellipse(layout.centerX, layout.centerY, layout.radiusX, layout.radiusY, 0, frame.ring.angle, frame.ring.angle + Math.PI / 3);
     ctx.stroke();
     ctx.font = '12px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
     ctx.fillStyle = '#c7d9e6';
     ctx.fillText(`${frame.semantic.workCount} work · ${frame.semantic.concernCount} open concerns`, 12, 7, 296);
     ctx.font = '10px sans-serif';
     ctx.fillText(frame.ring.label, 12, 23, 296);
-    ctx.fillStyle = '#030912'; ctx.fillRect(0, 396, 320, 84);
+    ctx.fillStyle = '#030912'; ctx.fillRect(0, layout.statusTop, 320, 480 - layout.statusTop);
     for (const [i, row] of frame.rows.entries()) {
       const y = 401 + i * 39;
       ctx.fillStyle = row.concerns.length ? '#ffbc5f' : row.freshness === 'current' ? '#a1d7fa' : '#8898a6';
