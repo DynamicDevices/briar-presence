@@ -73,8 +73,8 @@ discontinuity, owner/source expiry and nonce-bound recovery. They include Canvas
 pixels, not just scene metadata. Clocks and the MQTT client are test-controlled;
 this is not cross-host authentication or a live broker test.
 
-Still required by API revision1: complete producer receipt correlation/recovery,
-independent local/remote producer interoperability through an authorised broker,
+Still required by API revision1: deployment policy/acceptance for producer restart
+and recovery, independent local/remote interoperability through an authorised broker,
 a nonblocking handoff to the
 physical TURMO scheduler, measured light-pipe timing under large updates, and
 reviewed display/layout acceptance. No live-source access or new broker launch

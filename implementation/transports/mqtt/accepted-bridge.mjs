@@ -3,6 +3,7 @@
 // Broker topic strings alone do not authenticate the original publisher.
 import {createOfflineMqttIngress} from '../../../design/api/0.1-draft/mqtt-offline.mjs';
 import {createViewPublisher} from './view-wire.mjs';
+import {receiptFor} from './receipt.mjs';
 
 const token = value => typeof value === 'string' && /^[A-Za-z0-9_-]+$/.test(value);
 const fail = code => ({ok: false, code, publications: []});
@@ -47,12 +48,16 @@ export function createAcceptedBridge({api, workspaceToken, userToken, producerBi
         } catch { return fail('SYNC_SCHEMA'); }
         return view(now, request.nonce, `${prefix}/out/sync/${userToken}/${syncTopics.get(topic)}`);
       }
+      const receiptTopic = `${prefix}/out/receipt/${userToken}/${inputTopics.get(topic)}`;
+      // Refuse a request before reducer mutation if even its accepted receipt
+      // cannot fit the configured wire capacity.
+      if (encodedLength(packet(receiptTopic,receiptFor(payload,{ok:true})).payload) > maxPayloadBytes)
+        return fail('RECEIPT_PAYLOAD_LIMIT');
       const result = ingress.deliver(topic, payload, retained, now);
       // A receipt reports only the bound producer's outcome; it never accepts
       // an arbitrary reply destination or echoes input data/errors/secrets.
-      const receipt = packet(`${prefix}/out/receipt/${userToken}/${inputTopics.get(topic)}`,
-        {kind: 'presence.receipt', version: '0.1-draft.1', accepted: result.ok === true,
-          duplicate: result.duplicate === true, code: result.ok ? 'ACCEPTED' : result.code});
+      const receipt = packet(receiptTopic,receiptFor(payload,result));
+      if (encodedLength(receipt.payload) > maxPayloadBytes) return fail('RECEIPT_PAYLOAD_LIMIT');
       const published = result.ok && !result.duplicate ? view(now) : {ok: true, publications: []};
       if (!published.ok) return {...published, accepted: result.ok, publications: [receipt]};
       return {ok: result.ok, ...(result.code ? {code: result.code} : {}), publications: [...published.publications, receipt]};

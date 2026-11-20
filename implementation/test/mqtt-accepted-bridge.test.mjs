@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createAcceptedBridge} from '../transports/mqtt/accepted-bridge.mjs';
 import {createViewReceiver} from '../transports/mqtt/view-wire.mjs';
+import {receiptFor} from '../transports/mqtt/receipt.mjs';
 import {projectAcceptedView} from '../api/presentation.mjs';
 import {validateView, validateSync} from './helpers/mqtt-validation.mjs';
 import {host, snapshot, work, concern, severity, epochMs} from './helpers/embedded-fixtures.mjs';
@@ -38,7 +39,7 @@ test('duplicate input gives a fixed receipt but does not publish or renew the so
   const first = views(submit(bridge.topics.inputs[0], payload()))[0];
   const retry = submit(bridge.topics.inputs[0], payload(), 500);
   assert.equal(retry.ok, true); assert.equal(views(retry).length, 0);
-  assert.deepEqual(JSON.parse(retry.publications[0].payload), {kind: 'presence.receipt', version: '0.1-draft.1', accepted: true, duplicate: true, code: 'ACCEPTED'});
+  assert.deepEqual(JSON.parse(retry.publications[0].payload), receiptFor(JSON.stringify(payload()),{ok:true,duplicate:true}));
   assert.equal(retry.publications[0].topic, 'briar-presence/v0.1/workspace-demo/out/receipt/alex-demo/demo');
   const heartbeat = views(bridge.tick(501))[0];
   assert.deepEqual(heartbeat.sources, first.sources);

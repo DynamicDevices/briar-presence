@@ -20,6 +20,9 @@ They require an already authenticated, explicitly configured host client.
   sessions, zero session expiry, explicit reconnect ownership and disabled
   offline/resubscribe queues. Host-provided payload/in-flight limits are checked;
   MQTT5 negative PUBACKs, failed subscriptions and disconnects are not success.
+- `receipt.mjs` binds application results to the exact producer snapshot bytes.
+  The [producer/recovery contract](PRODUCER.md) describes the `.2` receipt format,
+  accepted cache, explicit retry, session fencing and fresh restart admission.
 - `display-handoff.mjs` supports the existing portable presentation plans.
 - `turmo-host.mjs` reuses the same receiver/subscriptions for the new locally
   animated TURMO scene. It does not transmit light geometry over MQTT.
@@ -52,11 +55,10 @@ producer ports, receivers and actual TURMO pixels. MQTT EventEmitter doubles
 exercise callback contracts, backpressure, negative PUBACKs and reconnect—not
 TCP, a broker, TLS, ACLs or independently running remote producers.
 
-The producer callback currently reports a fixed-route application receipt status
-without session/revision/digest correlation. Do not use that uncorrelated status
-to advance a producer's accepted cache. A complete producer SDK still needs
-correlation, ambiguous-delivery reconciliation, fencing and explicit restart
-policy. Outbound view capacity failure can follow reducer acceptance; the bridge
+Producer acceptance now requires a matching correlated application receipt, not
+a PUBACK. The in-memory adapter retains pending bytes on ambiguous delivery and
+requires explicit host re-admission for fenced/stale/conflicting sessions. This
+does not implement durable receipt/cache storage. Outbound view capacity failure can follow reducer acceptance; the bridge
 reports that separately and still emits the producer's accepted receipt. This
 does not establish atomic end-to-end delivery to every subscriber.
 

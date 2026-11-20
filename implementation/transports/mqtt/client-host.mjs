@@ -1,6 +1,8 @@
 // MQTT.js callback attachment. No connection initiation or timers; stop detaches listeners.
 // TLS identity and broker ACLs remain an independently verified host obligation.
 // Topic names do not authenticate publishers; these adapters cannot prove ACLs.
+import {jsonData} from '../../core/state.mjs';
+import {requestIdentity,parseReceipt,sameRequest} from './receipt.mjs';
 const token = x => typeof x === 'string' && /^[A-Za-z0-9_-]+$/.test(x);
 const positive = x => Number.isSafeInteger(x) && x > 0;
 const failure = code => ({ok: false, code});
@@ -173,36 +175,65 @@ export function attachDisplayClient({client, receiver, handoff, workspaceToken, 
 }
 
 export function attachProducerClient({client, workspaceToken, userToken, producerToken,
-  makeSnapshot, validateInput, maxPayloadBytes, maxInFlight, onStatus}) {
+  admittedSession, makeSnapshot, validateInput, maxPayloadBytes, maxInFlight, onStatus}) {
   if (![workspaceToken, userToken, producerToken].every(token) ||
+      typeof admittedSession !== 'string' || !admittedSession.trim() ||
       typeof makeSnapshot !== 'function' || typeof validateInput !== 'function')
     throw new TypeError('Fixed producer binding and complete snapshot validator required');
   const prefix = `briar-presence/v0.1/${workspaceToken}`;
   const receiptTopic = `${prefix}/out/receipt/${userToken}/${producerToken}`;
+  let pending = null, acceptedRevision = 0, acceptedSnapshot = null, lastResult = null, rebindRequired = false;
+  const copy = x => structuredClone(x);
   const session = attachSession({client, topics: [receiptTopic], maxPayloadBytes, maxInFlight, onStatus,
-    onReady() {}, onLost() {}, onMessage(_topic, text, retained) {
-      let receipt;
-      try { receipt = JSON.parse(text); } catch { onStatus({code: 'RECEIPT_INVALID'}); return; }
-      const fields = ['kind', 'version', 'accepted', 'duplicate', 'code'];
-      if (retained || !receipt || Object.keys(receipt).length !== fields.length || !fields.every(k => Object.hasOwn(receipt, k)) ||
-          receipt.kind !== 'presence.receipt' || receipt.version !== '0.1-draft.1' || typeof receipt.accepted !== 'boolean' ||
-          typeof receipt.duplicate !== 'boolean' || typeof receipt.code !== 'string' ||
-          (receipt.accepted !== (receipt.code === 'ACCEPTED')) || (receipt.duplicate && !receipt.accepted)) {
-        onStatus({code: 'RECEIPT_INVALID'}); return;
-      }
+    onReady() {}, onLost() { if (pending) pending.uncertain = true; }, onMessage(_topic, text, retained) {
+      const receipt = retained ? null : parseReceipt(text);
+      if (!receipt) { onStatus({code:'RECEIPT_INVALID'}); return; }
+      if (!pending || !sameRequest(pending.request,receipt.request)) { onStatus({code:'RECEIPT_UNMATCHED'}); return; }
       // A PUBACK is not reducer acceptance. Only a fixed-route reducer receipt
       // reports that outcome; neither is a user acknowledgement or resolution.
+      lastResult = receipt;
+      if (receipt.accepted) {
+        acceptedRevision = pending.snapshot.revision;
+        acceptedSnapshot = pending.snapshot;
+        pending = null;
+      } else if (['SCOPE_OR_SESSION','STALE_REVISION','REVISION_CONFLICT'].includes(receipt.code)) {
+        rebindRequired = true; pending.uncertain = true;
+      } else pending = null;
       onStatus({code: receipt.accepted ? 'PRODUCER_ACCEPTED' : 'PRODUCER_REJECTED'});
     }});
+  function send() {
+    const result = session.publish([{topic:`${prefix}/in/producer/${producerToken}/snapshot`,
+      payload:pending.payload,qos:1,retain:false}]);
+    if (!result.ok && pending) pending.uncertain = true;
+    return result;
+  }
   return Object.freeze({
     tick() {
+      if (rebindRequired) return failure('PRODUCER_REBIND_REQUIRED');
+      if (pending) return failure('PRODUCER_AWAITING_RECEIPT');
       if (session.available() < 1) return failure('CLIENT_NOT_READY');
       let snapshot;
-      try { snapshot = makeSnapshot(); if (validateInput(snapshot)?.valid !== true) return failure('PRODUCER_SCHEMA'); }
+      try {
+        snapshot = makeSnapshot();
+        if (!jsonData(snapshot) || validateInput(snapshot)?.valid !== true) return failure('PRODUCER_SCHEMA');
+        snapshot = copy(snapshot);
+      }
       catch { return failure('PRODUCER_SCHEMA'); }
-      return session.publish([{topic: `${prefix}/in/producer/${producerToken}/snapshot`,
-        payload: JSON.stringify(snapshot), qos: 1, retain: false}]);
+      if (snapshot.session !== admittedSession) return failure('PRODUCER_SESSION');
+      const payload = JSON.stringify(snapshot), request = requestIdentity(payload);
+      if (!request || request.revision <= acceptedRevision) return failure('PRODUCER_REVISION');
+      if (Buffer.byteLength(payload) > maxPayloadBytes) return failure('INPUT_PAYLOAD_LIMIT');
+      pending = {snapshot,payload,request,uncertain:false};
+      return send();
     },
+    retry() {
+      if (rebindRequired) return failure('PRODUCER_REBIND_REQUIRED');
+      if (!pending) return failure('PRODUCER_NO_PENDING');
+      if (session.available() < 1) return failure('CLIENT_NOT_READY');
+      return send(); // Exact saved bytes only, never re-read a moving source.
+    },
+    read() { return copy({acceptedRevision,acceptedSnapshot,pending:pending && {
+      snapshot:pending.snapshot,request:pending.request,uncertain:pending.uncertain},lastResult,rebindRequired}); },
     stop: session.stop
   });
 }
