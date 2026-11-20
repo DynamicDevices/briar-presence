@@ -24,10 +24,11 @@ function dimOwner(view) {
 }
 
 export function createTurmoProjection({userId, workspaceId, userLabel, producerLabels,
-  readAccepted, ownerCurrent, seed, transitionMs, carouselMs, maxAnimationStepMs, speeds}) {
+  readAccepted, readLastKnown, ownerCurrent, seed, transitionMs, carouselMs, maxAnimationStepMs, speeds}) {
   if (![userId, workspaceId, userLabel].every(text) || !jsonData(producerLabels) ||
       !producerLabels || Array.isArray(producerLabels) || !Object.values(producerLabels).every(text) ||
       typeof readAccepted !== 'function' || typeof ownerCurrent !== 'function' ||
+      (readLastKnown !== undefined && typeof readLastKnown !== 'function') ||
       !Number.isFinite(transitionMs) || transitionMs <= 0 || !Number.isFinite(carouselMs) || carouselMs <= 0 ||
       !Number.isFinite(maxAnimationStepMs) || maxAnimationStepMs <= 0 ||
       !jsonData(speeds) || !speeds || !['idle', 'working', 'waiting', 'attention', 'unknown'].every(k =>
@@ -102,8 +103,8 @@ export function createTurmoProjection({userId, workspaceId, userLabel, producerL
       const connected = ownerCurrent(now);
       if (typeof connected !== 'boolean') return {ok: false, code: 'OWNER_STATUS'};
       let nextAccepted = accepted;
-      if (connected) {
-        const candidate = readAccepted(now);
+      if (connected || readLastKnown) {
+        const candidate = (connected ? readAccepted : readLastKnown)(now);
         if (!jsonData(candidate) || candidate?.ok !== true || candidate.userId !== userId || candidate.workspaceId !== workspaceId ||
             !Array.isArray(candidate.producers) || candidate.producers.some(p => !p || !labels.has(p.id) ||
               !['active', 'expired', 'unknown'].includes(p.lease) ||
@@ -112,7 +113,7 @@ export function createTurmoProjection({userId, workspaceId, userLabel, producerL
         nextAccepted = copy(candidate);
       }
       let semantic;
-      try { semantic = facts(connected ? nextAccepted : dimOwner(accepted)); }
+      try { semantic = facts(connected ? nextAccepted : dimOwner(nextAccepted)); }
       catch { return {ok: false, code: 'ACCEPTED_VIEW'}; }
       accepted = nextAccepted;
       const dt = lastTime === null ? 0 : now - lastTime;

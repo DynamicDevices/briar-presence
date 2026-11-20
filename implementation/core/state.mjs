@@ -214,6 +214,20 @@ export function createStateHandler({userId, workspaceId, validate, policy}) {
     return {ageMs, freshness: p.leaseUntil !== null && now < p.leaseUntil && ageMs < policy.observationTtlMs ? 'current' : 'stale'};
   }
   return Object.freeze({
+    // Scoped transport metadata. Reads do not renew a producer's lease.
+    exportTiming(context, now) {
+      if (!userContext(context)) return error('SCOPE_OR_ACTOR');
+      const representable = at => at === null || (Number.isFinite(at) && Math.abs(policy.epochMs + at) <= 8640000000000000);
+      // A finite JS clock can still be outside the ISO date range. Refuse
+      // before advancing the clock or calling toISOString(), never throw.
+      if (!Number.isFinite(now) || !representable(now) ||
+          state.producers.some(p => !representable(p.receivedAt) || !representable(p.leaseUntil))) return error('CLOCK');
+      if (!clock(now)) return error('CLOCK');
+      const stamp = at => at === null ? null : new Date(policy.epochMs + at).toISOString();
+      return {ok: true, generatedAt: stamp(now), observationTtlMs: policy.observationTtlMs,
+        sources: state.producers.map(p => ({producerId: p.id, generation: p.generation,
+          revision: p.revision, lastReceivedAt: stamp(p.receivedAt), leaseValidUntil: stamp(p.leaseUntil)}))};
+    },
     // Trusted host admission, not a producer-accessible wire operation.
     admitProducer({producerId, session, generation, leaseMs}, now) {
       if (!text(producerId) || !text(session) || !integer(generation) || !Number.isFinite(leaseMs) || leaseMs <= 0) return error('ADMISSION');

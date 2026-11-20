@@ -29,6 +29,14 @@ export function createEmbeddedPresence({userId, workspaceId, validate, policy, p
     },
     user: Object.freeze({
       read: now => handler.read(user, now),
+      // A bridge flushes once; each display presents independently afterwards.
+      flushAnnouncements: now => handler.flush(user, now),
+      exportAccepted(now) {
+        const timing = handler.exportTiming(user, now);
+        if (!timing.ok) return timing;
+        const view = handler.read(user, now);
+        return view.ok ? {...timing, view} : view;
+      },
       focus: (message, now) => wrongKind(message, 'user.focus') ?? handler.receive(message, user, now),
       acknowledge(message, now) {
         const invalid = wrongKind(message, 'user.acknowledge');

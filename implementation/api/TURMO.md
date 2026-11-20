@@ -18,6 +18,9 @@ owner deadline, clock uncertainty and authenticated resynchronisation state when
 used remotely. A payload's identity labels or fresh socket are not that proof.
 Do not feed arbitrary producer or MQTT JSON directly to this adapter. Producer
 admission and full schema/semantic validation remain with the existing state owner.
+An optional trusted `readLastKnown(now)` supplies retained accepted facts while
+the owner is unknown, including before the first renderer sample. Such facts
+are always dimmed/marked unknown; this callback cannot make an owner current.
 
 The display samples `frame({now, preferences})` on its own monotonic clock. Local
 preferences require brightness 0–1 and boolean reducedMotion/attentionEnabled.
@@ -41,15 +44,38 @@ labels the neutral decorative bar. Reduced motion freezes movement. The explicit
 animation-step policy discards missed animation time after a pause; it does not
 change source deadlines, timestamps or acceptance revisions.
 
+## Accepted-view receiver integration
+
+`createReceivedTurmo()` in `turmo-received.mjs` binds the existing scoped
+accepted-view receiver to this projection. Supply the same explicit display
+policy plus `receiver`, then sample
+`frame({wallNow, monotonicNow, preferences})`. Wall time is UTC milliseconds;
+monotonic time is the display's own elapsed milliseconds. The receiver checks
+clock uncertainty, original observation/source deadlines, owner expiry and
+nonce-bound bootstrap on each sample. Invalid preferences/backwards local time
+are refused before consuming a receiver read. Disconnects retain unresolved
+concerns and last-known work, even before the first visual sample.
+
+`attachTurmoDisplayClient()` in `../transports/mqtt/turmo-host.mjs` reuses the
+existing MQTT5 display subscription/sync lifecycle rather than inventing a
+second wire format. Its `onFrame` sink gets a real local scene; `sample()` checks
+expiry and advances animation without publishing any geometry or renewing a
+lease. The host owns sampling cadence, authenticated client and shutdown.
+
 ## Proven and still missing
 
 Tests use the real embedded owner, full input-schema oracle, independent admitted
 producer ports and optional real Canvas pixels. This establishes in-process
-semantics and rendering, not cross-host authentication or clock behaviour.
+semantics and rendering. Tests now also use the real accepted-view schema,
+publisher/receiver and MQTT callback attachments, with ten scoped tasks from two
+admitted producers, independent display preferences, local animation, clock
+discontinuity, owner/source expiry and nonce-bound recovery. They include Canvas
+pixels, not just scene metadata. Clocks and the MQTT client are test-controlled;
+this is not cross-host authentication or a live broker test.
 
-Still required by API revision1: integration with the existing MQTT5 work in the
-primary checkout, accepted-wire expiry/bootstrap and remote-clock handling,
-independent local/remote producer interoperability, a nonblocking handoff to the
+Still required by API revision1: complete producer receipt correlation/recovery,
+independent local/remote producer interoperability through an authorised broker,
+a nonblocking handoff to the
 physical TURMO scheduler, measured light-pipe timing under large updates, and
 reviewed display/layout acceptance. No live-source access or new broker launch
 is authorised or implemented by this candidate.
